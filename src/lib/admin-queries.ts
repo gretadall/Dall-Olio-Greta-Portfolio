@@ -1,0 +1,89 @@
+import { createClient } from "@/lib/supabase/server";
+
+export async function getAllSections() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("sections")
+    .select("*")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getSectionById(id: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("sections")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getAllEntries(sectionId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("entries")
+    .select("*")
+    .eq("section_id", sectionId)
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getEntryById(id: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("entries")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getAllComments() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("comments")
+    .select(
+      "*, profiles(display_name, email), entries(title, slug, sections(slug))"
+    )
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getFollowers() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("follows")
+    .select("*, profiles(display_name, email, avatar_url)")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getDashboardCounts() {
+  const supabase = await createClient();
+  const [sections, entries, comments, followers] = await Promise.all([
+    supabase.from("sections").select("*", { count: "exact", head: true }),
+    supabase.from("entries").select("*", { count: "exact", head: true }),
+    supabase.from("comments").select("*", { count: "exact", head: true }),
+    supabase.from("follows").select("*", { count: "exact", head: true }),
+  ]);
+
+  return {
+    sections: sections.count ?? 0,
+    entries: entries.count ?? 0,
+    comments: comments.count ?? 0,
+    followers: followers.count ?? 0,
+  };
+}
