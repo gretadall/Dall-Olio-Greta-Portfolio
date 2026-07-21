@@ -4,15 +4,10 @@ import Image from "next/image";
 import {
   getSectionBySlug,
   getEntryBySlug,
-  getEntryLikeState,
-  getEntryComments,
   getEntryConnections,
   getEntryMedia,
 } from "@/lib/queries";
 import { getMediaUrl } from "@/lib/supabase/media";
-import { LikeButton } from "@/components/LikeButton";
-import { CommentList } from "@/components/CommentList";
-import { CommentForm } from "@/components/CommentForm";
 import { ConnectionsList } from "@/components/ConnectionsList";
 
 function formatPeriod(periodStart: string | null, periodEnd: string | null) {
@@ -36,9 +31,7 @@ export default async function EntryPage({
 
   if (!entry) notFound();
 
-  const [likeState, comments, connections, media] = await Promise.all([
-    getEntryLikeState(entry.id),
-    getEntryComments(entry.id),
+  const [connections, media] = await Promise.all([
     getEntryConnections(entry.id),
     getEntryMedia(entry.id),
   ]);
@@ -90,46 +83,10 @@ export default async function EntryPage({
         </div>
       )}
 
-      <div className="mt-8">
-        <LikeButton
-          entryId={entry.id}
-          sectionSlug={section.slug}
-          entrySlug={entry.slug}
-          initialLiked={likeState.liked}
-          initialCount={likeState.count}
-          isAuthenticated={likeState.isAuthenticated}
-        />
-      </div>
-
       <ConnectionsList
         outgoing={connections.outgoing}
         incoming={connections.incoming}
       />
-
-      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
-        <h2 className="text-lg font-semibold tracking-tight">Commenti</h2>
-
-        <div className="mt-4">
-          {likeState.isAuthenticated ? (
-            <CommentForm
-              entryId={entry.id}
-              sectionSlug={section.slug}
-              entrySlug={entry.slug}
-            />
-          ) : (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              <Link href="/login" className="underline">
-                Accedi
-              </Link>{" "}
-              per lasciare un commento.
-            </p>
-          )}
-        </div>
-
-        <div className="mt-6">
-          <CommentList comments={comments} />
-        </div>
-      </div>
     </div>
   );
 }

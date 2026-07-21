@@ -1,23 +1,12 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/(auth)/actions";
-import { FollowButton } from "@/components/FollowButton";
 
 export async function Nav({ siteTitle }: { siteTitle: string }) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  let isFollowing = false;
-  if (user) {
-    const { data } = await supabase
-      .from("follows")
-      .select("user_id")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    isFollowing = !!data;
-  }
 
   return (
     <header className="border-b border-black/[.08] dark:border-white/[.145]">
@@ -35,25 +24,15 @@ export async function Nav({ siteTitle }: { siteTitle: string }) {
           >
             Rete
           </Link>
-          {user ? (
-            <>
-              <FollowButton initialFollowing={isFollowing} />
-              <form action={signOut}>
-                <button
-                  type="submit"
-                  className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-                >
-                  Esci
-                </button>
-              </form>
-            </>
-          ) : (
-            <Link
-              href="/login"
-              className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-            >
-              Accedi
-            </Link>
+          {user && (
+            <form action={signOut}>
+              <button
+                type="submit"
+                className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              >
+                Esci
+              </button>
+            </form>
           )}
         </div>
       </div>

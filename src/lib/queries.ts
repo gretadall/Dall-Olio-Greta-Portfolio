@@ -64,45 +64,6 @@ export async function getEntryBySlug(sectionId: string, entrySlug: string) {
   return data;
 }
 
-export async function getEntryLikeState(entryId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { count, error: countError } = await supabase
-    .from("likes")
-    .select("*", { count: "exact", head: true })
-    .eq("entry_id", entryId);
-
-  if (countError) throw countError;
-
-  let liked = false;
-  if (user) {
-    const { data } = await supabase
-      .from("likes")
-      .select("user_id")
-      .eq("entry_id", entryId)
-      .eq("user_id", user.id)
-      .maybeSingle();
-    liked = !!data;
-  }
-
-  return { count: count ?? 0, liked, isAuthenticated: !!user };
-}
-
-export async function getEntryComments(entryId: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("comments")
-    .select("*, profiles(display_name, avatar_url)")
-    .eq("entry_id", entryId)
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return data;
-}
-
 export async function getEntryMedia(entryId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
