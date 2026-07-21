@@ -11,7 +11,7 @@ export default async function AdminSectionsPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Sezioni</h1>
         <Link
           href="/admin/sections/new"
-          className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white"
         >
           Nuova sezione
         </Link>

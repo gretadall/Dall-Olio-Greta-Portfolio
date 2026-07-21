@@ -1,4 +1,4 @@
-export const RESERVED_SLUGS = ["admin", "login", "auth", "api"];
+export const RESERVED_SLUGS = ["admin", "login", "auth", "api", "rete"];
 
 const COMBINING_MARKS = /[̀-ͯ]/g;
 

@@ -1,0 +1,100 @@
+"use client";
+
+import { useActionState } from "react";
+import type { Database } from "@/lib/supabase/types";
+import { updateSiteSettings } from "@/app/admin/settings/actions";
+
+type Settings = Database["public"]["Tables"]["site_settings"]["Row"];
+
+const FONT_OPTIONS = [
+  { value: "geist", label: "Geist (predefinito)" },
+  { value: "inter", label: "Inter" },
+  { value: "playfair", label: "Playfair Display" },
+  { value: "space-mono", label: "Space Mono" },
+];
+
+export function SettingsForm({ settings }: { settings: Settings }) {
+  const [state, formAction, pending] = useActionState(
+    updateSiteSettings,
+    undefined
+  );
+
+  return (
+    <form action={formAction} className="mt-6 flex flex-col gap-4 max-w-md">
+      <label className="flex flex-col gap-1 text-sm">
+        Titolo del sito
+        <input
+          name="site_title"
+          required
+          defaultValue={settings.site_title}
+          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Il tuo nome (mostrato in home: &quot;Ciao, sono ___&quot;)
+        <input
+          name="owner_name"
+          defaultValue={settings.owner_name ?? ""}
+          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Tagline (sottotitolo in home)
+        <textarea
+          name="tagline"
+          rows={2}
+          defaultValue={settings.tagline ?? ""}
+          className="resize-none rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        />
+      </label>
+
+      <div className="flex gap-4">
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Colore primario
+          <input
+            type="color"
+            name="primary_color"
+            defaultValue={settings.primary_color}
+            className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
+          />
+        </label>
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Colore accento
+          <input
+            type="color"
+            name="accent_color"
+            defaultValue={settings.accent_color}
+            className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
+          />
+        </label>
+      </div>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Font
+        <select
+          name="font_choice"
+          defaultValue={settings.font_choice}
+          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        >
+          {FONT_OPTIONS.map((font) => (
+            <option key={font.value} value={font.value}>
+              {font.label}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+
+      <button
+        type="submit"
+        disabled={pending}
+        className="self-start rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+      >
+        {pending ? "Salvataggio…" : "Salva impostazioni"}
+      </button>
+    </form>
+  );
+}

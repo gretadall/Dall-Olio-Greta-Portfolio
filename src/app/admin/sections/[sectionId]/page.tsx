@@ -42,7 +42,7 @@ export default async function EditSectionPage({
           <h2 className="text-lg font-semibold tracking-tight">Contenuti</h2>
           <Link
             href={`/admin/sections/${sectionId}/entries/new`}
-            className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white"
           >
             Nuovo contenuto
           </Link>

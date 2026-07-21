@@ -106,7 +106,7 @@ export function EntryForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+        className="self-start rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
         {pending ? "Salvataggio…" : submitLabel}
       </button>

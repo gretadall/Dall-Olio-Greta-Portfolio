@@ -15,6 +15,9 @@ export function AdminNav() {
       <Link href="/admin/subscribers" className="hover:underline">
         Iscritti
       </Link>
+      <Link href="/admin/settings" className="hover:underline">
+        Impostazioni
+      </Link>
     </nav>
   );
 }

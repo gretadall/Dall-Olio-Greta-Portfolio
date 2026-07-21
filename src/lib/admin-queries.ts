@@ -71,6 +71,31 @@ export async function getFollowers() {
   return data;
 }
 
+export async function getAllEntriesFlat() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("entries")
+    .select("id, title, section_id, sections(title)")
+    .order("title", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getEntryOutgoingConnections(entryId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("connections")
+    .select(
+      "id, label, to_entry:entries!connections_to_entry_id_fkey(title, sections(title))"
+    )
+    .eq("from_entry_id", entryId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
 export async function getDashboardCounts() {
   const supabase = await createClient();
   const [sections, entries, comments, followers] = await Promise.all([

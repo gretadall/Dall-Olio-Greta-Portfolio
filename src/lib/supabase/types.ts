@@ -175,6 +175,55 @@ export type Database = {
           },
         ];
       };
+      connections: {
+        Row: {
+          id: string;
+          from_entry_id: string;
+          to_entry_id: string;
+          label: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["connections"]["Row"]> & {
+          from_entry_id: string;
+          to_entry_id: string;
+          label: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["connections"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "connections_from_entry_id_fkey";
+            columns: ["from_entry_id"];
+            isOneToOne: false;
+            referencedRelation: "entries";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "connections_to_entry_id_fkey";
+            columns: ["to_entry_id"];
+            isOneToOne: false;
+            referencedRelation: "entries";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      site_settings: {
+        Row: {
+          id: boolean;
+          site_title: string;
+          tagline: string | null;
+          owner_name: string | null;
+          hero_photo_path: string | null;
+          primary_color: string;
+          accent_color: string;
+          font_choice: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]> & {
+          id: boolean;
+        };
+        Update: Partial<Database["public"]["Tables"]["site_settings"]["Row"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

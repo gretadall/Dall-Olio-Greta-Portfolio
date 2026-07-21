@@ -1,14 +1,19 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   getSectionBySlug,
   getEntryBySlug,
   getEntryLikeState,
   getEntryComments,
+  getEntryConnections,
+  getEntryMedia,
 } from "@/lib/queries";
+import { getMediaUrl } from "@/lib/supabase/media";
 import { LikeButton } from "@/components/LikeButton";
 import { CommentList } from "@/components/CommentList";
 import { CommentForm } from "@/components/CommentForm";
+import { ConnectionsList } from "@/components/ConnectionsList";
 
 function formatPeriod(periodStart: string | null, periodEnd: string | null) {
   if (!periodStart) return null;
@@ -31,9 +36,11 @@ export default async function EntryPage({
 
   if (!entry) notFound();
 
-  const [likeState, comments] = await Promise.all([
+  const [likeState, comments, connections, media] = await Promise.all([
     getEntryLikeState(entry.id),
     getEntryComments(entry.id),
+    getEntryConnections(entry.id),
+    getEntryMedia(entry.id),
   ]);
 
   const period = formatPeriod(entry.period_start, entry.period_end);
@@ -68,6 +75,21 @@ export default async function EntryPage({
         </div>
       )}
 
+      {media.length > 0 && (
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {media.map((photo) => (
+            <Image
+              key={photo.id}
+              src={getMediaUrl(photo.storage_path)}
+              alt={photo.alt_text ?? entry.title}
+              width={300}
+              height={300}
+              className="aspect-square rounded-lg object-cover"
+            />
+          ))}
+        </div>
+      )}
+
       <div className="mt-8">
         <LikeButton
           entryId={entry.id}
@@ -78,6 +100,11 @@ export default async function EntryPage({
           isAuthenticated={likeState.isAuthenticated}
         />
       </div>
+
+      <ConnectionsList
+        outgoing={connections.outgoing}
+        incoming={connections.incoming}
+      />
 
       <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
         <h2 className="text-lg font-semibold tracking-tight">Commenti</h2>

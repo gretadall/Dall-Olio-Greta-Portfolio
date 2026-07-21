@@ -33,7 +33,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-60"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
           >
             {pending ? "Invio…" : "Invia il link di accesso"}
           </button>
