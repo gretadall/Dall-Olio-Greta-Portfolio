@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slug";
+import { sanitizeEntryBody } from "@/lib/sanitize";
 
 type FormState = { error?: string } | undefined;
 
@@ -42,22 +43,26 @@ export async function createEntry(
   if (!slug) return { error: "Slug non valido." };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("entries").insert({
-    section_id: sectionId,
-    title,
-    slug,
-    description: description || null,
-    body: body || null,
-    location: location || null,
-    period_start: periodStart || null,
-    period_end: periodEnd || null,
-    is_published: isPublished,
-  });
+  const { data, error } = await supabase
+    .from("entries")
+    .insert({
+      section_id: sectionId,
+      title,
+      slug,
+      description: description || null,
+      body: body ? sanitizeEntryBody(body) : null,
+      location: location || null,
+      period_start: periodStart || null,
+      period_end: periodEnd || null,
+      is_published: isPublished,
+    })
+    .select("id")
+    .single();
 
-  if (error) {
+  if (error || !data) {
     return {
       error:
-        error.code === "23505"
+        error?.code === "23505"
           ? "Esiste già un contenuto con questo slug in questa sezione."
           : "Errore durante la creazione.",
     };
@@ -65,7 +70,7 @@ export async function createEntry(
 
   revalidatePath(`/admin/sections/${sectionId}`);
   revalidatePath("/");
-  redirect(`/admin/sections/${sectionId}`);
+  redirect(`/admin/sections/${sectionId}/entries/${data.id}`);
 }
 
 export async function updateEntry(
@@ -87,7 +92,7 @@ export async function updateEntry(
       title,
       slug,
       description: description || null,
-      body: body || null,
+      body: body ? sanitizeEntryBody(body) : null,
       location: location || null,
       period_start: periodStart || null,
       period_end: periodEnd || null,

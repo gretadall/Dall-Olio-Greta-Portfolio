@@ -12,17 +12,18 @@ function readSectionForm(formData: FormData) {
   const slugInput = String(formData.get("slug") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const icon = String(formData.get("icon") ?? "").trim();
+  const color = String(formData.get("color") ?? "").trim();
   const isPublished = formData.get("is_published") === "on";
   const slug = slugify(slugInput || title);
 
-  return { title, slug, description, icon, isPublished };
+  return { title, slug, description, icon, color, isPublished };
 }
 
 export async function createSection(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const { title, slug, description, icon, isPublished } =
+  const { title, slug, description, icon, color, isPublished } =
     readSectionForm(formData);
 
   if (!title) return { error: "Il titolo è obbligatorio." };
@@ -37,6 +38,7 @@ export async function createSection(
     slug,
     description: description || null,
     icon: icon || null,
+    color: color || null,
     is_published: isPublished,
   });
 
@@ -59,7 +61,7 @@ export async function updateSection(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const { title, slug, description, icon, isPublished } =
+  const { title, slug, description, icon, color, isPublished } =
     readSectionForm(formData);
 
   if (!title) return { error: "Il titolo è obbligatorio." };
@@ -76,6 +78,7 @@ export async function updateSection(
       slug,
       description: description || null,
       icon: icon || null,
+      color: color || null,
       is_published: isPublished,
       updated_at: new Date().toISOString(),
     })

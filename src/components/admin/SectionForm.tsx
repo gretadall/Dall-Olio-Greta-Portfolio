@@ -54,6 +54,16 @@ export function SectionForm({
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
+        Colore nel grafo (Rete)
+        <input
+          type="color"
+          name="color"
+          defaultValue={section?.color ?? "#888888"}
+          className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
         Descrizione
         <textarea
           name="description"

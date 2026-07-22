@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import type { Database } from "@/lib/supabase/types";
+import { RichBodyEditor } from "@/components/admin/RichBodyEditor";
 
 type Entry = Database["public"]["Tables"]["entries"]["Row"];
 type FormState = { error?: string } | undefined;
@@ -84,12 +85,21 @@ export function EntryForm({
 
       <label className="flex flex-col gap-1 text-sm">
         Testo completo
-        <textarea
-          name="body"
-          rows={6}
-          defaultValue={entry?.body ?? ""}
-          className="resize-none rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
-        />
+        {entry ? (
+          <RichBodyEditor entryId={entry.id} initialContent={entry.body ?? ""} />
+        ) : (
+          <>
+            <textarea
+              name="body"
+              rows={6}
+              className="resize-none rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+            />
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              Dopo aver creato il contenuto potrai formattarlo con l&apos;editor
+              completo e aggiungere foto/video direttamente nel testo.
+            </span>
+          </>
+        )}
       </label>
 
       <label className="flex items-center gap-2 text-sm">

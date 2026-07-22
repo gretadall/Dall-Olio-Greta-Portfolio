@@ -107,7 +107,7 @@ export async function getPublicGraphData() {
     supabase.from("sections").select("*").eq("is_published", true),
     supabase
       .from("entries")
-      .select("id, title, slug, section_id")
+      .select("id, title, slug, section_id, graph_x, graph_y")
       .eq("is_published", true),
     supabase.from("connections").select("id, from_entry_id, to_entry_id, label"),
   ]);

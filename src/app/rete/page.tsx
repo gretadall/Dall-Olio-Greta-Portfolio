@@ -1,38 +1,12 @@
 import { getPublicGraphData } from "@/lib/queries";
 import { NetworkGraph } from "@/components/graph/NetworkGraph";
-
-const PALETTE = [
-  "#f97316",
-  "#3b82f6",
-  "#22c55e",
-  "#a855f7",
-  "#ef4444",
-  "#eab308",
-  "#06b6d4",
-  "#ec4899",
-];
+import { buildGraphNodes, buildGraphLinks } from "@/lib/graph";
 
 export default async function RetePage() {
   const { sections, entries, connections } = await getPublicGraphData();
 
-  const sectionColor = new Map(
-    sections.map((s, i) => [s.id, PALETTE[i % PALETTE.length]])
-  );
-  const sectionSlug = new Map(sections.map((s) => [s.id, s.slug]));
-
-  const nodes = entries.map((e) => ({
-    id: e.id,
-    title: e.title,
-    href: `/${sectionSlug.get(e.section_id)}/${e.slug}`,
-    color: sectionColor.get(e.section_id) ?? "#888888",
-  }));
-
-  const links = connections.map((c) => ({
-    id: c.id,
-    source: c.from_entry_id,
-    target: c.to_entry_id,
-    label: c.label,
-  }));
+  const nodes = buildGraphNodes(sections, entries);
+  const links = buildGraphLinks(connections);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-16">

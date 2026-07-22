@@ -9,6 +9,7 @@ import {
 } from "@/lib/queries";
 import { getMediaUrl } from "@/lib/supabase/media";
 import { ConnectionsList } from "@/components/ConnectionsList";
+import { looksLikeHtml } from "@/lib/rich-content";
 
 function formatPeriod(periodStart: string | null, periodEnd: string | null) {
   if (!periodStart) return null;
@@ -62,11 +63,17 @@ export default async function EntryPage({
         </p>
       )}
 
-      {entry.body && (
-        <div className="mt-6 whitespace-pre-wrap text-zinc-600 dark:text-zinc-400">
-          {entry.body}
-        </div>
-      )}
+      {entry.body &&
+        (looksLikeHtml(entry.body) ? (
+          <div
+            className="rich-content mt-6 text-zinc-600 dark:text-zinc-400"
+            dangerouslySetInnerHTML={{ __html: entry.body }}
+          />
+        ) : (
+          <div className="mt-6 whitespace-pre-wrap text-zinc-600 dark:text-zinc-400">
+            {entry.body}
+          </div>
+        ))}
 
       {media.length > 0 && (
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">

@@ -27,6 +27,7 @@ export type Database = {
           title: string;
           description: string | null;
           icon: string | null;
+          color: string | null;
           sort_order: number;
           is_published: boolean;
           created_at: string;
@@ -53,6 +54,8 @@ export type Database = {
           metadata: Record<string, unknown>;
           sort_order: number;
           is_published: boolean;
+          graph_x: number | null;
+          graph_y: number | null;
           created_at: string;
           updated_at: string;
         };

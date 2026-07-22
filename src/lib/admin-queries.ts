@@ -96,6 +96,28 @@ export async function getEntryOutgoingConnections(entryId: string) {
   return data;
 }
 
+export async function getAdminGraphData() {
+  const supabase = await createClient();
+
+  const [sections, entries, connections] = await Promise.all([
+    supabase.from("sections").select("*"),
+    supabase
+      .from("entries")
+      .select("id, title, slug, section_id, graph_x, graph_y"),
+    supabase.from("connections").select("id, from_entry_id, to_entry_id, label"),
+  ]);
+
+  if (sections.error) throw sections.error;
+  if (entries.error) throw entries.error;
+  if (connections.error) throw connections.error;
+
+  return {
+    sections: sections.data,
+    entries: entries.data,
+    connections: connections.data,
+  };
+}
+
 export async function getDashboardCounts() {
   const supabase = await createClient();
   const [sections, entries, comments, followers] = await Promise.all([

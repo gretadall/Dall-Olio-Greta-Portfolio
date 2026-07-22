@@ -9,6 +9,9 @@ export function AdminNav() {
       <Link href="/admin/sections" className="hover:underline">
         Sezioni
       </Link>
+      <Link href="/admin/rete" className="hover:underline">
+        Rete
+      </Link>
       <Link href="/admin/comments" className="hover:underline">
         Commenti
       </Link>

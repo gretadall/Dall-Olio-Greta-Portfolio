@@ -28,3 +28,45 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+.rich-content p {
+  margin: 0.75em 0;
+}
+.rich-content h2 {
+  margin: 1.25em 0 0.5em;
+  font-size: 1.375rem;
+  font-weight: 600;
+}
+.rich-content h3 {
+  margin: 1em 0 0.4em;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+.rich-content ul,
+.rich-content ol {
+  margin: 0.75em 0;
+  padding-left: 1.5em;
+}
+.rich-content ul {
+  list-style: disc;
+}
+.rich-content ol {
+  list-style: decimal;
+}
+.rich-content a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.rich-content img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 0.75em 0;
+}
+.rich-content .video-embed {
+  margin: 0.75em 0;
+}
+.rich-content .video-embed iframe,
+.rich-content .video-embed video {
+  border-radius: 0.5rem;
+  max-width: 100%;
+}
