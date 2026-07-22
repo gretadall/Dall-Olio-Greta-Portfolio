@@ -69,7 +69,27 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
           />
         </label>
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Colore sfondo pagina
+          <input
+            type="color"
+            name="background_color"
+            defaultValue={settings.background_color ?? "#ffffff"}
+            className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
+          />
+        </label>
       </div>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Link LinkedIn (per il pulsante in alto)
+        <input
+          type="url"
+          name="linkedin_url"
+          defaultValue={settings.linkedin_url ?? ""}
+          placeholder="https://www.linkedin.com/in/tuoprofilo"
+          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        />
+      </label>
 
       <label className="flex flex-col gap-1 text-sm">
         Font

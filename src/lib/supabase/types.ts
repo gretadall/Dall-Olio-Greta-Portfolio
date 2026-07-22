@@ -216,6 +216,8 @@ export type Database = {
           primary_color: string;
           accent_color: string;
           font_choice: string;
+          background_color: string | null;
+          linkedin_url: string | null;
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]> & {

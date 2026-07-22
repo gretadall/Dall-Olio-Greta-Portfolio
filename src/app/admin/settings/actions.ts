@@ -16,7 +16,9 @@ export async function updateSiteSettings(
   const ownerName = String(formData.get("owner_name") ?? "").trim();
   const primaryColor = String(formData.get("primary_color") ?? "").trim();
   const accentColor = String(formData.get("accent_color") ?? "").trim();
+  const backgroundColor = String(formData.get("background_color") ?? "").trim();
   const fontChoice = String(formData.get("font_choice") ?? "").trim();
+  const linkedinUrl = String(formData.get("linkedin_url") ?? "").trim();
 
   if (!siteTitle) return { error: "Il titolo del sito è obbligatorio." };
   if (!FONT_CHOICES.includes(fontChoice as (typeof FONT_CHOICES)[number])) {
@@ -32,7 +34,9 @@ export async function updateSiteSettings(
       owner_name: ownerName || null,
       primary_color: primaryColor,
       accent_color: accentColor,
+      background_color: backgroundColor || null,
       font_choice: fontChoice,
+      linkedin_url: linkedinUrl || null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", true);

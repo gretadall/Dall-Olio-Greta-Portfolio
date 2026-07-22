@@ -67,12 +67,20 @@ export default async function RootLayout({
     >
       <head>
         <style>{`
-          :root { --primary: ${settings.primary_color}; --accent: ${settings.accent_color}; }
+          :root {
+            --primary: ${settings.primary_color};
+            --accent: ${settings.accent_color};
+            ${settings.background_color ? `--background: ${settings.background_color};` : ""}
+          }
           body { font-family: ${fontVar}, Arial, Helvetica, sans-serif !important; }
         `}</style>
       </head>
       <body className="min-h-full flex flex-col">
-        <Nav siteTitle={settings.site_title} />
+        <Nav
+          siteTitle={settings.site_title}
+          heroPhotoPath={settings.hero_photo_path}
+          linkedinUrl={settings.linkedin_url}
+        />
         <main className="flex flex-1 flex-col">{children}</main>
         <Footer siteTitle={settings.site_title} />
       </body>

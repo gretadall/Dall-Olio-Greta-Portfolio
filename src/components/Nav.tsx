@@ -1,38 +1,52 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { signOut } from "@/app/(auth)/actions";
+import Image from "next/image";
+import { getMediaUrl } from "@/lib/supabase/media";
 
-export async function Nav({ siteTitle }: { siteTitle: string }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+const buttonClass =
+  "rounded-full border border-black/[.12] px-4 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:border-black/[.24] dark:border-white/[.16] dark:text-zinc-300 dark:hover:border-white/[.3]";
 
+export function Nav({
+  siteTitle,
+  heroPhotoPath,
+  linkedinUrl,
+}: {
+  siteTitle: string;
+  heroPhotoPath: string | null;
+  linkedinUrl: string | null;
+}) {
   return (
     <header className="border-b border-black/[.08] dark:border-white/[.145]">
       <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-        <Link
-          href="/"
-          className="text-lg font-semibold tracking-tight text-primary"
-        >
-          {siteTitle}
+        <Link href="/" className="flex items-center gap-3">
+          {heroPhotoPath && (
+            <Image
+              src={getMediaUrl(heroPhotoPath)}
+              alt={siteTitle}
+              width={40}
+              height={40}
+              className="h-10 w-10 shrink-0 rounded-full object-cover"
+            />
+          )}
+          <span className="text-lg font-semibold tracking-tight text-primary">
+            {siteTitle}
+          </span>
         </Link>
-        <div className="flex items-center gap-4">
-          <Link
-            href="/rete"
-            className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-          >
+        <div className="flex items-center gap-3">
+          <Link href="/rete" className={buttonClass}>
             Rete
           </Link>
-          {user && (
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-              >
-                Esci
-              </button>
-            </form>
+          <Link href="/" className={buttonClass}>
+            Chi sono
+          </Link>
+          {linkedinUrl && (
+            <a
+              href={linkedinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonClass}
+            >
+              LinkedIn
+            </a>
           )}
         </div>
       </div>
