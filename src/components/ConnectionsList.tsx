@@ -32,7 +32,7 @@ export function ConnectionsList({
 
   return (
     <div className="mt-8 flex flex-col gap-2">
-      <h2 className="text-sm font-semibold tracking-tight text-zinc-500 dark:text-zinc-400">
+      <h2 className="text-sm font-semibold tracking-tight text-muted">
         Collegamenti
       </h2>
       <ul className="flex flex-col gap-1.5">
@@ -42,7 +42,7 @@ export function ConnectionsList({
           return (
             <li key={connection.id} className="text-sm">
               →{" "}
-              <span className="text-zinc-500 dark:text-zinc-400">
+              <span className="text-muted">
                 {connection.label}
               </span>{" "}
               →{" "}
@@ -67,7 +67,7 @@ export function ConnectionsList({
               >
                 {source.title}
               </Link>{" "}
-              <span className="text-zinc-500 dark:text-zinc-400">
+              <span className="text-muted">
                 — {connection.label} questo
               </span>
             </li>

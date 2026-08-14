@@ -43,7 +43,7 @@ export default async function EntryPage({
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
       <Link
         href={`/${section.slug}`}
-        className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+        className="text-sm text-muted transition-opacity hover:opacity-70"
       >
         ← {section.title}
       </Link>
@@ -52,13 +52,13 @@ export default async function EntryPage({
         {entry.title}
       </h1>
 
-      <div className="mt-2 flex flex-wrap gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted">
         {period && <span>{period}</span>}
         {entry.location && <span>{entry.location}</span>}
       </div>
 
       {entry.description && (
-        <p className="mt-6 text-lg text-zinc-700 dark:text-zinc-300">
+        <p className="mt-6 text-lg text-muted">
           {entry.description}
         </p>
       )}
@@ -66,11 +66,11 @@ export default async function EntryPage({
       {entry.body &&
         (looksLikeHtml(entry.body) ? (
           <div
-            className="rich-content mt-6 text-zinc-600 dark:text-zinc-400"
+            className="rich-content mt-6 text-muted"
             dangerouslySetInnerHTML={{ __html: entry.body }}
           />
         ) : (
-          <div className="mt-6 whitespace-pre-wrap text-zinc-600 dark:text-zinc-400">
+          <div className="mt-6 whitespace-pre-wrap text-muted">
             {entry.body}
           </div>
         ))}
@@ -84,7 +84,7 @@ export default async function EntryPage({
                 href={getMediaUrl(photo.storage_path)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border border-black/[.12] bg-zinc-50 text-sm text-zinc-600 transition-colors hover:border-black/[.24] dark:border-white/[.16] dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-white/[.3]"
+                className="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border border-black/[.12] bg-zinc-50 text-sm text-muted transition-colors hover:border-black/[.24] dark:border-white/[.16] dark:bg-zinc-900 dark:hover:border-white/[.3]"
               >
                 <span className="text-3xl">📄</span>
                 {photo.alt_text || "Apri PDF"}

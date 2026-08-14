@@ -90,6 +90,15 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
           />
         </label>
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Colore descrizioni
+          <input
+            type="color"
+            name="muted_color"
+            defaultValue={settings.muted_color ?? "#52525b"}
+            className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
+          />
+        </label>
       </div>
 
       <div className="flex gap-4">
@@ -105,14 +114,16 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           />
         </label>
         <label className="flex flex-1 flex-col gap-1 text-sm">
-          Forma foto profilo (angoli → cerchio)
-          <input
-            type="range"
+          Forma foto profilo
+          <select
             name="hero_photo_radius"
-            min={0}
-            max={50}
-            defaultValue={settings.hero_photo_radius ?? 50}
-          />
+            defaultValue={String(settings.hero_photo_radius ?? 50)}
+            className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          >
+            <option value="50">Cerchio</option>
+            <option value="16">Angoli arrotondati</option>
+            <option value="0">Quadrata</option>
+          </select>
         </label>
       </div>
 

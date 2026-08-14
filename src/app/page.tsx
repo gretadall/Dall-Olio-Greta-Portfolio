@@ -27,7 +27,7 @@ export default async function Home() {
             Ciao, sono{" "}
             {settings.owner_name ?? "una persona in continua crescita"}
           </h1>
-          <p className="mt-3 max-w-2xl text-zinc-600 dark:text-zinc-400">
+          <p className="mt-3 max-w-2xl text-muted">
             {settings.tagline ??
               "Questo non è un CV. È un ritratto più completo di chi sono, oltre a competenze ed esperienze: valori, viaggi, attitudini e molto altro."}
           </p>
@@ -35,7 +35,7 @@ export default async function Home() {
       </div>
 
       {sections.length === 0 ? (
-        <p className="mt-12 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-12 text-sm text-muted">
           Nessuna sezione pubblicata ancora.
         </p>
       ) : (

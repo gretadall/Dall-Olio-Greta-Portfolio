@@ -16,7 +16,7 @@ export function SectionCard({ section }: { section: Section }) {
         </h2>
       </div>
       {section.description && (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-muted">
           {section.description}
         </p>
       )}

@@ -13,12 +13,12 @@ export default async function RetePage() {
       <h1 className="text-3xl font-semibold tracking-tight">
         Rete di connessioni
       </h1>
-      <p className="mt-3 max-w-2xl text-zinc-600 dark:text-zinc-400">
+      <p className="mt-3 max-w-2xl text-muted">
         Come le esperienze si intrecciano e contribuiscono a formare chi sono.
       </p>
 
       {nodes.length === 0 ? (
-        <p className="mt-12 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-12 text-sm text-muted">
           Nessun contenuto pubblicato ancora.
         </p>
       ) : (

@@ -19,6 +19,7 @@ export async function updateSiteSettings(
   const accentColor = String(formData.get("accent_color") ?? "").trim();
   const backgroundColor = String(formData.get("background_color") ?? "").trim();
   const fontColor = String(formData.get("font_color") ?? "").trim();
+  const mutedColor = String(formData.get("muted_color") ?? "").trim();
   const fontChoice = String(formData.get("font_choice") ?? "").trim();
   const linkedinUrl = String(formData.get("linkedin_url") ?? "").trim();
   const heroPhotoSize = Number(formData.get("hero_photo_size") ?? 96);
@@ -46,6 +47,7 @@ export async function updateSiteSettings(
       accent_color: accentColor,
       background_color: backgroundColor || null,
       font_color: fontColor || null,
+      muted_color: mutedColor || null,
       font_choice: fontChoice,
       linkedin_url: linkedinUrl || null,
       hero_photo_size: heroPhotoSize,

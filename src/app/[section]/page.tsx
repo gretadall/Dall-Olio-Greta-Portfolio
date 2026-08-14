@@ -23,13 +23,13 @@ export default async function SectionPage({
         </h1>
       </div>
       {section.description && (
-        <p className="mt-3 max-w-2xl text-zinc-600 dark:text-zinc-400">
+        <p className="mt-3 max-w-2xl text-muted">
           {section.description}
         </p>
       )}
 
       {entries.length === 0 ? (
-        <p className="mt-12 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-12 text-sm text-muted">
           Nessun contenuto pubblicato ancora in questa sezione.
         </p>
       ) : (

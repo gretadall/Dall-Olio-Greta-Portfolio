@@ -76,6 +76,7 @@ export default async function RootLayout({
             --accent: ${settings.accent_color};
             ${settings.background_color ? `--background: ${settings.background_color};` : ""}
             ${settings.font_color ? `--foreground: ${settings.font_color};` : ""}
+            ${settings.muted_color ? `--muted: ${settings.muted_color};` : ""}
           }
           body {
             font-family: ${fontVar}, Arial, Helvetica, sans-serif !important;

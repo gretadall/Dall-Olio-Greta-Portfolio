@@ -175,7 +175,7 @@ export function NetworkGraph({
   return (
     <div>
       {!editable && (
-        <p className="mb-3 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mb-3 text-sm text-muted">
           Clicca su un punto per vedere i suoi collegamenti.
         </p>
       )}
@@ -206,7 +206,7 @@ export function NetworkGraph({
                 y={midY}
                 fontSize={11}
                 textAnchor="middle"
-                className="fill-zinc-500 dark:fill-zinc-400"
+                className="fill-muted"
               >
                 {link.label}
               </text>

@@ -29,18 +29,18 @@ export function EntryCard({
           {entry.title}
         </h3>
         {period && (
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+          <span className="text-xs text-muted">
             {period}
           </span>
         )}
       </div>
       {entry.location && (
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+        <span className="text-xs text-muted">
           {entry.location}
         </span>
       )}
       {entry.description && (
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           {entry.description}
         </p>
       )}

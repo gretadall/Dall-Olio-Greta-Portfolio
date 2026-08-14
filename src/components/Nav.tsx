@@ -3,7 +3,7 @@ import Image from "next/image";
 import { getMediaUrl } from "@/lib/supabase/media";
 
 const buttonClass =
-  "rounded-full border border-black/[.12] px-4 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:border-black/[.24] dark:border-white/[.16] dark:text-zinc-300 dark:hover:border-white/[.3]";
+  "rounded-full border border-black/[.12] px-3 py-1 text-xs font-medium text-muted transition-colors hover:border-black/[.24] dark:border-white/[.16] dark:hover:border-white/[.3] sm:px-4 sm:py-1.5 sm:text-sm";
 
 const NAV_PHOTO_SIZE = 40;
 
@@ -20,8 +20,8 @@ export function Nav({
 }) {
   return (
     <header className="border-b border-black/[.08] dark:border-white/[.145]">
-      <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-3">
+      <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6 sm:py-4">
+        <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
           {heroPhotoPath && (
             <Image
               src={getMediaUrl(heroPhotoPath)}
@@ -29,14 +29,14 @@ export function Nav({
               width={NAV_PHOTO_SIZE}
               height={NAV_PHOTO_SIZE}
               style={{ borderRadius: `${heroPhotoRadius}%` }}
-              className="h-10 w-10 shrink-0 object-cover"
+              className="h-8 w-8 shrink-0 object-cover sm:h-10 sm:w-10"
             />
           )}
-          <span className="text-lg font-semibold tracking-tight text-primary">
+          <span className="truncate text-base font-semibold tracking-tight text-primary sm:text-lg">
             {siteTitle}
           </span>
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Link href="/rete" className={buttonClass}>
             Rete
           </Link>

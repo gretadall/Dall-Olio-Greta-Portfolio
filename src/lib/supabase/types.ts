@@ -222,6 +222,7 @@ export type Database = {
           accent_color: string;
           font_choice: string;
           font_color: string | null;
+          muted_color: string | null;
           background_color: string | null;
           background_image_path: string | null;
           linkedin_url: string | null;
