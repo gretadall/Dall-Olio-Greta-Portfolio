@@ -16,7 +16,6 @@ export async function createConnection(
   const label = String(formData.get("label") ?? "").trim();
 
   if (!toEntryId) return { error: "Scegli un contenuto da collegare." };
-  if (!label) return { error: "L'etichetta è obbligatoria." };
   if (toEntryId === fromEntryId) {
     return { error: "Non puoi collegare un contenuto a se stesso." };
   }

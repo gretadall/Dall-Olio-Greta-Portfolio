@@ -129,7 +129,7 @@ export default async function EditEntryPage({
                 className="flex items-center justify-between gap-4 rounded-lg border border-black/[.08] px-4 py-2 dark:border-white/[.145]"
               >
                 <span className="text-sm">
-                  → {connection.label} →{" "}
+                  → {connection.label && `${connection.label} → `}
                   <strong>{connection.to_entry?.title}</strong>
                   {connection.to_entry?.sections?.title && (
                     <span className="text-zinc-500 dark:text-zinc-400">

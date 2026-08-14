@@ -201,15 +201,17 @@ export function NetworkGraph({
                 strokeWidth={1.5}
                 markerEnd="url(#arrow)"
               />
-              <text
-                x={midX}
-                y={midY}
-                fontSize={11}
-                textAnchor="middle"
-                className="fill-muted"
-              >
-                {link.label}
-              </text>
+              {link.label && (
+                <text
+                  x={midX}
+                  y={midY}
+                  fontSize={11}
+                  textAnchor="middle"
+                  className="fill-muted"
+                >
+                  {link.label}
+                </text>
+              )}
             </g>
           );
         })}

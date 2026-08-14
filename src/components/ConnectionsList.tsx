@@ -42,10 +42,12 @@ export function ConnectionsList({
           return (
             <li key={connection.id} className="text-sm">
               →{" "}
-              <span className="text-muted">
-                {connection.label}
-              </span>{" "}
-              →{" "}
+              {connection.label && (
+                <>
+                  <span className="text-muted">{connection.label}</span>{" "}
+                  →{" "}
+                </>
+              )}
               <Link
                 href={`/${target.sections.slug}/${target.slug}`}
                 className="underline"
@@ -68,7 +70,7 @@ export function ConnectionsList({
                 {source.title}
               </Link>{" "}
               <span className="text-muted">
-                — {connection.label} questo
+                {connection.label ? `— ${connection.label} questo` : "— questo"}
               </span>
             </li>
           );
