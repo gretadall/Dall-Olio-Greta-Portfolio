@@ -32,6 +32,21 @@ type SimLink = SimulationLinkDatum<SimNode> & { id: string; label: string };
 
 const WIDTH = 800;
 const HEIGHT = 560;
+// Keep every node's circle (and most of its label below it) inside the
+// viewBox, since neither the force simulation nor manual dragging bounds
+// positions on their own.
+const PAD_X = 24;
+const PAD_TOP = 24;
+const PAD_BOTTOM = 40;
+
+function clampNode(n: SimNode) {
+  const x = Math.min(Math.max(n.x ?? WIDTH / 2, PAD_X), WIDTH - PAD_X);
+  const y = Math.min(Math.max(n.y ?? HEIGHT / 2, PAD_TOP), HEIGHT - PAD_BOTTOM);
+  n.x = x;
+  n.y = y;
+  if (n.fx != null) n.fx = x;
+  if (n.fy != null) n.fy = y;
+}
 
 function computeLayout(nodes: GraphNode[], links: GraphLink[]) {
   const nodesCopy: SimNode[] = nodes.map((n) => {
@@ -63,7 +78,10 @@ function computeLayout(nodes: GraphNode[], links: GraphLink[]) {
     .force("collide", forceCollide(48))
     .stop();
 
-  for (let i = 0; i < 300; i++) simulation.tick();
+  for (let i = 0; i < 300; i++) {
+    simulation.tick();
+    for (const n of nodesCopy) clampNode(n);
+  }
 
   return { simNodes: nodesCopy, simLinks: linksCopy };
 }
@@ -132,6 +150,7 @@ export function NetworkGraph({
     node.y = svgP.y;
     node.fx = svgP.x;
     node.fy = svgP.y;
+    clampNode(node);
     draggedRef.current = true;
     setSaved(false);
     setLiveNodes([...simNodes]);
