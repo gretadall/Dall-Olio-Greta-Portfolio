@@ -86,6 +86,7 @@ export function NetworkGraph({
   const draggedRef = useRef(false);
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   if (layout !== syncedLayout) {
     setSyncedLayout(layout);
@@ -94,6 +95,13 @@ export function NetworkGraph({
 
   const simNodes = editable ? liveNodes : layout.simNodes;
   const simLinks = layout.simLinks;
+  const visibleLinks = editable
+    ? simLinks
+    : simLinks.filter((link) => {
+        const source = link.source as SimNode;
+        const target = link.target as SimNode;
+        return source.id === selectedId || target.id === selectedId;
+      });
 
   function handlePointerDown(
     e: React.PointerEvent<SVGGElement>,
@@ -147,11 +155,16 @@ export function NetworkGraph({
 
   return (
     <div>
+      {!editable && (
+        <p className="mb-3 text-sm text-zinc-500 dark:text-zinc-400">
+          Clicca su un punto per vedere i suoi collegamenti.
+        </p>
+      )}
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className="h-auto w-full text-zinc-400 dark:text-zinc-600"
       >
-        {simLinks.map((link) => {
+        {visibleLinks.map((link) => {
           const source = link.source as SimNode;
           const target = link.target as SimNode;
           if (source.x == null || target.x == null) return null;
@@ -197,26 +210,27 @@ export function NetworkGraph({
         </defs>
 
         {simNodes.map((node) => {
+          const isSelected = node.id === selectedId;
           const circle = (
-            <>
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r={10}
-                fill={node.color}
-                stroke="white"
-                strokeWidth={1.5}
-              />
-              <text
-                x={node.x}
-                y={(node.y ?? 0) + 24}
-                fontSize={12}
-                textAnchor="middle"
-                className="fill-zinc-900 dark:fill-zinc-100"
-              >
-                {node.title}
-              </text>
-            </>
+            <circle
+              cx={node.x}
+              cy={node.y}
+              r={10}
+              fill={node.color}
+              stroke={isSelected ? "currentColor" : "white"}
+              strokeWidth={isSelected ? 2.5 : 1.5}
+            />
+          );
+          const label = (
+            <text
+              x={node.x}
+              y={(node.y ?? 0) + 24}
+              fontSize={12}
+              textAnchor="middle"
+              className="fill-zinc-900 dark:fill-zinc-100"
+            >
+              {node.title}
+            </text>
           );
 
           if (editable) {
@@ -229,14 +243,33 @@ export function NetworkGraph({
                 className="cursor-grab active:cursor-grabbing"
               >
                 {circle}
+                {label}
               </g>
             );
           }
 
           return (
-            <a key={node.id} href={node.href}>
+            <g
+              key={node.id}
+              role="button"
+              tabIndex={0}
+              aria-pressed={isSelected}
+              onClick={() =>
+                setSelectedId((prev) => (prev === node.id ? null : node.id))
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSelectedId((prev) => (prev === node.id ? null : node.id));
+                }
+              }}
+              className="cursor-pointer text-accent outline-none"
+            >
               {circle}
-            </a>
+              <a href={node.href} onClick={(e) => e.stopPropagation()}>
+                {label}
+              </a>
+            </g>
           );
         })}
       </svg>
