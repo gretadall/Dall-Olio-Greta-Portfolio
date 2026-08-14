@@ -7,7 +7,7 @@ import {
   getEntryOutgoingConnections,
 } from "@/lib/admin-queries";
 import { getEntryMedia } from "@/lib/queries";
-import { getMediaUrl } from "@/lib/supabase/media";
+import { getMediaUrl, isPdfPath } from "@/lib/supabase/media";
 import { EntryForm } from "@/components/admin/EntryForm";
 import { ConnectionForm } from "@/components/admin/ConnectionForm";
 import { PhotoUploadForm } from "@/components/admin/PhotoUploadForm";
@@ -59,19 +59,31 @@ export default async function EditEntryPage({
       <EntryForm entry={entry} action={boundUpdate} submitLabel="Salva contenuto" />
 
       <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
-        <h2 className="text-lg font-semibold tracking-tight">Foto</h2>
+        <h2 className="text-lg font-semibold tracking-tight">Foto e file</h2>
 
         {media.length > 0 && (
           <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
             {media.map((photo) => (
               <div key={photo.id} className="flex flex-col gap-2">
-                <Image
-                  src={getMediaUrl(photo.storage_path)}
-                  alt={photo.alt_text ?? ""}
-                  width={150}
-                  height={150}
-                  className="aspect-square rounded-lg object-cover"
-                />
+                {isPdfPath(photo.storage_path) ? (
+                  <a
+                    href={getMediaUrl(photo.storage_path)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border border-black/[.12] bg-zinc-50 text-xs text-zinc-600 dark:border-white/[.16] dark:bg-zinc-900 dark:text-zinc-300"
+                  >
+                    <span className="text-2xl">📄</span>
+                    PDF
+                  </a>
+                ) : (
+                  <Image
+                    src={getMediaUrl(photo.storage_path)}
+                    alt={photo.alt_text ?? ""}
+                    width={150}
+                    height={150}
+                    className="aspect-square rounded-lg object-cover"
+                  />
+                )}
                 <form
                   action={deleteEntryMedia.bind(
                     null,
@@ -94,7 +106,11 @@ export default async function EditEntryPage({
         )}
 
         <div className="mt-4">
-          <PhotoUploadForm action={boundUploadMedia} submitLabel="Carica foto" />
+          <PhotoUploadForm
+            action={boundUploadMedia}
+            submitLabel="Carica foto o PDF"
+            accept="image/*,application/pdf"
+          />
         </div>
       </div>
 

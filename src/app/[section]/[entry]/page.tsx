@@ -7,7 +7,7 @@ import {
   getEntryConnections,
   getEntryMedia,
 } from "@/lib/queries";
-import { getMediaUrl } from "@/lib/supabase/media";
+import { getMediaUrl, isPdfPath } from "@/lib/supabase/media";
 import { ConnectionsList } from "@/components/ConnectionsList";
 import { looksLikeHtml } from "@/lib/rich-content";
 
@@ -77,16 +77,29 @@ export default async function EntryPage({
 
       {media.length > 0 && (
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {media.map((photo) => (
-            <Image
-              key={photo.id}
-              src={getMediaUrl(photo.storage_path)}
-              alt={photo.alt_text ?? entry.title}
-              width={300}
-              height={300}
-              className="aspect-square rounded-lg object-cover"
-            />
-          ))}
+          {media.map((photo) =>
+            isPdfPath(photo.storage_path) ? (
+              <a
+                key={photo.id}
+                href={getMediaUrl(photo.storage_path)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border border-black/[.12] bg-zinc-50 text-sm text-zinc-600 transition-colors hover:border-black/[.24] dark:border-white/[.16] dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-white/[.3]"
+              >
+                <span className="text-3xl">📄</span>
+                {photo.alt_text || "Apri PDF"}
+              </a>
+            ) : (
+              <Image
+                key={photo.id}
+                src={getMediaUrl(photo.storage_path)}
+                alt={photo.alt_text ?? entry.title}
+                width={300}
+                height={300}
+                className="aspect-square rounded-lg object-cover"
+              />
+            )
+          )}
         </div>
       )}
 

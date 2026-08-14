@@ -16,9 +16,10 @@ export default async function Home() {
           <Image
             src={getMediaUrl(settings.hero_photo_path)}
             alt={settings.owner_name ?? settings.site_title}
-            width={96}
-            height={96}
-            className="rounded-full object-cover"
+            width={settings.hero_photo_size ?? 96}
+            height={settings.hero_photo_size ?? 96}
+            style={{ borderRadius: `${settings.hero_photo_radius ?? 50}%` }}
+            className="shrink-0 object-cover"
           />
         )}
         <div>

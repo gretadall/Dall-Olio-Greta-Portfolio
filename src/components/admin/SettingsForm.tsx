@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import type { Database } from "@/lib/supabase/types";
 import { updateSiteSettings } from "@/app/admin/settings/actions";
 
@@ -17,6 +17,9 @@ export function SettingsForm({ settings }: { settings: Settings }) {
   const [state, formAction, pending] = useActionState(
     updateSiteSettings,
     undefined
+  );
+  const [heroPhotoSize, setHeroPhotoSize] = useState(
+    settings.hero_photo_size ?? 96
   );
 
   return (
@@ -76,6 +79,39 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             name="background_color"
             defaultValue={settings.background_color ?? "#ffffff"}
             className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
+          />
+        </label>
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Colore testo
+          <input
+            type="color"
+            name="font_color"
+            defaultValue={settings.font_color ?? "#171717"}
+            className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
+          />
+        </label>
+      </div>
+
+      <div className="flex gap-4">
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Grandezza foto profilo ({heroPhotoSize}px)
+          <input
+            type="range"
+            name="hero_photo_size"
+            min={32}
+            max={320}
+            defaultValue={settings.hero_photo_size ?? 96}
+            onChange={(e) => setHeroPhotoSize(Number(e.target.value))}
+          />
+        </label>
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Forma foto profilo (angoli → cerchio)
+          <input
+            type="range"
+            name="hero_photo_radius"
+            min={0}
+            max={50}
+            defaultValue={settings.hero_photo_radius ?? 50}
           />
         </label>
       </div>

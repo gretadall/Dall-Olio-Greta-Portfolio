@@ -11,9 +11,11 @@ type Action = (
 export function PhotoUploadForm({
   action,
   submitLabel,
+  accept = "image/*",
 }: {
   action: Action;
   submitLabel: string;
+  accept?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
 
@@ -22,7 +24,7 @@ export function PhotoUploadForm({
       <input
         type="file"
         name="photo"
-        accept="image/*"
+        accept={accept}
         required
         className="text-sm"
       />

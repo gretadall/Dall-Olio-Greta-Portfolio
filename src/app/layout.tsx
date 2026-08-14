@@ -9,6 +9,7 @@ import {
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { getSiteSettings } from "@/lib/queries";
+import { getMediaUrl } from "@/lib/supabase/media";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -59,6 +60,9 @@ export default async function RootLayout({
 }>) {
   const settings = await getSiteSettings();
   const fontVar = FONT_VARS[settings.font_choice] ?? FONT_VARS.geist;
+  const backgroundImageUrl = settings.background_image_path
+    ? getMediaUrl(settings.background_image_path)
+    : null;
 
   return (
     <html
@@ -71,14 +75,23 @@ export default async function RootLayout({
             --primary: ${settings.primary_color};
             --accent: ${settings.accent_color};
             ${settings.background_color ? `--background: ${settings.background_color};` : ""}
+            ${settings.font_color ? `--foreground: ${settings.font_color};` : ""}
           }
-          body { font-family: ${fontVar}, Arial, Helvetica, sans-serif !important; }
+          body {
+            font-family: ${fontVar}, Arial, Helvetica, sans-serif !important;
+            ${
+              backgroundImageUrl
+                ? `background-image: url('${backgroundImageUrl}'); background-size: cover; background-position: center; background-attachment: fixed;`
+                : ""
+            }
+          }
         `}</style>
       </head>
       <body className="min-h-full flex flex-col">
         <Nav
           siteTitle={settings.site_title}
           heroPhotoPath={settings.hero_photo_path}
+          heroPhotoRadius={settings.hero_photo_radius}
           linkedinUrl={settings.linkedin_url}
         />
         <main className="flex flex-1 flex-col">{children}</main>

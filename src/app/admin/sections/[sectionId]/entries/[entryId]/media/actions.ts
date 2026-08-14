@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeFileName } from "@/lib/supabase/media";
 
 type FormState = { error?: string } | undefined;
 
@@ -13,11 +14,14 @@ export async function uploadEntryMedia(
 ): Promise<FormState> {
   const file = formData.get("photo");
   if (!(file instanceof File) || file.size === 0) {
-    return { error: "Scegli un'immagine da caricare." };
+    return { error: "Scegli un file da caricare." };
+  }
+  if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+    return { error: "Sono ammessi solo immagini o file PDF." };
   }
 
   const supabase = await createClient();
-  const path = `entries/${entryId}/${Date.now()}-${file.name}`;
+  const path = `entries/${entryId}/${Date.now()}-${sanitizeFileName(file.name)}`;
   const { error: uploadError } = await supabase.storage
     .from("media")
     .upload(path, file);

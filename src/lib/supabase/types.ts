@@ -216,10 +216,14 @@ export type Database = {
           tagline: string | null;
           owner_name: string | null;
           hero_photo_path: string | null;
+          hero_photo_size: number;
+          hero_photo_radius: number;
           primary_color: string;
           accent_color: string;
           font_choice: string;
+          font_color: string | null;
           background_color: string | null;
+          background_image_path: string | null;
           linkedin_url: string | null;
           updated_at: string;
         };
