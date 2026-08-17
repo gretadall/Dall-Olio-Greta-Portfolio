@@ -227,6 +227,10 @@ export type Database = {
           background_color: string | null;
           background_image_path: string | null;
           linkedin_url: string | null;
+          splash_enabled: boolean;
+          splash_image_path: string | null;
+          splash_title: string | null;
+          splash_message: string | null;
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]> & {

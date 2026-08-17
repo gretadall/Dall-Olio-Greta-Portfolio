@@ -8,6 +8,7 @@ import {
 } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { SplashScreen } from "@/components/SplashScreen";
 import { getSiteSettings } from "@/lib/queries";
 import { getMediaUrl } from "@/lib/supabase/media";
 import "./globals.css";
@@ -63,6 +64,9 @@ export default async function RootLayout({
   const backgroundImageUrl = settings.background_image_path
     ? getMediaUrl(settings.background_image_path)
     : null;
+  const splashImageUrl = settings.splash_image_path
+    ? getMediaUrl(settings.splash_image_path)
+    : null;
 
   return (
     <html
@@ -89,6 +93,13 @@ export default async function RootLayout({
         `}</style>
       </head>
       <body className="min-h-full flex flex-col">
+        {settings.splash_enabled && (
+          <SplashScreen
+            imageUrl={splashImageUrl}
+            title={settings.splash_title}
+            message={settings.splash_message}
+          />
+        )}
         <Nav
           siteTitle={settings.site_title}
           heroPhotoPath={settings.hero_photo_path}

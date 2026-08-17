@@ -127,6 +127,36 @@ export function SettingsForm({ settings }: { settings: Settings }) {
         </label>
       </div>
 
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          name="splash_enabled"
+          defaultChecked={settings.splash_enabled}
+        />
+        Mostra una pagina di anteprima all&apos;apertura del sito (max 3
+        secondi)
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Titolo anteprima
+        <input
+          name="splash_title"
+          defaultValue={settings.splash_title ?? ""}
+          placeholder="es. Sto per mostrarti qualcosa…"
+          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Messaggio anteprima
+        <textarea
+          name="splash_message"
+          rows={2}
+          defaultValue={settings.splash_message ?? ""}
+          className="resize-none rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        />
+      </label>
+
       <label className="flex flex-col gap-1 text-sm">
         Link LinkedIn (per il pulsante in alto)
         <input

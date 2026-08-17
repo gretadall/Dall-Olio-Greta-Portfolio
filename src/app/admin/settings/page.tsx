@@ -7,6 +7,8 @@ import {
   uploadHeroPhoto,
   uploadBackgroundImage,
   removeBackgroundImage,
+  uploadSplashImage,
+  removeSplashImage,
 } from "./actions";
 
 export default async function AdminSettingsPage() {
@@ -71,6 +73,41 @@ export default async function AdminSettingsPage() {
           <PhotoUploadForm
             action={uploadBackgroundImage}
             submitLabel="Carica sfondo"
+          />
+        </div>
+      </div>
+
+      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
+        <h2 className="text-lg font-semibold tracking-tight">
+          Immagine anteprima
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          Mostrata nella pagina di anteprima, sopra titolo e messaggio, se
+          l&apos;anteprima è attiva.
+        </p>
+        {settings.splash_image_path && (
+          <>
+            <Image
+              src={getMediaUrl(settings.splash_image_path)}
+              alt="Immagine anteprima"
+              width={160}
+              height={160}
+              className="mt-4 rounded-lg object-cover"
+            />
+            <form action={removeSplashImage} className="mt-3">
+              <button
+                type="submit"
+                className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
+              >
+                Rimuovi immagine
+              </button>
+            </form>
+          </>
+        )}
+        <div className="mt-4">
+          <PhotoUploadForm
+            action={uploadSplashImage}
+            submitLabel="Carica immagine"
           />
         </div>
       </div>
