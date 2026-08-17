@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getSectionBySlug, getPublishedEntries } from "@/lib/queries";
 import { EntryCard } from "@/components/EntryCard";
+import { SectionBackground } from "@/components/SectionBackground";
 
 export default async function SectionPage({
   params,
@@ -16,6 +17,7 @@ export default async function SectionPage({
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-16">
+      <SectionBackground imagePath={section.background_image_path} />
       <div className="flex items-center gap-2">
         {section.icon && <span className="text-2xl">{section.icon}</span>}
         <h1 className="text-3xl font-semibold tracking-tight">

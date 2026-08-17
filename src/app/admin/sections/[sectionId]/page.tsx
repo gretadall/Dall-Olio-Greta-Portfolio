@@ -1,8 +1,15 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getSectionById, getAllEntries } from "@/lib/admin-queries";
+import { getMediaUrl } from "@/lib/supabase/media";
 import { SectionForm } from "@/components/admin/SectionForm";
-import { updateSection } from "../actions";
+import { PhotoUploadForm } from "@/components/admin/PhotoUploadForm";
+import {
+  updateSection,
+  uploadSectionBackground,
+  removeSectionBackground,
+} from "../actions";
 import { deleteEntry, moveEntry } from "./entries/actions";
 
 export default async function EditSectionPage({
@@ -17,6 +24,8 @@ export default async function EditSectionPage({
 
   const entries = await getAllEntries(sectionId);
   const boundUpdate = updateSection.bind(null, sectionId);
+  const boundUploadBackground = uploadSectionBackground.bind(null, sectionId);
+  const boundRemoveBackground = removeSectionBackground.bind(null, sectionId);
 
   return (
     <div>
@@ -36,6 +45,41 @@ export default async function EditSectionPage({
         action={boundUpdate}
         submitLabel="Salva sezione"
       />
+
+      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
+        <h2 className="text-lg font-semibold tracking-tight">
+          Sfondo sezione
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          Un&apos;immagine di sfondo per questa sezione e i suoi contenuti, al
+          posto dello sfondo generale del sito.
+        </p>
+        {section.background_image_path && (
+          <>
+            <Image
+              src={getMediaUrl(section.background_image_path)}
+              alt="Sfondo sezione"
+              width={240}
+              height={135}
+              className="mt-4 rounded-lg object-cover"
+            />
+            <form action={boundRemoveBackground} className="mt-3">
+              <button
+                type="submit"
+                className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
+              >
+                Rimuovi sfondo
+              </button>
+            </form>
+          </>
+        )}
+        <div className="mt-4">
+          <PhotoUploadForm
+            action={boundUploadBackground}
+            submitLabel="Carica sfondo"
+          />
+        </div>
+      </div>
 
       <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
         <div className="flex items-center justify-between">

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { slugify, RESERVED_SLUGS } from "@/lib/slug";
+import { sanitizeFileName } from "@/lib/supabase/media";
 
 type FormState = { error?: string } | undefined;
 
@@ -102,6 +103,46 @@ export async function deleteSection(sectionId: string) {
   const supabase = await createClient();
   await supabase.from("sections").delete().eq("id", sectionId);
   revalidatePath("/admin/sections");
+  revalidatePath("/");
+}
+
+export async function uploadSectionBackground(
+  sectionId: string,
+  _prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const file = formData.get("photo");
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "Scegli un'immagine da caricare." };
+  }
+
+  const supabase = await createClient();
+  const path = `sections/${sectionId}/${Date.now()}-${sanitizeFileName(file.name)}`;
+  const { error: uploadError } = await supabase.storage
+    .from("media")
+    .upload(path, file, { upsert: true });
+
+  if (uploadError) return { error: "Errore durante il caricamento dell'immagine." };
+
+  const { error } = await supabase
+    .from("sections")
+    .update({ background_image_path: path, updated_at: new Date().toISOString() })
+    .eq("id", sectionId);
+
+  if (error) return { error: "Errore durante il salvataggio dell'immagine." };
+
+  revalidatePath(`/admin/sections/${sectionId}`);
+  revalidatePath("/");
+}
+
+export async function removeSectionBackground(sectionId: string) {
+  const supabase = await createClient();
+  await supabase
+    .from("sections")
+    .update({ background_image_path: null, updated_at: new Date().toISOString() })
+    .eq("id", sectionId);
+
+  revalidatePath(`/admin/sections/${sectionId}`);
   revalidatePath("/");
 }
 

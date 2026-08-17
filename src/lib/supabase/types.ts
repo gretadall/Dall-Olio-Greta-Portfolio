@@ -28,6 +28,7 @@ export type Database = {
           description: string | null;
           icon: string | null;
           color: string | null;
+          background_image_path: string | null;
           sort_order: number;
           is_published: boolean;
           created_at: string;

@@ -9,6 +9,7 @@ import {
 } from "@/lib/queries";
 import { getMediaUrl, isPdfPath } from "@/lib/supabase/media";
 import { ConnectionsList } from "@/components/ConnectionsList";
+import { SectionBackground } from "@/components/SectionBackground";
 import { looksLikeHtml } from "@/lib/rich-content";
 
 function formatPeriod(periodStart: string | null, periodEnd: string | null) {
@@ -41,6 +42,7 @@ export default async function EntryPage({
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
+      <SectionBackground imagePath={section.background_image_path} />
       <Link
         href={`/${section.slug}`}
         className="text-sm text-muted transition-opacity hover:opacity-70"
