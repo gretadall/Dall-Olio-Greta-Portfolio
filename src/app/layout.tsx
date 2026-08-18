@@ -98,6 +98,7 @@ export default async function RootLayout({
             imageUrl={splashImageUrl}
             title={settings.splash_title}
             message={settings.splash_message}
+            durationMs={(settings.splash_duration_seconds ?? 3) * 1000}
           />
         )}
         <Nav
@@ -106,9 +107,13 @@ export default async function RootLayout({
           heroPhotoRadius={settings.hero_photo_radius}
           linkedinUrl={settings.linkedin_url}
           contactEmail={settings.contact_email}
+          homeLabel={settings.nav_home_label ?? "Chi sono"}
+          reteLabel={settings.nav_rete_label ?? "Rete"}
+          linkedinLabel={settings.linkedin_label ?? "LinkedIn"}
+          contactLabel={settings.contact_button_label ?? "Scrivimi"}
         />
         <main className="flex flex-1 flex-col">{children}</main>
-        <Footer />
+        <Footer text={settings.footer_text ?? "Built by Greta dall'Olio"} />
       </body>
     </html>
   );

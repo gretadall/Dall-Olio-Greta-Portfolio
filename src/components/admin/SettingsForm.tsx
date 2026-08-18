@@ -133,8 +133,20 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           name="splash_enabled"
           defaultChecked={settings.splash_enabled}
         />
-        Mostra una pagina di anteprima all&apos;apertura del sito (max 3
-        secondi)
+        Mostra una pagina di anteprima all&apos;apertura del sito
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Durata pagina di anteprima (secondi)
+        <input
+          type="number"
+          name="splash_duration_seconds"
+          min={1}
+          max={15}
+          step={0.5}
+          defaultValue={settings.splash_duration_seconds ?? 3}
+          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        />
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
@@ -164,6 +176,53 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           name="linkedin_url"
           defaultValue={settings.linkedin_url ?? ""}
           placeholder="https://www.linkedin.com/in/tuoprofilo"
+          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        />
+      </label>
+
+      <div className="flex gap-4">
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Testo bottone &quot;Chi sono&quot;
+          <input
+            name="nav_home_label"
+            defaultValue={settings.nav_home_label ?? "Chi sono"}
+            className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          />
+        </label>
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Testo bottone &quot;Rete&quot;
+          <input
+            name="nav_rete_label"
+            defaultValue={settings.nav_rete_label ?? "Rete"}
+            className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          />
+        </label>
+      </div>
+
+      <div className="flex gap-4">
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Testo bottone LinkedIn
+          <input
+            name="linkedin_label"
+            defaultValue={settings.linkedin_label ?? "LinkedIn"}
+            className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          />
+        </label>
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Testo bottone email di contatto
+          <input
+            name="contact_button_label"
+            defaultValue={settings.contact_button_label ?? "Scrivimi"}
+            className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          />
+        </label>
+      </div>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Testo del footer
+        <input
+          name="footer_text"
+          defaultValue={settings.footer_text ?? "Built by Greta dall'Olio"}
           className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
         />
       </label>

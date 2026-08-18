@@ -13,12 +13,20 @@ export function Nav({
   heroPhotoRadius = 50,
   linkedinUrl,
   contactEmail,
+  homeLabel,
+  reteLabel,
+  linkedinLabel,
+  contactLabel,
 }: {
   siteTitle: string;
   heroPhotoPath: string | null;
   heroPhotoRadius?: number;
   linkedinUrl: string | null;
   contactEmail: string | null;
+  homeLabel: string;
+  reteLabel: string;
+  linkedinLabel: string;
+  contactLabel: string;
 }) {
   return (
     <header className="border-b border-black/[.08] dark:border-white/[.145]">
@@ -40,10 +48,10 @@ export function Nav({
         </Link>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Link href="/rete" className={buttonClass}>
-            Rete
+            {reteLabel}
           </Link>
           <Link href="/" className={buttonClass}>
-            Chi sono
+            {homeLabel}
           </Link>
           {linkedinUrl && (
             <a
@@ -52,7 +60,7 @@ export function Nav({
               rel="noopener noreferrer"
               className={buttonClass}
             >
-              LinkedIn
+              {linkedinLabel}
             </a>
           )}
           {contactEmail && (
@@ -62,7 +70,7 @@ export function Nav({
               rel="noopener noreferrer"
               className={buttonClass}
             >
-              Scrivimi
+              {contactLabel}
             </a>
           )}
         </div>

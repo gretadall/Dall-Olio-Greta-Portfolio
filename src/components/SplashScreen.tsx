@@ -3,17 +3,18 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-const SPLASH_DURATION_MS = 3000;
 const FADE_DURATION_MS = 300;
 
 export function SplashScreen({
   imageUrl,
   title,
   message,
+  durationMs,
 }: {
   imageUrl: string | null;
   title: string | null;
   message: string | null;
+  durationMs: number;
 }) {
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
@@ -22,19 +23,19 @@ export function SplashScreen({
     document.body.style.overflow = "hidden";
     const fadeTimer = setTimeout(
       () => setFading(true),
-      SPLASH_DURATION_MS - FADE_DURATION_MS
+      Math.max(durationMs - FADE_DURATION_MS, 0)
     );
     const hideTimer = setTimeout(() => {
       setVisible(false);
       document.body.style.overflow = "";
-    }, SPLASH_DURATION_MS);
+    }, durationMs);
 
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(hideTimer);
       document.body.style.overflow = "";
     };
-  }, []);
+  }, [durationMs]);
 
   if (!visible) return null;
 

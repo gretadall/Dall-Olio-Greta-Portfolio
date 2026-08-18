@@ -28,6 +28,16 @@ export async function updateSiteSettings(
   const splashEnabled = formData.get("splash_enabled") === "on";
   const splashTitle = String(formData.get("splash_title") ?? "").trim();
   const splashMessage = String(formData.get("splash_message") ?? "").trim();
+  const splashDurationSeconds = Number(
+    formData.get("splash_duration_seconds") ?? 3
+  );
+  const navHomeLabel = String(formData.get("nav_home_label") ?? "").trim();
+  const navReteLabel = String(formData.get("nav_rete_label") ?? "").trim();
+  const linkedinLabel = String(formData.get("linkedin_label") ?? "").trim();
+  const contactButtonLabel = String(
+    formData.get("contact_button_label") ?? ""
+  ).trim();
+  const footerText = String(formData.get("footer_text") ?? "").trim();
 
   if (!siteTitle) return { error: "Il titolo del sito è obbligatorio." };
   if (!FONT_CHOICES.includes(fontChoice as (typeof FONT_CHOICES)[number])) {
@@ -39,6 +49,17 @@ export async function updateSiteSettings(
   if (!Number.isFinite(heroPhotoRadius) || heroPhotoRadius < 0 || heroPhotoRadius > 50) {
     return { error: "Forma foto profilo non valida." };
   }
+  if (
+    !Number.isFinite(splashDurationSeconds) ||
+    splashDurationSeconds < 1 ||
+    splashDurationSeconds > 15
+  ) {
+    return { error: "Durata pagina di anteprima non valida." };
+  }
+  if (!navHomeLabel || !navReteLabel || !linkedinLabel || !contactButtonLabel) {
+    return { error: "I testi dei bottoni non possono essere vuoti." };
+  }
+  if (!footerText) return { error: "Il testo del footer non può essere vuoto." };
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -60,6 +81,12 @@ export async function updateSiteSettings(
       splash_enabled: splashEnabled,
       splash_title: splashTitle || null,
       splash_message: splashMessage || null,
+      splash_duration_seconds: splashDurationSeconds,
+      nav_home_label: navHomeLabel,
+      nav_rete_label: navReteLabel,
+      linkedin_label: linkedinLabel,
+      contact_button_label: contactButtonLabel,
+      footer_text: footerText,
       updated_at: new Date().toISOString(),
     })
     .eq("id", true);

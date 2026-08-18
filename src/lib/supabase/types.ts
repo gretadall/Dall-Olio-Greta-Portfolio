@@ -232,6 +232,12 @@ export type Database = {
           splash_image_path: string | null;
           splash_title: string | null;
           splash_message: string | null;
+          splash_duration_seconds: number;
+          nav_home_label: string;
+          nav_rete_label: string;
+          linkedin_label: string;
+          contact_button_label: string;
+          footer_text: string;
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]> & {
