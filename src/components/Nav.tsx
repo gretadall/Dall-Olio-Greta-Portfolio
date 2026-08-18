@@ -56,7 +56,12 @@ export function Nav({
             </a>
           )}
           {contactEmail && (
-            <a href={`mailto:${contactEmail}`} className={buttonClass}>
+            <a
+              href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(contactEmail)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonClass}
+            >
               Scrivimi
             </a>
           )}
