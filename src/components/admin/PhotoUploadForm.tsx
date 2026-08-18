@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 
 type FormState = { error?: string } | undefined;
 type Action = (
@@ -52,34 +52,34 @@ export function PhotoUploadForm({
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const [processing, setProcessing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const fileInput = form.elements.namedItem("photo") as HTMLInputElement;
-    const file = fileInput.files?.[0];
-    if (!file) return;
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith("image/")) return;
 
     setProcessing(true);
-    const uploadFile = file.type.startsWith("image/")
-      ? await compressImage(file)
-      : file;
+    const compressed = await compressImage(file);
     setProcessing(false);
 
-    const formData = new FormData();
-    formData.set("photo", uploadFile);
-    formAction(formData);
+    if (compressed !== file && inputRef.current) {
+      const dt = new DataTransfer();
+      dt.items.add(compressed);
+      inputRef.current.files = dt.files;
+    }
   }
 
   const busy = pending || processing;
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-w-md">
+    <form action={formAction} className="flex flex-col gap-3 max-w-md">
       <input
+        ref={inputRef}
         type="file"
         name="photo"
         accept={accept}
         required
+        onChange={handleFileChange}
         className="text-sm"
       />
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
@@ -88,7 +88,11 @@ export function PhotoUploadForm({
         disabled={busy}
         className="self-start rounded-lg border border-black/[.12] px-4 py-2 text-sm font-medium disabled:opacity-60 dark:border-white/[.16]"
       >
-        {busy ? "Caricamento…" : submitLabel}
+        {busy
+          ? processing
+            ? "Ottimizzazione…"
+            : "Caricamento…"
+          : submitLabel}
       </button>
     </form>
   );
