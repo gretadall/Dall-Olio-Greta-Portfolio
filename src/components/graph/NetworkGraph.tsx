@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useRef, useState, useTransition } from "react";
 import {
   forceSimulation,
@@ -242,6 +243,11 @@ export function NetworkGraph({
               strokeWidth={isSelected ? 2.5 : 1.5}
             />
           );
+          // Larger invisible circle so the node stays easy to tap on small
+          // screens even though the visible dot is only 10px.
+          const tapTarget = (
+            <circle cx={node.x} cy={node.y} r={22} fill="transparent" />
+          );
           const label = (
             <text
               x={node.x}
@@ -263,6 +269,7 @@ export function NetworkGraph({
                 onPointerUp={handlePointerUp}
                 className="cursor-grab active:cursor-grabbing"
               >
+                {tapTarget}
                 {circle}
                 {label}
               </g>
@@ -286,10 +293,11 @@ export function NetworkGraph({
               }}
               className="cursor-pointer text-accent outline-none"
             >
+              {tapTarget}
               {circle}
-              <a href={node.href} onClick={(e) => e.stopPropagation()}>
+              <Link href={node.href} onClick={(e) => e.stopPropagation()}>
                 {label}
-              </a>
+              </Link>
             </g>
           );
         })}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 const FADE_DURATION_MS = 300;
+const SESSION_KEY = "splash-shown";
 
 export function SplashScreen({
   imageUrl,
@@ -20,6 +21,12 @@ export function SplashScreen({
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
+    if (sessionStorage.getItem(SESSION_KEY)) {
+      setVisible(false);
+      return;
+    }
+    sessionStorage.setItem(SESSION_KEY, "1");
+
     document.body.style.overflow = "hidden";
     const fadeTimer = setTimeout(
       () => setFading(true),
