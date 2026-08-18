@@ -72,7 +72,7 @@ function computeLayout(nodes: GraphNode[], links: GraphLink[]) {
       "link",
       forceLink<SimNode, SimLink>(linksCopy)
         .id((d) => d.id)
-        .distance(130)
+        .distance(130),
     )
     .force("charge", forceManyBody().strength(-220))
     .force("center", forceCenter(WIDTH / 2, HEIGHT / 2))
@@ -124,7 +124,7 @@ export function NetworkGraph({
 
   function handlePointerDown(
     e: React.PointerEvent<SVGGElement>,
-    nodeId: string
+    nodeId: string,
   ) {
     if (!editable) return;
     draggingId.current = nodeId;
@@ -177,131 +177,138 @@ export function NetworkGraph({
     <div>
       {!editable && (
         <p className="mb-3 text-sm text-muted">
-          Clicca su un punto per vedere i suoi collegamenti.
+          Clicca su un punto per vedere i suoi collegamenti. Scorri lateralmente
+          per vedere tutta la rete.
         </p>
       )}
-      <svg
-        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="h-auto w-full text-zinc-400 dark:text-zinc-600"
-      >
-        {visibleLinks.map((link) => {
-          const source = link.source as SimNode;
-          const target = link.target as SimNode;
-          if (source.x == null || target.x == null) return null;
-          const midX = (source.x + target.x) / 2;
-          const midY = (source.y! + target.y!) / 2;
+      <div className="overflow-x-auto">
+        <svg
+          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          width={WIDTH}
+          height={HEIGHT}
+          className="max-w-none text-zinc-400 dark:text-zinc-600"
+        >
+          {visibleLinks.map((link) => {
+            const source = link.source as SimNode;
+            const target = link.target as SimNode;
+            if (source.x == null || target.x == null) return null;
+            const midX = (source.x + target.x) / 2;
+            const midY = (source.y! + target.y!) / 2;
 
-          return (
-            <g key={link.id}>
-              <line
-                x1={source.x}
-                y1={source.y}
-                x2={target.x}
-                y2={target.y}
-                stroke="currentColor"
-                strokeWidth={1.5}
-                markerEnd="url(#arrow)"
-              />
-              {link.label && (
-                <text
-                  x={midX}
-                  y={midY}
-                  fontSize={11}
-                  textAnchor="middle"
-                  className="fill-muted"
-                >
-                  {link.label}
-                </text>
-              )}
-            </g>
-          );
-        })}
+            return (
+              <g key={link.id}>
+                <line
+                  x1={source.x}
+                  y1={source.y}
+                  x2={target.x}
+                  y2={target.y}
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  markerEnd="url(#arrow)"
+                />
+                {link.label && (
+                  <text
+                    x={midX}
+                    y={midY}
+                    fontSize={11}
+                    textAnchor="middle"
+                    className="fill-muted"
+                  >
+                    {link.label}
+                  </text>
+                )}
+              </g>
+            );
+          })}
 
-        <defs>
-          <marker
-            id="arrow"
-            viewBox="0 0 10 10"
-            refX="24"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto-start-reverse"
-          >
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
-          </marker>
-        </defs>
-
-        {simNodes.map((node) => {
-          const isSelected = node.id === selectedId;
-          const circle = (
-            <circle
-              cx={node.x}
-              cy={node.y}
-              r={10}
-              fill={node.color}
-              stroke={isSelected ? "currentColor" : "white"}
-              strokeWidth={isSelected ? 2.5 : 1.5}
-            />
-          );
-          // Larger invisible circle so the node stays easy to tap on small
-          // screens even though the visible dot is only 10px.
-          const tapTarget = (
-            <circle cx={node.x} cy={node.y} r={22} fill="transparent" />
-          );
-          const label = (
-            <text
-              x={node.x}
-              y={(node.y ?? 0) + 24}
-              fontSize={12}
-              textAnchor="middle"
-              className="fill-zinc-900 dark:fill-zinc-100"
+          <defs>
+            <marker
+              id="arrow"
+              viewBox="0 0 10 10"
+              refX="24"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
             >
-              {node.title}
-            </text>
-          );
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+            </marker>
+          </defs>
 
-          if (editable) {
+          {simNodes.map((node) => {
+            const isSelected = node.id === selectedId;
+            const circle = (
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={10}
+                fill={node.color}
+                stroke={isSelected ? "currentColor" : "white"}
+                strokeWidth={isSelected ? 2.5 : 1.5}
+              />
+            );
+            // Larger invisible circle so the node stays easy to tap on small
+            // screens even though the visible dot is only 10px.
+            const tapTarget = (
+              <circle cx={node.x} cy={node.y} r={22} fill="transparent" />
+            );
+            const label = (
+              <text
+                x={node.x}
+                y={(node.y ?? 0) + 24}
+                fontSize={12}
+                textAnchor="middle"
+                className="fill-zinc-900 dark:fill-zinc-100"
+              >
+                {node.title}
+              </text>
+            );
+
+            if (editable) {
+              return (
+                <g
+                  key={node.id}
+                  onPointerDown={(e) => handlePointerDown(e, node.id)}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  className="cursor-grab active:cursor-grabbing"
+                >
+                  {tapTarget}
+                  {circle}
+                  {label}
+                </g>
+              );
+            }
+
             return (
               <g
                 key={node.id}
-                onPointerDown={(e) => handlePointerDown(e, node.id)}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                className="cursor-grab active:cursor-grabbing"
+                role="button"
+                tabIndex={0}
+                aria-pressed={isSelected}
+                onClick={() =>
+                  setSelectedId((prev) => (prev === node.id ? null : node.id))
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSelectedId((prev) =>
+                      prev === node.id ? null : node.id,
+                    );
+                  }
+                }}
+                className="cursor-pointer text-accent outline-none"
               >
                 {tapTarget}
                 {circle}
-                {label}
+                <Link href={node.href} onClick={(e) => e.stopPropagation()}>
+                  {label}
+                </Link>
               </g>
             );
-          }
-
-          return (
-            <g
-              key={node.id}
-              role="button"
-              tabIndex={0}
-              aria-pressed={isSelected}
-              onClick={() =>
-                setSelectedId((prev) => (prev === node.id ? null : node.id))
-              }
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setSelectedId((prev) => (prev === node.id ? null : node.id));
-                }
-              }}
-              className="cursor-pointer text-accent outline-none"
-            >
-              {tapTarget}
-              {circle}
-              <Link href={node.href} onClick={(e) => e.stopPropagation()}>
-                {label}
-              </Link>
-            </g>
-          );
-        })}
-      </svg>
+          })}
+        </svg>
+      </div>
 
       {editable && (
         <div className="mt-4 flex items-center gap-3">
