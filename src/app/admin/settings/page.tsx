@@ -33,7 +33,11 @@ export default async function AdminSettingsPage() {
             alt="Foto profilo"
             width={settings.hero_photo_size ?? 96}
             height={settings.hero_photo_size ?? 96}
-            style={{ borderRadius: `${settings.hero_photo_radius ?? 50}%` }}
+            style={{
+              width: settings.hero_photo_size ?? 96,
+              height: settings.hero_photo_size ?? 96,
+              borderRadius: `${settings.hero_photo_radius ?? 50}%`,
+            }}
             className="mt-4 object-cover"
           />
         )}

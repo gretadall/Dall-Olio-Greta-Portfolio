@@ -18,7 +18,11 @@ export default async function Home() {
             alt={settings.owner_name ?? settings.site_title}
             width={settings.hero_photo_size ?? 96}
             height={settings.hero_photo_size ?? 96}
-            style={{ borderRadius: `${settings.hero_photo_radius ?? 50}%` }}
+            style={{
+              width: settings.hero_photo_size ?? 96,
+              height: settings.hero_photo_size ?? 96,
+              borderRadius: `${settings.hero_photo_radius ?? 50}%`,
+            }}
             className="shrink-0 object-cover"
           />
         )}
