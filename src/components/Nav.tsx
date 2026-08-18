@@ -12,11 +12,13 @@ export function Nav({
   heroPhotoPath,
   heroPhotoRadius = 50,
   linkedinUrl,
+  contactEmail,
 }: {
   siteTitle: string;
   heroPhotoPath: string | null;
   heroPhotoRadius?: number;
   linkedinUrl: string | null;
+  contactEmail: string | null;
 }) {
   return (
     <header className="border-b border-black/[.08] dark:border-white/[.145]">
@@ -51,6 +53,11 @@ export function Nav({
               className={buttonClass}
             >
               LinkedIn
+            </a>
+          )}
+          {contactEmail && (
+            <a href={`mailto:${contactEmail}`} className={buttonClass}>
+              Scrivimi
             </a>
           )}
         </div>

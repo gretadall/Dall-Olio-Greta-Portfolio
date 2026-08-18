@@ -105,9 +105,10 @@ export default async function RootLayout({
           heroPhotoPath={settings.hero_photo_path}
           heroPhotoRadius={settings.hero_photo_radius}
           linkedinUrl={settings.linkedin_url}
+          contactEmail={settings.contact_email}
         />
         <main className="flex flex-1 flex-col">{children}</main>
-        <Footer siteTitle={settings.site_title} />
+        <Footer />
       </body>
     </html>
   );

@@ -22,6 +22,7 @@ export async function updateSiteSettings(
   const mutedColor = String(formData.get("muted_color") ?? "").trim();
   const fontChoice = String(formData.get("font_choice") ?? "").trim();
   const linkedinUrl = String(formData.get("linkedin_url") ?? "").trim();
+  const contactEmail = String(formData.get("contact_email") ?? "").trim();
   const heroPhotoSize = Number(formData.get("hero_photo_size") ?? 96);
   const heroPhotoRadius = Number(formData.get("hero_photo_radius") ?? 50);
   const splashEnabled = formData.get("splash_enabled") === "on";
@@ -53,6 +54,7 @@ export async function updateSiteSettings(
       muted_color: mutedColor || null,
       font_choice: fontChoice,
       linkedin_url: linkedinUrl || null,
+      contact_email: contactEmail || null,
       hero_photo_size: heroPhotoSize,
       hero_photo_radius: heroPhotoRadius,
       splash_enabled: splashEnabled,
