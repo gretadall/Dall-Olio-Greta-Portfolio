@@ -65,6 +65,11 @@ export function ConnectionForm({
         />
       </label>
 
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="bidirectional" />
+        Collegamento bidirezionale (vale in entrambe le direzioni)
+      </label>
+
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
 
       <button

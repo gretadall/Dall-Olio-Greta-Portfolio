@@ -23,6 +23,7 @@ type ConnectionLike = {
   from_entry_id: string;
   to_entry_id: string;
   label: string;
+  bidirectional: boolean;
 };
 
 export function buildGraphNodes(sections: SectionLike[], entries: EntryLike[]) {
@@ -47,5 +48,6 @@ export function buildGraphLinks(connections: ConnectionLike[]) {
     source: c.from_entry_id,
     target: c.to_entry_id,
     label: c.label,
+    bidirectional: c.bidirectional,
   }));
 }

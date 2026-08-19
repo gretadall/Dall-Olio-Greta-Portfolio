@@ -3,6 +3,7 @@ import Link from "next/link";
 type Connection = {
   id: string;
   label: string;
+  bidirectional: boolean;
 };
 
 type Outgoing = Connection & {
@@ -39,13 +40,14 @@ export function ConnectionsList({
         {outgoing.map((connection) => {
           const target = connection.to_entry;
           if (!target?.sections) return null;
+          const arrow = connection.bidirectional ? "↔" : "→";
           return (
             <li key={connection.id} className="text-sm">
-              →{" "}
+              {arrow}{" "}
               {connection.label && (
                 <>
                   <span className="text-muted">{connection.label}</span>{" "}
-                  →{" "}
+                  {arrow}{" "}
                 </>
               )}
               <Link
@@ -60,6 +62,25 @@ export function ConnectionsList({
         {incoming.map((connection) => {
           const source = connection.from_entry;
           if (!source?.sections) return null;
+          if (connection.bidirectional) {
+            return (
+              <li key={connection.id} className="text-sm">
+                ↔{" "}
+                {connection.label && (
+                  <>
+                    <span className="text-muted">{connection.label}</span>{" "}
+                    ↔{" "}
+                  </>
+                )}
+                <Link
+                  href={`/${source.sections.slug}/${source.slug}`}
+                  className="underline"
+                >
+                  {source.title}
+                </Link>
+              </li>
+            );
+          }
           return (
             <li key={connection.id} className="text-sm">
               ←{" "}

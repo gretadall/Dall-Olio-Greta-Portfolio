@@ -26,10 +26,15 @@ export type GraphLink = {
   source: string;
   target: string;
   label: string;
+  bidirectional: boolean;
 };
 
 type SimNode = GraphNode & SimulationNodeDatum;
-type SimLink = SimulationLinkDatum<SimNode> & { id: string; label: string };
+type SimLink = SimulationLinkDatum<SimNode> & {
+  id: string;
+  label: string;
+  bidirectional: boolean;
+};
 
 const WIDTH = 800;
 const HEIGHT = 560;
@@ -65,6 +70,7 @@ function computeLayout(nodes: GraphNode[], links: GraphLink[]) {
     label: l.label,
     source: l.source,
     target: l.target,
+    bidirectional: l.bidirectional,
   }));
 
   const simulation = forceSimulation(nodesCopy)
@@ -204,6 +210,7 @@ export function NetworkGraph({
                   y2={target.y}
                   stroke="currentColor"
                   strokeWidth={1.5}
+                  markerStart={link.bidirectional ? "url(#arrow)" : undefined}
                   markerEnd="url(#arrow)"
                 />
                 {link.label && (

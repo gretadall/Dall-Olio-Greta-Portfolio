@@ -87,7 +87,7 @@ export async function getEntryOutgoingConnections(entryId: string) {
   const { data, error } = await supabase
     .from("connections")
     .select(
-      "id, label, to_entry:entries!connections_to_entry_id_fkey(title, sections(title))"
+      "id, label, bidirectional, to_entry:entries!connections_to_entry_id_fkey(title, sections(title))"
     )
     .eq("from_entry_id", entryId)
     .order("created_at", { ascending: false });
@@ -104,7 +104,9 @@ export async function getAdminGraphData() {
     supabase
       .from("entries")
       .select("id, title, slug, section_id, graph_x, graph_y"),
-    supabase.from("connections").select("id, from_entry_id, to_entry_id, label"),
+    supabase
+      .from("connections")
+      .select("id, from_entry_id, to_entry_id, label, bidirectional"),
   ]);
 
   if (sections.error) throw sections.error;

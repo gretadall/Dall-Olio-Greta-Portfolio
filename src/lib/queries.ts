@@ -83,13 +83,13 @@ export async function getEntryConnections(entryId: string) {
     supabase
       .from("connections")
       .select(
-        "id, label, to_entry:entries!connections_to_entry_id_fkey(title, slug, sections(slug))"
+        "id, label, bidirectional, to_entry:entries!connections_to_entry_id_fkey(title, slug, sections(slug))"
       )
       .eq("from_entry_id", entryId),
     supabase
       .from("connections")
       .select(
-        "id, label, from_entry:entries!connections_from_entry_id_fkey(title, slug, sections(slug))"
+        "id, label, bidirectional, from_entry:entries!connections_from_entry_id_fkey(title, slug, sections(slug))"
       )
       .eq("to_entry_id", entryId),
   ]);
@@ -109,7 +109,9 @@ export async function getPublicGraphData() {
       .from("entries")
       .select("id, title, slug, section_id, graph_x, graph_y")
       .eq("is_published", true),
-    supabase.from("connections").select("id, from_entry_id, to_entry_id, label"),
+    supabase
+      .from("connections")
+      .select("id, from_entry_id, to_entry_id, label, bidirectional"),
   ]);
 
   if (sections.error) throw sections.error;

@@ -185,6 +185,7 @@ export type Database = {
           from_entry_id: string;
           to_entry_id: string;
           label: string;
+          bidirectional: boolean;
           created_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["connections"]["Row"]> & {

@@ -14,6 +14,7 @@ export async function createConnection(
 ): Promise<FormState> {
   const toEntryId = String(formData.get("to_entry_id") ?? "").trim();
   const label = String(formData.get("label") ?? "").trim();
+  const bidirectional = formData.get("bidirectional") === "on";
 
   if (!toEntryId) return { error: "Scegli un contenuto da collegare." };
   if (toEntryId === fromEntryId) {
@@ -25,6 +26,7 @@ export async function createConnection(
     from_entry_id: fromEntryId,
     to_entry_id: toEntryId,
     label,
+    bidirectional,
   });
 
   if (error) {
