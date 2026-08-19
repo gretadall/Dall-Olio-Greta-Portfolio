@@ -16,7 +16,7 @@ export default async function SectionPage({
   const entries = await getPublishedEntries(section.id);
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-6 py-16">
+    <div className="relative mx-auto w-full max-w-4xl px-6 py-16">
       <SectionBackground imagePath={section.background_image_path} />
       <div className="flex items-center gap-2">
         {section.icon && <span className="text-2xl">{section.icon}</span>}
