@@ -84,15 +84,26 @@ export default async function RootLayout({
           }
           body {
             font-family: ${fontVar}, Arial, Helvetica, sans-serif !important;
-            ${
-              backgroundImageUrl
-                ? `background-image: url('${backgroundImageUrl}'); background-size: cover; background-position: center; background-attachment: fixed;`
-                : ""
-            }
           }
         `}</style>
       </head>
       <body className="min-h-full flex flex-col">
+        {backgroundImageUrl && (
+          <div
+            aria-hidden
+            className="-z-10"
+            style={{
+              position: "fixed",
+              top: "-10vh",
+              bottom: "-10vh",
+              left: 0,
+              right: 0,
+              backgroundImage: `url('${backgroundImageUrl}')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+        )}
         {settings.splash_enabled && (
           <SplashScreen
             imageUrl={splashImageUrl}

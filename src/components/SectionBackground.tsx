@@ -22,7 +22,6 @@ export function SectionBackground({
         backgroundImage: `url('${getMediaUrl(imagePath)}')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundAttachment: "fixed",
         opacity: opacity / 100,
       }}
     />
