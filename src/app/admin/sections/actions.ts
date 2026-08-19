@@ -151,32 +151,13 @@ export async function removeSectionBackground(sectionId: string) {
   revalidatePath("/");
 }
 
-export async function moveSection(sectionId: string, direction: "up" | "down") {
+export async function reorderSections(orderedIds: string[]) {
   const supabase = await createClient();
-  const { data: sections } = await supabase
-    .from("sections")
-    .select("id, sort_order")
-    .order("sort_order", { ascending: true });
-
-  if (!sections) return;
-
-  const index = sections.findIndex((s) => s.id === sectionId);
-  const swapIndex = direction === "up" ? index - 1 : index + 1;
-  if (index === -1 || swapIndex < 0 || swapIndex >= sections.length) return;
-
-  const current = sections[index];
-  const swap = sections[swapIndex];
-
-  await Promise.all([
-    supabase
-      .from("sections")
-      .update({ sort_order: swap.sort_order })
-      .eq("id", current.id),
-    supabase
-      .from("sections")
-      .update({ sort_order: current.sort_order })
-      .eq("id", swap.id),
-  ]);
+  await Promise.all(
+    orderedIds.map((id, index) =>
+      supabase.from("sections").update({ sort_order: index }).eq("id", id)
+    )
+  );
 
   revalidatePath("/admin/sections");
   revalidatePath("/");

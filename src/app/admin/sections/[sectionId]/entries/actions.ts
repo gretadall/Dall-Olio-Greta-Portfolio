@@ -115,44 +115,20 @@ export async function updateEntry(
   redirect(`/admin/sections/${sectionId}`);
 }
 
-export async function deleteEntry(entryId: string, sectionId: string) {
+export async function deleteEntry(sectionId: string, entryId: string) {
   const supabase = await createClient();
   await supabase.from("entries").delete().eq("id", entryId);
   revalidatePath(`/admin/sections/${sectionId}`);
   revalidatePath("/");
 }
 
-export async function moveEntry(
-  entryId: string,
-  sectionId: string,
-  direction: "up" | "down"
-) {
+export async function reorderEntries(sectionId: string, orderedIds: string[]) {
   const supabase = await createClient();
-  const { data: entries } = await supabase
-    .from("entries")
-    .select("id, sort_order")
-    .eq("section_id", sectionId)
-    .order("sort_order", { ascending: true });
-
-  if (!entries) return;
-
-  const index = entries.findIndex((e) => e.id === entryId);
-  const swapIndex = direction === "up" ? index - 1 : index + 1;
-  if (index === -1 || swapIndex < 0 || swapIndex >= entries.length) return;
-
-  const current = entries[index];
-  const swap = entries[swapIndex];
-
-  await Promise.all([
-    supabase
-      .from("entries")
-      .update({ sort_order: swap.sort_order })
-      .eq("id", current.id),
-    supabase
-      .from("entries")
-      .update({ sort_order: current.sort_order })
-      .eq("id", swap.id),
-  ]);
+  await Promise.all(
+    orderedIds.map((id, index) =>
+      supabase.from("entries").update({ sort_order: index }).eq("id", id)
+    )
+  );
 
   revalidatePath(`/admin/sections/${sectionId}`);
   revalidatePath("/");

@@ -5,12 +5,13 @@ import { getSectionById, getAllEntries } from "@/lib/admin-queries";
 import { getMediaUrl } from "@/lib/supabase/media";
 import { SectionForm } from "@/components/admin/SectionForm";
 import { PhotoUploadForm } from "@/components/admin/PhotoUploadForm";
+import { EntriesAdminList } from "@/components/admin/EntriesAdminList";
 import {
   updateSection,
   uploadSectionBackground,
   removeSectionBackground,
 } from "../actions";
-import { deleteEntry, moveEntry } from "./entries/actions";
+import { deleteEntry, reorderEntries } from "./entries/actions";
 
 export default async function EditSectionPage({
   params,
@@ -97,63 +98,18 @@ export default async function EditSectionPage({
             Nessun contenuto ancora in questa sezione.
           </p>
         ) : (
-          <ul className="mt-6 flex flex-col gap-3">
-            {entries.map((entry, index) => (
-              <li
-                key={entry.id}
-                className="flex items-center justify-between gap-4 rounded-lg border border-black/[.08] p-4 dark:border-white/[.145]"
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{entry.title}</span>
-                    {!entry.is_published && (
-                      <span className="rounded bg-yellow-500/15 px-2 py-0.5 text-xs text-yellow-700 dark:text-yellow-400">
-                        Bozza
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                    /{section.slug}/{entry.slug}
-                  </span>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-2">
-                  <form action={moveEntry.bind(null, entry.id, sectionId, "up")}>
-                    <button
-                      type="submit"
-                      disabled={index === 0}
-                      className="rounded border border-black/[.12] px-2 py-1 text-xs disabled:opacity-30 dark:border-white/[.16]"
-                    >
-                      ↑
-                    </button>
-                  </form>
-                  <form action={moveEntry.bind(null, entry.id, sectionId, "down")}>
-                    <button
-                      type="submit"
-                      disabled={index === entries.length - 1}
-                      className="rounded border border-black/[.12] px-2 py-1 text-xs disabled:opacity-30 dark:border-white/[.16]"
-                    >
-                      ↓
-                    </button>
-                  </form>
-                  <Link
-                    href={`/admin/sections/${sectionId}/entries/${entry.id}`}
-                    className="rounded border border-black/[.12] px-3 py-1 text-xs dark:border-white/[.16]"
-                  >
-                    Modifica
-                  </Link>
-                  <form action={deleteEntry.bind(null, entry.id, sectionId)}>
-                    <button
-                      type="submit"
-                      className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
-                    >
-                      Elimina
-                    </button>
-                  </form>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <div className="mt-6">
+            <p className="mb-3 text-sm text-zinc-500 dark:text-zinc-400">
+              Trascina l&apos;icona ⠿ per riordinare i contenuti.
+            </p>
+            <EntriesAdminList
+              entries={entries}
+              sectionId={sectionId}
+              sectionSlug={section.slug}
+              onReorder={reorderEntries.bind(null, sectionId)}
+              onDelete={deleteEntry.bind(null, sectionId)}
+            />
+          </div>
         )}
       </div>
     </div>
