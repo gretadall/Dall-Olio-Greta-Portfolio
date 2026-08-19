@@ -8,6 +8,11 @@ const FONT_CHOICES = ["geist", "inter", "playfair", "space-mono"] as const;
 
 type FormState = { error?: string } | undefined;
 
+function describeError(err: unknown) {
+  const message = err instanceof Error ? err.message : String(err);
+  return { error: `Errore imprevisto durante il caricamento: ${message}` };
+}
+
 export async function updateSiteSettings(
   _prevState: FormState,
   formData: FormData
@@ -105,22 +110,26 @@ export async function uploadHeroPhoto(
     return { error: "Scegli un'immagine da caricare." };
   }
 
-  const supabase = await createClient();
-  const path = `hero/${Date.now()}-${sanitizeFileName(file.name)}`;
-  const { error: uploadError } = await supabase.storage
-    .from("media")
-    .upload(path, file, { upsert: true });
+  try {
+    const supabase = await createClient();
+    const path = `hero/${Date.now()}-${sanitizeFileName(file.name)}`;
+    const { error: uploadError } = await supabase.storage
+      .from("media")
+      .upload(path, file, { upsert: true });
 
-  if (uploadError) return { error: "Errore durante il caricamento della foto." };
+    if (uploadError) return { error: `Errore durante il caricamento: ${uploadError.message}` };
 
-  const { error } = await supabase
-    .from("site_settings")
-    .update({ hero_photo_path: path, updated_at: new Date().toISOString() })
-    .eq("id", true);
+    const { error } = await supabase
+      .from("site_settings")
+      .update({ hero_photo_path: path, updated_at: new Date().toISOString() })
+      .eq("id", true);
 
-  if (error) return { error: "Errore durante il salvataggio della foto." };
+    if (error) return { error: `Errore durante il salvataggio: ${error.message}` };
 
-  revalidatePath("/", "layout");
+    revalidatePath("/", "layout");
+  } catch (err) {
+    return describeError(err);
+  }
 }
 
 export async function uploadBackgroundImage(
@@ -132,22 +141,26 @@ export async function uploadBackgroundImage(
     return { error: "Scegli un'immagine da caricare." };
   }
 
-  const supabase = await createClient();
-  const path = `background/${Date.now()}-${sanitizeFileName(file.name)}`;
-  const { error: uploadError } = await supabase.storage
-    .from("media")
-    .upload(path, file, { upsert: true });
+  try {
+    const supabase = await createClient();
+    const path = `background/${Date.now()}-${sanitizeFileName(file.name)}`;
+    const { error: uploadError } = await supabase.storage
+      .from("media")
+      .upload(path, file, { upsert: true });
 
-  if (uploadError) return { error: "Errore durante il caricamento dell'immagine." };
+    if (uploadError) return { error: `Errore durante il caricamento: ${uploadError.message}` };
 
-  const { error } = await supabase
-    .from("site_settings")
-    .update({ background_image_path: path, updated_at: new Date().toISOString() })
-    .eq("id", true);
+    const { error } = await supabase
+      .from("site_settings")
+      .update({ background_image_path: path, updated_at: new Date().toISOString() })
+      .eq("id", true);
 
-  if (error) return { error: "Errore durante il salvataggio dell'immagine." };
+    if (error) return { error: `Errore durante il salvataggio: ${error.message}` };
 
-  revalidatePath("/", "layout");
+    revalidatePath("/", "layout");
+  } catch (err) {
+    return describeError(err);
+  }
 }
 
 export async function removeBackgroundImage() {
@@ -169,22 +182,26 @@ export async function uploadSplashImage(
     return { error: "Scegli un'immagine da caricare." };
   }
 
-  const supabase = await createClient();
-  const path = `splash/${Date.now()}-${sanitizeFileName(file.name)}`;
-  const { error: uploadError } = await supabase.storage
-    .from("media")
-    .upload(path, file, { upsert: true });
+  try {
+    const supabase = await createClient();
+    const path = `splash/${Date.now()}-${sanitizeFileName(file.name)}`;
+    const { error: uploadError } = await supabase.storage
+      .from("media")
+      .upload(path, file, { upsert: true });
 
-  if (uploadError) return { error: "Errore durante il caricamento dell'immagine." };
+    if (uploadError) return { error: `Errore durante il caricamento: ${uploadError.message}` };
 
-  const { error } = await supabase
-    .from("site_settings")
-    .update({ splash_image_path: path, updated_at: new Date().toISOString() })
-    .eq("id", true);
+    const { error } = await supabase
+      .from("site_settings")
+      .update({ splash_image_path: path, updated_at: new Date().toISOString() })
+      .eq("id", true);
 
-  if (error) return { error: "Errore durante il salvataggio dell'immagine." };
+    if (error) return { error: `Errore durante il salvataggio: ${error.message}` };
 
-  revalidatePath("/", "layout");
+    revalidatePath("/", "layout");
+  } catch (err) {
+    return describeError(err);
+  }
 }
 
 export async function removeSplashImage() {

@@ -20,22 +20,27 @@ export async function uploadEntryMedia(
     return { error: "Sono ammessi solo immagini o file PDF." };
   }
 
-  const supabase = await createClient();
-  const path = `entries/${entryId}/${Date.now()}-${sanitizeFileName(file.name)}`;
-  const { error: uploadError } = await supabase.storage
-    .from("media")
-    .upload(path, file);
+  try {
+    const supabase = await createClient();
+    const path = `entries/${entryId}/${Date.now()}-${sanitizeFileName(file.name)}`;
+    const { error: uploadError } = await supabase.storage
+      .from("media")
+      .upload(path, file);
 
-  if (uploadError) return { error: "Errore durante il caricamento della foto." };
+    if (uploadError) return { error: `Errore durante il caricamento: ${uploadError.message}` };
 
-  const { error } = await supabase
-    .from("entry_media")
-    .insert({ entry_id: entryId, storage_path: path });
+    const { error } = await supabase
+      .from("entry_media")
+      .insert({ entry_id: entryId, storage_path: path });
 
-  if (error) return { error: "Errore durante il salvataggio della foto." };
+    if (error) return { error: `Errore durante il salvataggio: ${error.message}` };
 
-  revalidatePath(`/admin/sections/${sectionId}/entries/${entryId}`);
-  revalidatePath("/");
+    revalidatePath(`/admin/sections/${sectionId}/entries/${entryId}`);
+    revalidatePath("/");
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { error: `Errore imprevisto durante il caricamento: ${message}` };
+  }
 }
 
 export async function deleteEntryMedia(
