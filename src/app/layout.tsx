@@ -86,9 +86,16 @@ export default async function RootLayout({
             font-family: ${fontVar}, Arial, Helvetica, sans-serif !important;
             ${
               backgroundImageUrl
-                ? `background-image: url('${backgroundImageUrl}'); background-size: cover; background-position: center; background-attachment: fixed;`
+                ? `background-image: url('${backgroundImageUrl}'); background-size: cover; background-position: center; background-attachment: scroll;`
                 : ""
             }
+          }
+          ${
+            backgroundImageUrl
+              ? `@media (hover: hover) and (pointer: fine) {
+                  body { background-attachment: fixed; }
+                }`
+              : ""
           }
         `}</style>
       </head>
