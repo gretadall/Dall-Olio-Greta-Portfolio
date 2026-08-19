@@ -15,22 +15,26 @@ function readSectionForm(formData: FormData) {
   const icon = String(formData.get("icon") ?? "").trim();
   const color = String(formData.get("color") ?? "").trim();
   const isPublished = formData.get("is_published") === "on";
+  const backgroundOpacity = Number(formData.get("background_opacity") ?? 100);
   const slug = slugify(slugInput || title);
 
-  return { title, slug, description, icon, color, isPublished };
+  return { title, slug, description, icon, color, isPublished, backgroundOpacity };
 }
 
 export async function createSection(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const { title, slug, description, icon, color, isPublished } =
+  const { title, slug, description, icon, color, isPublished, backgroundOpacity } =
     readSectionForm(formData);
 
   if (!title) return { error: "Il titolo è obbligatorio." };
   if (!slug) return { error: "Slug non valido." };
   if (RESERVED_SLUGS.includes(slug)) {
     return { error: `Lo slug "${slug}" è riservato, scegline un altro.` };
+  }
+  if (!Number.isFinite(backgroundOpacity) || backgroundOpacity < 0 || backgroundOpacity > 100) {
+    return { error: "Opacità sfondo non valida." };
   }
 
   const supabase = await createClient();
@@ -41,6 +45,7 @@ export async function createSection(
     icon: icon || null,
     color: color || null,
     is_published: isPublished,
+    background_opacity: backgroundOpacity,
   });
 
   if (error) {
@@ -62,13 +67,16 @@ export async function updateSection(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const { title, slug, description, icon, color, isPublished } =
+  const { title, slug, description, icon, color, isPublished, backgroundOpacity } =
     readSectionForm(formData);
 
   if (!title) return { error: "Il titolo è obbligatorio." };
   if (!slug) return { error: "Slug non valido." };
   if (RESERVED_SLUGS.includes(slug)) {
     return { error: `Lo slug "${slug}" è riservato, scegline un altro.` };
+  }
+  if (!Number.isFinite(backgroundOpacity) || backgroundOpacity < 0 || backgroundOpacity > 100) {
+    return { error: "Opacità sfondo non valida." };
   }
 
   const supabase = await createClient();
@@ -81,6 +89,7 @@ export async function updateSection(
       icon: icon || null,
       color: color || null,
       is_published: isPublished,
+      background_opacity: backgroundOpacity,
       updated_at: new Date().toISOString(),
     })
     .eq("id", sectionId);

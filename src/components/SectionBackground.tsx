@@ -1,35 +1,29 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { getMediaUrl } from "@/lib/supabase/media";
 
 export function SectionBackground({
   imagePath,
+  opacity = 100,
 }: {
   imagePath: string | null;
+  opacity?: number;
 }) {
-  const [canHover, setCanHover] = useState(false);
-
-  useEffect(() => {
-    const query = window.matchMedia("(hover: hover) and (pointer: fine)");
-    setCanHover(query.matches);
-    const listener = (e: MediaQueryListEvent) => setCanHover(e.matches);
-    query.addEventListener("change", listener);
-    return () => query.removeEventListener("change", listener);
-  }, []);
-
   if (!imagePath) return null;
 
   return (
     <div
       aria-hidden
-      className="inset-0 -z-10"
+      className="-z-10"
       style={{
-        position: canHover ? "fixed" : "absolute",
+        position: "fixed",
+        top: "-10vh",
+        bottom: "-10vh",
+        left: 0,
+        right: 0,
         backgroundImage: `url('${getMediaUrl(imagePath)}')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundAttachment: canHover ? "fixed" : "scroll",
+        backgroundAttachment: "fixed",
+        opacity: opacity / 100,
       }}
     />
   );

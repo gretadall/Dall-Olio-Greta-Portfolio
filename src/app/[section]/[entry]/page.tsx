@@ -41,8 +41,11 @@ export default async function EntryPage({
   const period = formatPeriod(entry.period_start, entry.period_end);
 
   return (
-    <div className="relative mx-auto w-full max-w-3xl px-6 py-16">
-      <SectionBackground imagePath={section.background_image_path} />
+    <div className="mx-auto w-full max-w-3xl px-6 py-16">
+      <SectionBackground
+        imagePath={section.background_image_path}
+        opacity={section.background_opacity}
+      />
       <Link
         href={`/${section.slug}`}
         className="text-sm text-muted transition-opacity hover:opacity-70"

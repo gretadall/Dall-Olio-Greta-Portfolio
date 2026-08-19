@@ -29,6 +29,7 @@ export type Database = {
           icon: string | null;
           color: string | null;
           background_image_path: string | null;
+          background_opacity: number;
           sort_order: number;
           is_published: boolean;
           created_at: string;

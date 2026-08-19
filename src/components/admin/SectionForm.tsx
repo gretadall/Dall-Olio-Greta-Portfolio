@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import type { Database } from "@/lib/supabase/types";
 
 type Section = Database["public"]["Tables"]["sections"]["Row"];
@@ -20,6 +20,9 @@ export function SectionForm({
   submitLabel: string;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
+  const [backgroundOpacity, setBackgroundOpacity] = useState(
+    section?.background_opacity ?? 100
+  );
 
   return (
     <form action={formAction} className="mt-6 flex flex-col gap-4 max-w-md">
@@ -71,6 +74,21 @@ export function SectionForm({
           defaultValue={section?.description ?? ""}
           className="resize-none rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
         />
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Opacità sfondo ({backgroundOpacity}%)
+        <input
+          type="range"
+          name="background_opacity"
+          min={0}
+          max={100}
+          value={backgroundOpacity}
+          onChange={(e) => setBackgroundOpacity(Number(e.target.value))}
+        />
+        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+          Abbassala se il testo sopra lo sfondo è faticoso da leggere.
+        </span>
       </label>
 
       <label className="flex items-center gap-2 text-sm">
