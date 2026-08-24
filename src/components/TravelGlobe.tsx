@@ -30,92 +30,6 @@ function formatCoord(value: number, positive: string, negative: string) {
   return `${Math.abs(value).toFixed(2)}° ${value >= 0 ? positive : negative}`;
 }
 
-function useElementSize(maxSize: number) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState(0);
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    setSize(Math.min(el.getBoundingClientRect().width, maxSize));
-
-    const observer = new ResizeObserver((entries) => {
-      const width = entries[0]?.contentRect.width ?? 0;
-      setSize(Math.min(width, maxSize));
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [maxSize]);
-
-  return [ref, size] as const;
-}
-
-function GlobeScene({
-  pins,
-  size,
-  enableZoom,
-  onPinClick,
-}: {
-  pins: GlobePin[];
-  size: number;
-  enableZoom: boolean;
-  onPinClick: (pin: GlobePin) => void;
-}) {
-  const globeRef = useRef<GlobeMethods | undefined>(undefined);
-
-  useEffect(() => {
-    const globe = globeRef.current;
-    if (!globe) return;
-    globe.pointOfView({ lat: 25, lng: 15, altitude: 2.1 }, 0);
-    const controls = globe.controls();
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.4;
-    controls.enableZoom = enableZoom;
-  }, [size, enableZoom]);
-
-  return (
-    <Globe
-      ref={globeRef}
-      width={size}
-      height={size}
-      backgroundColor="rgba(0,0,0,0)"
-      globeImageUrl="/globe/earth-dark.jpg"
-      showAtmosphere
-      atmosphereColor="#f97316"
-      atmosphereAltitude={0.18}
-      htmlElementsData={pins}
-      htmlLat="lat"
-      htmlLng="lng"
-      htmlAltitude={0.01}
-      htmlElement={(d) => {
-        const pin = d as GlobePin;
-        const el = document.createElement("div");
-        el.className = `travel-pin${pin.href ? " travel-pin--linked" : ""}`;
-        el.setAttribute("role", "button");
-        el.setAttribute("tabindex", "0");
-        const sub = pin.country ? ` · ${escapeHtml(pin.country)}` : "";
-        el.innerHTML = `
-          <span class="travel-pin__flag">📍</span>
-          <span class="travel-pin__label">${escapeHtml(pin.label)}${sub}</span>
-        `;
-        const activate = (e: Event) => {
-          e.stopPropagation();
-          onPinClick(pin);
-        };
-        el.addEventListener("click", activate);
-        el.addEventListener("keydown", (e) => {
-          if ((e as KeyboardEvent).key === "Enter" || (e as KeyboardEvent).key === " ") {
-            e.preventDefault();
-            activate(e);
-          }
-        });
-        return el;
-      }}
-    />
-  );
-}
-
 function PinVignette({ pin, onClose }: { pin: GlobePin; onClose: () => void }) {
   return (
     <div className="absolute inset-x-0 top-0 z-20 flex justify-center px-2">
@@ -159,7 +73,7 @@ function PinVignette({ pin, onClose }: { pin: GlobePin; onClose: () => void }) {
   );
 }
 
-function ExpandIcon() {
+function ExpandIcon({ expanded }: { expanded: boolean }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -171,7 +85,11 @@ function ExpandIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" />
+      {expanded ? (
+        <path d="M9 3v4a2 2 0 0 1-2 2H3M21 9h-4a2 2 0 0 1-2-2V3M3 15h4a2 2 0 0 1 2 2v4M15 21v-4a2 2 0 0 1 2-2h4" />
+      ) : (
+        <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" />
+      )}
     </svg>
   );
 }
@@ -183,11 +101,37 @@ export function TravelGlobe({
   pins: GlobePin[];
   compact?: boolean;
 }) {
-  const maxSize = compact ? 340 : 520;
-  const [containerRef, size] = useElementSize(maxSize);
-  const [modalRef, modalSize] = useElementSize(640);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const globeRef = useRef<GlobeMethods | undefined>(undefined);
+  const [size, setSize] = useState(0);
   const [activePin, setActivePin] = useState<GlobePin | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const inlineMax = compact ? 340 : 520;
+  const maxSize = expanded ? 640 : inlineMax;
+
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    setSize(Math.min(el.getBoundingClientRect().width, maxSize));
+
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width ?? 0;
+      setSize(Math.min(width, maxSize));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [maxSize]);
+
+  useEffect(() => {
+    const globe = globeRef.current;
+    if (!globe) return;
+    globe.pointOfView({ lat: 25, lng: 15, altitude: 2.1 }, 0);
+    const controls = globe.controls();
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.4;
+    controls.enableZoom = expanded;
+  }, [size, expanded]);
 
   useEffect(() => {
     if (!expanded) return;
@@ -200,12 +144,14 @@ export function TravelGlobe({
 
   return (
     <div
-      className="relative mx-auto w-full"
-      style={{ maxWidth: maxSize }}
+      className={
+        expanded
+          ? "fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/85 p-6 backdrop-blur-sm"
+          : "relative mx-auto w-full"
+      }
+      style={expanded ? undefined : { maxWidth: inlineMax }}
     >
-      {activePin && !expanded && (
-        <PinVignette pin={activePin} onClose={() => setActivePin(null)} />
-      )}
+      {activePin && <PinVignette pin={activePin} onClose={() => setActivePin(null)} />}
 
       <div
         ref={containerRef}
@@ -213,61 +159,62 @@ export function TravelGlobe({
         style={{ maxWidth: maxSize, aspectRatio: "1 / 1" }}
       >
         {size > 0 && (
-          <GlobeScene
-            pins={pins}
-            size={size}
-            enableZoom={false}
-            onPinClick={setActivePin}
+          <Globe
+            ref={globeRef}
+            width={size}
+            height={size}
+            backgroundColor="rgba(0,0,0,0)"
+            globeImageUrl="/globe/earth-dark.jpg"
+            showAtmosphere
+            atmosphereColor="#f97316"
+            atmosphereAltitude={0.18}
+            htmlElementsData={pins}
+            htmlLat="lat"
+            htmlLng="lng"
+            htmlAltitude={0.01}
+            htmlElement={(d) => {
+              const pin = d as GlobePin;
+              const el = document.createElement("div");
+              el.className = `travel-pin${pin.href ? " travel-pin--linked" : ""}`;
+              el.setAttribute("role", "button");
+              el.setAttribute("tabindex", "0");
+              const sub = pin.country ? ` · ${escapeHtml(pin.country)}` : "";
+              el.innerHTML = `
+                <span class="travel-pin__flag">📍</span>
+                <span class="travel-pin__label">${escapeHtml(pin.label)}${sub}</span>
+              `;
+              el.onclick = (e) => {
+                e.stopPropagation();
+                setActivePin(pin);
+              };
+              el.onkeydown = (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setActivePin(pin);
+                }
+              };
+              return el;
+            }}
           />
         )}
       </div>
 
       <button
         type="button"
-        onClick={() => setExpanded(true)}
-        aria-label="Ingrandisci il globo"
-        className="absolute right-1 bottom-1 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur transition-colors hover:bg-black/70"
+        onClick={() => setExpanded((v) => !v)}
+        aria-label={expanded ? "Rimpicciolisci il globo" : "Ingrandisci il globo"}
+        className={
+          expanded
+            ? "rounded-full border border-white/30 px-4 py-2 text-sm text-white transition-colors hover:bg-white/10"
+            : "absolute right-1 bottom-1 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur transition-colors hover:bg-black/70"
+        }
       >
-        <ExpandIcon />
+        {expanded ? (
+          "Chiudi"
+        ) : (
+          <ExpandIcon expanded={false} />
+        )}
       </button>
-
-      {expanded && (
-        <div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/85 p-6 backdrop-blur-sm"
-          onClick={() => setExpanded(false)}
-        >
-          <div
-            className="relative"
-            onClick={(e) => e.stopPropagation()}
-            style={{ width: "min(85vw, 85vh, 640px)" }}
-          >
-            {activePin && (
-              <PinVignette pin={activePin} onClose={() => setActivePin(null)} />
-            )}
-            <div
-              ref={modalRef}
-              className="mx-auto flex items-center justify-center"
-              style={{ width: "100%", aspectRatio: "1 / 1" }}
-            >
-              {modalSize > 0 && (
-                <GlobeScene
-                  pins={pins}
-                  size={modalSize}
-                  enableZoom
-                  onPinClick={setActivePin}
-                />
-              )}
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setExpanded(false)}
-            className="rounded-full border border-white/30 px-4 py-2 text-sm text-white transition-colors hover:bg-white/10"
-          >
-            Chiudi
-          </button>
-        </div>
-      )}
     </div>
   );
 }
