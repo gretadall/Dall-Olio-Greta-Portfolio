@@ -8,7 +8,7 @@ import {
 import { getMediaUrl } from "@/lib/supabase/media";
 import { SectionBlock } from "@/components/home/SectionBlock";
 import { SectionDotNav } from "@/components/home/SectionDotNav";
-import type { GlobePin } from "@/components/TravelGlobe";
+import { buildGlobePins } from "@/lib/travel-pins";
 
 export default async function Home() {
   const [sections, settings] = await Promise.all([
@@ -23,25 +23,7 @@ export default async function Home() {
     hasTravelSection ? getPublishedTravelPins() : Promise.resolve([]),
   ]);
 
-  const travelPins: GlobePin[] = travelPinsRaw.map((pin) => {
-    const entry = Array.isArray(pin.entries) ? pin.entries[0] : pin.entries;
-    const entrySections = entry
-      ? Array.isArray(entry.sections)
-        ? entry.sections[0]
-        : entry.sections
-      : null;
-    return {
-      id: pin.id,
-      label: pin.label,
-      country: pin.country,
-      lat: pin.lat,
-      lng: pin.lng,
-      href:
-        entry && entrySections
-          ? `/${entrySections.slug}/${entry.slug}`
-          : null,
-    };
-  });
+  const travelPins = buildGlobePins(travelPinsRaw);
 
   return (
     <div>
@@ -97,7 +79,6 @@ export default async function Home() {
             key={section.id}
             section={section}
             entries={entriesBySection[index]}
-            index={index}
             travelPins={section.slug === "viaggi" ? travelPins : undefined}
           />
         ))

@@ -6,7 +6,8 @@ import {
 } from "@/lib/queries";
 import { EntryCard } from "@/components/EntryCard";
 import { SectionBackground } from "@/components/SectionBackground";
-import { TravelGlobe, type GlobePin } from "@/components/TravelGlobe";
+import { TravelGlobe } from "@/components/TravelGlobe";
+import { buildGlobePins } from "@/lib/travel-pins";
 
 export default async function SectionPage({
   params,
@@ -25,25 +26,7 @@ export default async function SectionPage({
     isTravel ? getPublishedTravelPins() : Promise.resolve([]),
   ]);
 
-  const travelPins: GlobePin[] = travelPinsRaw.map((pin) => {
-    const entry = Array.isArray(pin.entries) ? pin.entries[0] : pin.entries;
-    const entrySections = entry
-      ? Array.isArray(entry.sections)
-        ? entry.sections[0]
-        : entry.sections
-      : null;
-    return {
-      id: pin.id,
-      label: pin.label,
-      country: pin.country,
-      lat: pin.lat,
-      lng: pin.lng,
-      href:
-        entry && entrySections
-          ? `/${entrySections.slug}/${entry.slug}`
-          : null,
-    };
-  });
+  const travelPins = buildGlobePins(travelPinsRaw);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-16">
@@ -67,8 +50,8 @@ export default async function SectionPage({
         <div className="mt-10">
           <TravelGlobe pins={travelPins} />
           <p className="mt-4 text-center text-xs text-muted">
-            Ogni bandierina è un luogo in cui sono stata. Quelle in
-            evidenza raccontano anche una storia — cliccale per leggerla.
+            Ogni bandierina è un luogo in cui sono stata: cliccala per
+            scoprirlo. Quelle in evidenza hanno anche un racconto da leggere.
           </p>
         </div>
       )}
