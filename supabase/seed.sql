@@ -28,3 +28,16 @@ on conflict (section_id, slug) do update set
   period_end = excluded.period_end,
   location = excluded.location,
   sort_order = excluded.sort_order;
+
+-- Sample travel pins: one linked to the Islanda entry, a couple of plain markers.
+insert into travel_pins (label, country, lat, lng, entry_id, sort_order)
+select v.label, v.country, v.lat, v.lng, e.id, v.sort_order
+from (values
+  ('Reykjavík', 'Islanda', 64.1466, -21.9426, 'islanda', 1),
+  ('Lisbona', 'Portogallo', 38.7223, -9.1393, null, 2),
+  ('Kyoto', 'Giappone', 35.0116, 135.7681, null, 3)
+) as v(label, country, lat, lng, entry_slug, sort_order)
+left join entries e on e.slug = v.entry_slug
+where not exists (
+  select 1 from travel_pins tp where tp.label = v.label
+);

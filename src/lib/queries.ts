@@ -100,6 +100,18 @@ export async function getEntryConnections(entryId: string) {
   return { outgoing: outgoing.data, incoming: incoming.data };
 }
 
+export async function getPublishedTravelPins() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("travel_pins")
+    .select("*, entries(slug, sections(slug))")
+    .eq("is_published", true)
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
 export async function getPublicGraphData() {
   const supabase = await createClient();
 

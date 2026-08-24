@@ -120,6 +120,41 @@ export async function getAdminGraphData() {
   };
 }
 
+export async function getAllTravelPins() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("travel_pins")
+    .select("*, entries(title)")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getTravelPinById(id: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("travel_pins")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getTravelEntries() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("entries")
+    .select("id, title, sections!inner(slug)")
+    .eq("sections.slug", "viaggi")
+    .order("title", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
 export async function getDashboardCounts() {
   const supabase = await createClient();
   const [sections, entries, comments, followers] = await Promise.all([

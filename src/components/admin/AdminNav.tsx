@@ -12,6 +12,9 @@ export function AdminNav() {
       <Link href="/admin/rete" className="hover:underline">
         Rete
       </Link>
+      <Link href="/admin/travel-pins" className="hover:underline">
+        Luoghi
+      </Link>
       <Link href="/admin/comments" className="hover:underline">
         Commenti
       </Link>

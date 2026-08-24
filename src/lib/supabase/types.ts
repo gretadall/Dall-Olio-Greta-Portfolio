@@ -212,6 +212,35 @@ export type Database = {
           },
         ];
       };
+      travel_pins: {
+        Row: {
+          id: string;
+          label: string;
+          country: string | null;
+          lat: number;
+          lng: number;
+          entry_id: string | null;
+          sort_order: number;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["travel_pins"]["Row"]> & {
+          label: string;
+          lat: number;
+          lng: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["travel_pins"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "travel_pins_entry_id_fkey";
+            columns: ["entry_id"];
+            isOneToOne: false;
+            referencedRelation: "entries";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       site_settings: {
         Row: {
           id: boolean;
