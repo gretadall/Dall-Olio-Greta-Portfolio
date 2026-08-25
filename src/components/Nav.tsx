@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
+import { EditableText } from "@/components/edit/EditableText";
 
 const buttonClass =
   "rounded-full border border-black/[.12] px-3 py-1 text-xs font-medium text-muted transition-colors hover:border-black/[.24] dark:border-white/[.16] dark:hover:border-white/[.3] sm:px-4 sm:py-1.5 sm:text-sm";
@@ -37,20 +38,27 @@ export function Nav({
             height={64}
             className="h-11 w-11 shrink-0 object-contain sm:h-14 sm:w-14"
           />
-          <span
+          <EditableText
+            as="span"
             className="truncate text-base font-semibold tracking-tight text-primary sm:text-lg"
             style={navTitleColor ? { color: navTitleColor } : undefined}
-          >
-            {siteTitle}
-          </span>
+            value={siteTitle}
+            target={{ table: "site_settings", field: "site_title" }}
+          />
         </Link>
 
         <div className="ml-auto flex flex-wrap items-center justify-end gap-2 sm:gap-3">
           <Link href="/rete" className={buttonClass}>
-            {reteLabel}
+            <EditableText
+              value={reteLabel}
+              target={{ table: "site_settings", field: "nav_rete_label" }}
+            />
           </Link>
           <Link href="/" className={buttonClass}>
-            {homeLabel}
+            <EditableText
+              value={homeLabel}
+              target={{ table: "site_settings", field: "nav_home_label" }}
+            />
           </Link>
           {linkedinUrl && (
             <a
@@ -59,7 +67,10 @@ export function Nav({
               rel="noopener noreferrer"
               className={buttonClass}
             >
-              {linkedinLabel}
+              <EditableText
+                value={linkedinLabel}
+                target={{ table: "site_settings", field: "linkedin_label" }}
+              />
             </a>
           )}
           {contactEmail && (
@@ -69,7 +80,10 @@ export function Nav({
               rel="noopener noreferrer"
               className={buttonClass}
             >
-              {contactLabel}
+              <EditableText
+                value={contactLabel}
+                target={{ table: "site_settings", field: "contact_button_label" }}
+              />
             </a>
           )}
           <HamburgerMenu

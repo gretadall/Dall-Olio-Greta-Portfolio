@@ -6,8 +6,9 @@ import {
   getPublishedTravelPins,
 } from "@/lib/queries";
 import { getMediaUrl } from "@/lib/supabase/media";
-import { SectionBlock } from "@/components/home/SectionBlock";
+import { HomeSectionsEditable } from "@/components/home/HomeSectionsEditable";
 import { SectionDotNav } from "@/components/home/SectionDotNav";
+import { EditableText } from "@/components/edit/EditableText";
 import { buildGlobePins } from "@/lib/travel-pins";
 
 export default async function Home() {
@@ -75,14 +76,23 @@ export default async function Home() {
             <div>
               <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
                 Ciao, sono{" "}
-                {settings.owner_name ?? "una persona in continua crescita"}
+                <EditableText
+                  value={
+                    settings.owner_name ?? "una persona in continua crescita"
+                  }
+                  target={{ table: "site_settings", field: "owner_name" }}
+                />
               </h1>
-              <p
+              <EditableText
+                as="p"
                 className={`mt-3 max-w-2xl ${hasHeroBackground ? "text-white/80" : "text-muted"}`}
-              >
-                {settings.tagline ??
-                  "Questo non è un CV. È un ritratto più completo di chi sono, oltre a competenze ed esperienze: valori, viaggi, attitudini e molto altro."}
-              </p>
+                value={
+                  settings.tagline ??
+                  "Questo non è un CV. È un ritratto più completo di chi sono, oltre a competenze ed esperienze: valori, viaggi, attitudini e molto altro."
+                }
+                target={{ table: "site_settings", field: "tagline" }}
+                multiline
+              />
             </div>
           </div>
         </div>
@@ -103,14 +113,11 @@ export default async function Home() {
           Nessuna sezione pubblicata ancora.
         </p>
       ) : (
-        sections.map((section, index) => (
-          <SectionBlock
-            key={section.id}
-            section={section}
-            entries={entriesBySection[index]}
-            travelPins={section.slug === "viaggi" ? travelPins : undefined}
-          />
-        ))
+        <HomeSectionsEditable
+          sections={sections}
+          entriesBySection={entriesBySection}
+          travelPins={travelPins}
+        />
       )}
 
       <SectionDotNav

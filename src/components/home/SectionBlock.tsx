@@ -3,6 +3,9 @@ import Image from "next/image";
 import type { Database } from "@/lib/supabase/types";
 import { getMediaUrl } from "@/lib/supabase/media";
 import { TravelGlobe, type GlobePin } from "@/components/TravelGlobe";
+import { EditableText } from "@/components/edit/EditableText";
+import { DeleteButton } from "@/components/edit/DeleteButton";
+import { deleteEntry } from "@/app/admin/sections/[sectionId]/entries/actions";
 import { Reveal } from "./Reveal";
 
 type Section = Database["public"]["Tables"]["sections"]["Row"];
@@ -48,19 +51,22 @@ export function SectionBlock({
           <div className={hasBackground ? "py-8 text-white" : undefined}>
             <div className="flex items-center gap-2">
               {section.icon && <span className="text-2xl">{section.icon}</span>}
-              <span
+              <EditableText
+                as="span"
                 className={`text-xs font-semibold tracking-[0.2em] uppercase ${
                   hasBackground ? "text-white/75" : "text-muted"
                 }`}
-              >
-                {section.title}
-              </span>
+                value={section.title}
+                target={{ table: "sections", id: section.id, field: "title" }}
+              />
             </div>
-            {section.description && (
-              <p className="mt-4 max-w-2xl text-2xl leading-snug font-medium tracking-tight sm:text-3xl">
-                {section.description}
-              </p>
-            )}
+            <EditableText
+              as="p"
+              className="mt-4 max-w-2xl text-2xl leading-snug font-medium tracking-tight sm:text-3xl"
+              value={section.description ?? ""}
+              target={{ table: "sections", id: section.id, field: "description" }}
+              multiline
+            />
             <Link
               href={`/${section.slug}`}
               className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary transition-opacity hover:opacity-70"
@@ -100,14 +106,17 @@ export function SectionBlock({
                   }`}
                 >
                   {preview.map((entry) => (
-                    <li key={entry.id}>
+                    <li key={entry.id} className="relative">
                       <Link
                         href={`/${section.slug}/${entry.slug}`}
                         className="group flex items-baseline justify-between gap-4 py-4"
                       >
-                        <span className="font-medium tracking-tight transition-opacity group-hover:opacity-70">
-                          {entry.title}
-                        </span>
+                        <EditableText
+                          as="span"
+                          className="font-medium tracking-tight transition-opacity group-hover:opacity-70"
+                          value={entry.title}
+                          target={{ table: "entries", id: entry.id, field: "title" }}
+                        />
                         {entry.location && (
                           <span
                             className={`shrink-0 text-xs ${
@@ -118,6 +127,11 @@ export function SectionBlock({
                           </span>
                         )}
                       </Link>
+                      <DeleteButton
+                        label={entry.title}
+                        action={deleteEntry.bind(null, section.id, entry.id)}
+                        className="absolute right-0 top-1/2 -translate-y-1/2"
+                      />
                     </li>
                   ))}
                 </ul>

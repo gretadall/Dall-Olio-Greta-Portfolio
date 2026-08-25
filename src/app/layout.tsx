@@ -9,8 +9,12 @@ import {
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { SplashScreen } from "@/components/SplashScreen";
+import { EditModeProvider } from "@/components/edit/EditModeProvider";
+import { EditToolbar } from "@/components/edit/EditToolbar";
+import { ColorPanel } from "@/components/edit/ColorPanel";
 import { getSiteSettings, getPublishedSections } from "@/lib/queries";
 import { getMediaUrl } from "@/lib/supabase/media";
+import { getIsAdmin } from "@/lib/supabase/auth";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -59,9 +63,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [settings, sections] = await Promise.all([
+  const [settings, sections, isAdmin] = await Promise.all([
     getSiteSettings(),
     getPublishedSections(),
+    getIsAdmin(),
   ]);
   const fontVar = FONT_VARS[settings.font_choice] ?? FONT_VARS.geist;
   const backgroundImageUrl = settings.background_image_path
@@ -115,23 +120,41 @@ export default async function RootLayout({
             durationMs={(settings.splash_duration_seconds ?? 3) * 1000}
           />
         )}
-        <Nav
-          siteTitle={settings.site_title}
-          navTitleColor={settings.nav_title_color}
-          linkedinUrl={settings.linkedin_url}
-          contactEmail={settings.contact_email}
-          homeLabel={settings.nav_home_label ?? "Chi sono"}
-          reteLabel={settings.nav_rete_label ?? "Rete"}
-          linkedinLabel={settings.linkedin_label ?? "LinkedIn"}
-          contactLabel={settings.contact_button_label ?? "Scrivimi"}
-          sections={sections.map((s) => ({
-            slug: s.slug,
-            title: s.title,
-            icon: s.icon,
-          }))}
-        />
-        <main className="flex flex-1 flex-col">{children}</main>
-        <Footer text={settings.footer_text ?? "Built by Greta dall'Olio"} />
+        <EditModeProvider isAdmin={isAdmin}>
+          <Nav
+            siteTitle={settings.site_title}
+            navTitleColor={settings.nav_title_color}
+            linkedinUrl={settings.linkedin_url}
+            contactEmail={settings.contact_email}
+            homeLabel={settings.nav_home_label ?? "Chi sono"}
+            reteLabel={settings.nav_rete_label ?? "Rete"}
+            linkedinLabel={settings.linkedin_label ?? "LinkedIn"}
+            contactLabel={settings.contact_button_label ?? "Scrivimi"}
+            sections={sections.map((s) => ({
+              slug: s.slug,
+              title: s.title,
+              icon: s.icon,
+            }))}
+          />
+          <main className="flex flex-1 flex-col">{children}</main>
+          <Footer text={settings.footer_text ?? "Built by Greta dall'Olio"} />
+          {isAdmin && (
+            <>
+              <EditToolbar />
+              <ColorPanel
+                colors={{
+                  primary_color: settings.primary_color,
+                  accent_color: settings.accent_color,
+                  background_color: settings.background_color ?? "#ffffff",
+                  font_color: settings.font_color ?? "#171717",
+                  muted_color: settings.muted_color ?? "#52525b",
+                  nav_title_color:
+                    settings.nav_title_color ?? settings.primary_color,
+                }}
+              />
+            </>
+          )}
+        </EditModeProvider>
       </body>
     </html>
   );

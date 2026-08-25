@@ -7,6 +7,7 @@ import {
 import { EntryCard } from "@/components/EntryCard";
 import { SectionBackground } from "@/components/SectionBackground";
 import { TravelGlobe } from "@/components/TravelGlobe";
+import { EditableText } from "@/components/edit/EditableText";
 import { buildGlobePins } from "@/lib/travel-pins";
 
 export default async function SectionPage({
@@ -36,15 +37,20 @@ export default async function SectionPage({
       />
       <div className="flex items-center gap-2">
         {section.icon && <span className="text-2xl">{section.icon}</span>}
-        <h1 className="text-3xl font-semibold tracking-tight">
-          {section.title}
-        </h1>
+        <EditableText
+          as="h1"
+          className="text-3xl font-semibold tracking-tight"
+          value={section.title}
+          target={{ table: "sections", id: section.id, field: "title" }}
+        />
       </div>
-      {section.description && (
-        <p className="mt-3 max-w-2xl text-muted">
-          {section.description}
-        </p>
-      )}
+      <EditableText
+        as="p"
+        className="mt-3 max-w-2xl text-muted"
+        value={section.description ?? ""}
+        target={{ table: "sections", id: section.id, field: "description" }}
+        multiline
+      />
 
       {isTravel && (
         <div className="mt-10">
