@@ -23,6 +23,9 @@ export function SectionForm({
   const [backgroundOpacity, setBackgroundOpacity] = useState(
     section?.background_opacity ?? 100
   );
+  const [homeOverlayDarkness, setHomeOverlayDarkness] = useState(
+    section?.home_overlay_darkness ?? 55
+  );
 
   return (
     <form action={formAction} className="mt-6 flex flex-col gap-4 max-w-md">
@@ -88,6 +91,22 @@ export function SectionForm({
         />
         <span className="text-xs text-zinc-500 dark:text-zinc-400">
           Abbassala se il testo sopra lo sfondo è faticoso da leggere.
+        </span>
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Scurità sfondo in home ({homeOverlayDarkness}%)
+        <input
+          type="range"
+          name="home_overlay_darkness"
+          min={0}
+          max={100}
+          value={homeOverlayDarkness}
+          onChange={(e) => setHomeOverlayDarkness(Number(e.target.value))}
+        />
+        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+          L&apos;alone scuro dietro al testo, quando questa sezione appare
+          nella home con la sua foto di sfondo.
         </span>
       </label>
 

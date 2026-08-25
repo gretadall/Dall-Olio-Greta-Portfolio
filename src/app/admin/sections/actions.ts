@@ -16,17 +16,35 @@ function readSectionForm(formData: FormData) {
   const color = String(formData.get("color") ?? "").trim();
   const isPublished = formData.get("is_published") === "on";
   const backgroundOpacity = Number(formData.get("background_opacity") ?? 100);
+  const homeOverlayDarkness = Number(formData.get("home_overlay_darkness") ?? 55);
   const slug = slugify(slugInput || title);
 
-  return { title, slug, description, icon, color, isPublished, backgroundOpacity };
+  return {
+    title,
+    slug,
+    description,
+    icon,
+    color,
+    isPublished,
+    backgroundOpacity,
+    homeOverlayDarkness,
+  };
 }
 
 export async function createSection(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const { title, slug, description, icon, color, isPublished, backgroundOpacity } =
-    readSectionForm(formData);
+  const {
+    title,
+    slug,
+    description,
+    icon,
+    color,
+    isPublished,
+    backgroundOpacity,
+    homeOverlayDarkness,
+  } = readSectionForm(formData);
 
   if (!title) return { error: "Il titolo è obbligatorio." };
   if (!slug) return { error: "Slug non valido." };
@@ -35,6 +53,13 @@ export async function createSection(
   }
   if (!Number.isFinite(backgroundOpacity) || backgroundOpacity < 0 || backgroundOpacity > 100) {
     return { error: "Opacità sfondo non valida." };
+  }
+  if (
+    !Number.isFinite(homeOverlayDarkness) ||
+    homeOverlayDarkness < 0 ||
+    homeOverlayDarkness > 100
+  ) {
+    return { error: "Scurità sfondo in home non valida." };
   }
 
   const supabase = await createClient();
@@ -46,6 +71,7 @@ export async function createSection(
     color: color || null,
     is_published: isPublished,
     background_opacity: backgroundOpacity,
+    home_overlay_darkness: homeOverlayDarkness,
   });
 
   if (error) {
@@ -67,8 +93,16 @@ export async function updateSection(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const { title, slug, description, icon, color, isPublished, backgroundOpacity } =
-    readSectionForm(formData);
+  const {
+    title,
+    slug,
+    description,
+    icon,
+    color,
+    isPublished,
+    backgroundOpacity,
+    homeOverlayDarkness,
+  } = readSectionForm(formData);
 
   if (!title) return { error: "Il titolo è obbligatorio." };
   if (!slug) return { error: "Slug non valido." };
@@ -77,6 +111,13 @@ export async function updateSection(
   }
   if (!Number.isFinite(backgroundOpacity) || backgroundOpacity < 0 || backgroundOpacity > 100) {
     return { error: "Opacità sfondo non valida." };
+  }
+  if (
+    !Number.isFinite(homeOverlayDarkness) ||
+    homeOverlayDarkness < 0 ||
+    homeOverlayDarkness > 100
+  ) {
+    return { error: "Scurità sfondo in home non valida." };
   }
 
   const supabase = await createClient();
@@ -90,6 +131,7 @@ export async function updateSection(
       color: color || null,
       is_published: isPublished,
       background_opacity: backgroundOpacity,
+      home_overlay_darkness: homeOverlayDarkness,
       updated_at: new Date().toISOString(),
     })
     .eq("id", sectionId);

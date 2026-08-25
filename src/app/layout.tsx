@@ -9,7 +9,7 @@ import {
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { SplashScreen } from "@/components/SplashScreen";
-import { getSiteSettings } from "@/lib/queries";
+import { getSiteSettings, getPublishedSections } from "@/lib/queries";
 import { getMediaUrl } from "@/lib/supabase/media";
 import "./globals.css";
 
@@ -59,7 +59,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSiteSettings();
+  const [settings, sections] = await Promise.all([
+    getSiteSettings(),
+    getPublishedSections(),
+  ]);
   const fontVar = FONT_VARS[settings.font_choice] ?? FONT_VARS.geist;
   const backgroundImageUrl = settings.background_image_path
     ? getMediaUrl(settings.background_image_path)
@@ -122,6 +125,11 @@ export default async function RootLayout({
           reteLabel={settings.nav_rete_label ?? "Rete"}
           linkedinLabel={settings.linkedin_label ?? "LinkedIn"}
           contactLabel={settings.contact_button_label ?? "Scrivimi"}
+          sections={sections.map((s) => ({
+            slug: s.slug,
+            title: s.title,
+            icon: s.icon,
+          }))}
         />
         <main className="flex flex-1 flex-col">{children}</main>
         <Footer text={settings.footer_text ?? "Built by Greta dall'Olio"} />

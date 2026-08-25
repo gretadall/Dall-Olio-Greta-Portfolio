@@ -38,7 +38,10 @@ export function SectionBlock({
           {hasBackground && (
             <div
               aria-hidden
-              className="pointer-events-none absolute -inset-x-8 -inset-y-10 -z-10 rounded-[2.5rem] bg-black/55 blur-3xl"
+              className="pointer-events-none absolute -inset-x-8 -inset-y-10 -z-10 rounded-[2.5rem] blur-3xl"
+              style={{
+                backgroundColor: `rgba(0, 0, 0, ${(section.home_overlay_darkness ?? 55) / 100})`,
+              }}
             />
           )}
 
