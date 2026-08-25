@@ -5,6 +5,8 @@ import { SettingsForm } from "@/components/admin/SettingsForm";
 import { PhotoUploadForm } from "@/components/admin/PhotoUploadForm";
 import {
   uploadHeroPhoto,
+  uploadHeroBackground,
+  removeHeroBackground,
   uploadBackgroundImage,
   removeBackgroundImage,
   uploadSplashImage,
@@ -43,6 +45,42 @@ export default async function AdminSettingsPage() {
         )}
         <div className="mt-4">
           <PhotoUploadForm action={uploadHeroPhoto} submitLabel="Carica foto" />
+        </div>
+      </div>
+
+      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
+        <h2 className="text-lg font-semibold tracking-tight">
+          Sfondo blocco &quot;Chi sono&quot;
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          Una foto dietro al primo blocco della home (nome e presentazione),
+          con lo stesso alone scuro delle altre sezioni. La scurità si
+          regola qui sopra, tra i colori.
+        </p>
+        {settings.hero_background_image_path && (
+          <>
+            <Image
+              src={getMediaUrl(settings.hero_background_image_path)}
+              alt="Sfondo Chi sono"
+              width={240}
+              height={135}
+              className="mt-4 rounded-lg object-cover"
+            />
+            <form action={removeHeroBackground} className="mt-3">
+              <button
+                type="submit"
+                className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
+              >
+                Rimuovi sfondo
+              </button>
+            </form>
+          </>
+        )}
+        <div className="mt-4">
+          <PhotoUploadForm
+            action={uploadHeroBackground}
+            submitLabel="Carica sfondo"
+          />
         </div>
       </div>
 

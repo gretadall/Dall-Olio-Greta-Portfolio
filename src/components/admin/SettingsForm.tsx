@@ -21,6 +21,9 @@ export function SettingsForm({ settings }: { settings: Settings }) {
   const [heroPhotoSize, setHeroPhotoSize] = useState(
     settings.hero_photo_size ?? 96
   );
+  const [heroOverlayDarkness, setHeroOverlayDarkness] = useState(
+    settings.hero_overlay_darkness ?? 55
+  );
 
   return (
     <form action={formAction} className="mt-6 flex flex-col gap-4 max-w-md">
@@ -126,6 +129,22 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           </select>
         </label>
       </div>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Scurità sfondo &quot;Chi sono&quot; ({heroOverlayDarkness}%)
+        <input
+          type="range"
+          name="hero_overlay_darkness"
+          min={0}
+          max={100}
+          value={heroOverlayDarkness}
+          onChange={(e) => setHeroOverlayDarkness(Number(e.target.value))}
+        />
+        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+          L&apos;alone scuro dietro al testo, se carichi una foto di sfondo
+          per il blocco &quot;Chi sono&quot; qui sotto.
+        </span>
+      </label>
 
       <label className="flex items-center gap-2 text-sm">
         <input

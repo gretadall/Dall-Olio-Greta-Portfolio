@@ -30,6 +30,7 @@ export async function updateSiteSettings(
   const contactEmail = String(formData.get("contact_email") ?? "").trim();
   const heroPhotoSize = Number(formData.get("hero_photo_size") ?? 96);
   const heroPhotoRadius = Number(formData.get("hero_photo_radius") ?? 50);
+  const heroOverlayDarkness = Number(formData.get("hero_overlay_darkness") ?? 55);
   const splashEnabled = formData.get("splash_enabled") === "on";
   const splashTitle = String(formData.get("splash_title") ?? "").trim();
   const splashMessage = String(formData.get("splash_message") ?? "").trim();
@@ -53,6 +54,13 @@ export async function updateSiteSettings(
   }
   if (!Number.isFinite(heroPhotoRadius) || heroPhotoRadius < 0 || heroPhotoRadius > 50) {
     return { error: "Forma foto profilo non valida." };
+  }
+  if (
+    !Number.isFinite(heroOverlayDarkness) ||
+    heroOverlayDarkness < 0 ||
+    heroOverlayDarkness > 100
+  ) {
+    return { error: "Scurità sfondo \"Chi sono\" non valida." };
   }
   if (
     !Number.isFinite(splashDurationSeconds) ||
@@ -83,6 +91,7 @@ export async function updateSiteSettings(
       contact_email: contactEmail || null,
       hero_photo_size: heroPhotoSize,
       hero_photo_radius: heroPhotoRadius,
+      hero_overlay_darkness: heroOverlayDarkness,
       splash_enabled: splashEnabled,
       splash_title: splashTitle || null,
       splash_message: splashMessage || null,
@@ -130,6 +139,47 @@ export async function uploadHeroPhoto(
   } catch (err) {
     return describeError(err);
   }
+}
+
+export async function uploadHeroBackground(
+  _prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const file = formData.get("photo");
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "Scegli un'immagine da caricare." };
+  }
+
+  try {
+    const supabase = await createClient();
+    const path = `hero-background/${Date.now()}-${sanitizeFileName(file.name)}`;
+    const { error: uploadError } = await supabase.storage
+      .from("media")
+      .upload(path, file, { upsert: true });
+
+    if (uploadError) return { error: `Errore durante il caricamento: ${uploadError.message}` };
+
+    const { error } = await supabase
+      .from("site_settings")
+      .update({ hero_background_image_path: path, updated_at: new Date().toISOString() })
+      .eq("id", true);
+
+    if (error) return { error: `Errore durante il salvataggio: ${error.message}` };
+
+    revalidatePath("/", "layout");
+  } catch (err) {
+    return describeError(err);
+  }
+}
+
+export async function removeHeroBackground() {
+  const supabase = await createClient();
+  await supabase
+    .from("site_settings")
+    .update({ hero_background_image_path: null, updated_at: new Date().toISOString() })
+    .eq("id", true);
+
+  revalidatePath("/", "layout");
 }
 
 export async function uploadBackgroundImage(
