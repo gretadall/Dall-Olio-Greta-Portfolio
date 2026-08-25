@@ -3,10 +3,24 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
-import { useLayoutEffect, useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useEffect, useMemo, useRef, useState } from "react";
 import type { GlobeMethods } from "react-globe.gl";
+import { toEnglishCountryName } from "@/lib/country-names";
 
 const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
+
+type CountryFeature = {
+  type: "Feature";
+  properties: { name: string };
+  geometry: unknown;
+};
+
+const VISITED_COLOR = "#f97316";
+const VISITED_SIDE_COLOR = "rgba(249, 115, 22, 0.35)";
+const VISITED_STROKE = "#fed7aa";
+const PLAIN_FILL = "rgba(255, 255, 255, 0.035)";
+const PLAIN_SIDE = "rgba(255, 255, 255, 0.05)";
+const PLAIN_STROKE = "rgba(255, 255, 255, 0.3)";
 
 export type GlobePin = {
   id: string;
@@ -108,6 +122,31 @@ export function TravelGlobe({
   const [expanded, setExpanded] = useState(false);
   const inlineMax = compact ? 340 : 520;
   const maxSize = expanded ? 640 : inlineMax;
+  const [countries, setCountries] = useState<CountryFeature[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/globe/countries.geojson")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setCountries(data.features);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const visitedCountries = useMemo(
+    () =>
+      new Set(
+        pins
+          .map((p) => p.country)
+          .filter((c): c is string => Boolean(c))
+          .map((c) => toEnglishCountryName(c))
+      ),
+    [pins]
+  );
 
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -168,6 +207,28 @@ export function TravelGlobe({
             showAtmosphere
             atmosphereColor="#f97316"
             atmosphereAltitude={0.18}
+            polygonsData={countries}
+            polygonCapColor={(d) =>
+              visitedCountries.has((d as CountryFeature).properties.name)
+                ? VISITED_COLOR
+                : PLAIN_FILL
+            }
+            polygonSideColor={(d) =>
+              visitedCountries.has((d as CountryFeature).properties.name)
+                ? VISITED_SIDE_COLOR
+                : PLAIN_SIDE
+            }
+            polygonStrokeColor={(d) =>
+              visitedCountries.has((d as CountryFeature).properties.name)
+                ? VISITED_STROKE
+                : PLAIN_STROKE
+            }
+            polygonAltitude={(d) =>
+              visitedCountries.has((d as CountryFeature).properties.name)
+                ? 0.012
+                : 0.005
+            }
+            polygonsTransitionDuration={0}
             htmlElementsData={pins}
             htmlLat="lat"
             htmlLng="lng"

@@ -7,6 +7,7 @@ const buttonClass =
 
 export function Nav({
   siteTitle,
+  navTitleColor,
   linkedinUrl,
   contactEmail,
   homeLabel,
@@ -16,6 +17,7 @@ export function Nav({
   sections,
 }: {
   siteTitle: string;
+  navTitleColor?: string | null;
   linkedinUrl: string | null;
   contactEmail: string | null;
   homeLabel: string;
@@ -27,20 +29,23 @@ export function Nav({
   return (
     <header className="border-b border-black/[.08] dark:border-white/[.145]">
       <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6 sm:py-4">
-        <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
+        <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3">
           <Image
             src="/logo.png"
             alt={siteTitle}
-            width={40}
-            height={40}
-            className="h-8 w-8 shrink-0 object-contain sm:h-10 sm:w-10"
+            width={64}
+            height={64}
+            className="h-11 w-11 shrink-0 object-contain sm:h-14 sm:w-14"
           />
-          <span className="truncate text-base font-semibold tracking-tight text-primary sm:text-lg">
+          <span
+            className="truncate text-base font-semibold tracking-tight text-primary sm:text-lg"
+            style={navTitleColor ? { color: navTitleColor } : undefined}
+          >
             {siteTitle}
           </span>
         </Link>
 
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2 sm:gap-3">
           <Link href="/rete" className={buttonClass}>
             {reteLabel}
           </Link>

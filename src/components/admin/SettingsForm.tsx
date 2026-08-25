@@ -102,6 +102,15 @@ export function SettingsForm({ settings }: { settings: Settings }) {
             className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
           />
         </label>
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          Colore scritta &quot;Greta Dall&apos;Olio&quot; in alto
+          <input
+            type="color"
+            name="nav_title_color"
+            defaultValue={settings.nav_title_color ?? settings.primary_color}
+            className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
+          />
+        </label>
       </div>
 
       <div className="flex gap-4">

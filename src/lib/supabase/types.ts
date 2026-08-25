@@ -261,6 +261,7 @@ export type Database = {
           background_image_path: string | null;
           hero_background_image_path: string | null;
           hero_overlay_darkness: number;
+          nav_title_color: string | null;
           linkedin_url: string | null;
           contact_email: string | null;
           splash_enabled: boolean;

@@ -22,6 +22,7 @@ export async function updateSiteSettings(
   const ownerName = String(formData.get("owner_name") ?? "").trim();
   const primaryColor = String(formData.get("primary_color") ?? "").trim();
   const accentColor = String(formData.get("accent_color") ?? "").trim();
+  const navTitleColor = String(formData.get("nav_title_color") ?? "").trim();
   const backgroundColor = String(formData.get("background_color") ?? "").trim();
   const fontColor = String(formData.get("font_color") ?? "").trim();
   const mutedColor = String(formData.get("muted_color") ?? "").trim();
@@ -83,6 +84,7 @@ export async function updateSiteSettings(
       owner_name: ownerName || null,
       primary_color: primaryColor,
       accent_color: accentColor,
+      nav_title_color: navTitleColor || null,
       background_color: backgroundColor || null,
       font_color: fontColor || null,
       muted_color: mutedColor || null,
