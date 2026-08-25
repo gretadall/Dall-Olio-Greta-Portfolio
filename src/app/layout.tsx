@@ -117,8 +117,6 @@ export default async function RootLayout({
         )}
         <Nav
           siteTitle={settings.site_title}
-          heroPhotoPath={settings.hero_photo_path}
-          heroPhotoRadius={settings.hero_photo_radius}
           linkedinUrl={settings.linkedin_url}
           contactEmail={settings.contact_email}
           homeLabel={settings.nav_home_label ?? "Chi sono"}

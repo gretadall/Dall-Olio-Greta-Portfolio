@@ -22,7 +22,7 @@ export function SectionBlock({
   const hasBackground = Boolean(section.background_image_path);
 
   return (
-    <section id={section.slug} className="relative overflow-hidden py-20 sm:py-28">
+    <section id={section.slug} className="relative isolate overflow-hidden py-20 sm:py-28">
       {section.background_image_path && (
         <Image
           src={getMediaUrl(section.background_image_path)}

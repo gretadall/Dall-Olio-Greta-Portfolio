@@ -31,7 +31,7 @@ export default async function Home() {
     <div>
       <section
         id="home"
-        className="relative flex min-h-[80vh] flex-col justify-center overflow-hidden px-6 py-16"
+        className="relative isolate flex min-h-[80vh] flex-col justify-center overflow-hidden px-6 py-16"
       >
         {settings.hero_background_image_path && (
           <Image
