@@ -31,6 +31,7 @@ export type Database = {
           background_image_path: string | null;
           background_opacity: number;
           home_overlay_darkness: number;
+          page_placement: "standalone" | "chi_sono";
           sort_order: number;
           is_published: boolean;
           created_at: string;
@@ -274,6 +275,13 @@ export type Database = {
           linkedin_label: string;
           contact_button_label: string;
           footer_text: string;
+          vision_text: string | null;
+          valori_intro: string | null;
+          valori_body: string | null;
+          formazione_intro: string | null;
+          formazione_body: string | null;
+          nav_chi_sono_label: string;
+          nav_blog_label: string;
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]> & {
@@ -281,6 +289,52 @@ export type Database = {
         };
         Update: Partial<Database["public"]["Tables"]["site_settings"]["Row"]>;
         Relationships: [];
+      };
+      blog_categories: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          color: string;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["blog_categories"]["Row"]> & {
+          name: string;
+          slug: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["blog_categories"]["Row"]>;
+        Relationships: [];
+      };
+      blog_posts: {
+        Row: {
+          id: string;
+          category_id: string | null;
+          slug: string;
+          title: string;
+          excerpt: string | null;
+          body: string | null;
+          cover_image_path: string | null;
+          is_published: boolean;
+          published_at: string | null;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["blog_posts"]["Row"]> & {
+          slug: string;
+          title: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["blog_posts"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "blog_categories";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: Record<string, never>;

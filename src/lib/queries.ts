@@ -112,6 +112,88 @@ export async function getPublishedTravelPins() {
   return data;
 }
 
+export async function getChiSonoSections() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("sections")
+    .select("*")
+    .eq("is_published", true)
+    .eq("page_placement", "chi_sono")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getBlogCategories() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("blog_categories")
+    .select("*")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getLatestBlogPosts(limit = 3) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*, blog_categories(name, slug, color)")
+    .eq("is_published", true)
+    .order("published_at", { ascending: false, nullsFirst: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getPublishedBlogPostsPage({
+  page,
+  pageSize,
+  categorySlug,
+}: {
+  page: number;
+  pageSize: number;
+  categorySlug?: string;
+}) {
+  const supabase = await createClient();
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  let query = supabase
+    .from("blog_posts")
+    .select(
+      categorySlug
+        ? "*, blog_categories!inner(id, name, slug, color)"
+        : "*, blog_categories(id, name, slug, color)",
+      { count: "exact" }
+    )
+    .eq("is_published", true)
+    .order("published_at", { ascending: false, nullsFirst: false })
+    .range(from, to);
+
+  if (categorySlug) query = query.eq("blog_categories.slug", categorySlug);
+
+  const { data, error, count } = await query;
+  if (error) throw error;
+  return { posts: data, total: count ?? 0 };
+}
+
+export async function getBlogPostBySlug(slug: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*, blog_categories(name, slug, color)")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
 export async function getPublicGraphData() {
   const supabase = await createClient();
 

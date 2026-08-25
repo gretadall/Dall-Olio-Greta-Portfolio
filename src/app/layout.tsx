@@ -12,7 +12,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { EditModeProvider } from "@/components/edit/EditModeProvider";
 import { EditToolbar } from "@/components/edit/EditToolbar";
 import { ColorPanel } from "@/components/edit/ColorPanel";
-import { getSiteSettings, getPublishedSections } from "@/lib/queries";
+import { getSiteSettings, getChiSonoSections } from "@/lib/queries";
 import { getMediaUrl } from "@/lib/supabase/media";
 import { getIsAdmin } from "@/lib/supabase/auth";
 import "./globals.css";
@@ -65,7 +65,7 @@ export default async function RootLayout({
 }>) {
   const [settings, sections, isAdmin] = await Promise.all([
     getSiteSettings(),
-    getPublishedSections(),
+    getChiSonoSections(),
     getIsAdmin(),
   ]);
   const fontVar = FONT_VARS[settings.font_choice] ?? FONT_VARS.geist;
@@ -126,8 +126,10 @@ export default async function RootLayout({
             navTitleColor={settings.nav_title_color}
             linkedinUrl={settings.linkedin_url}
             contactEmail={settings.contact_email}
-            homeLabel={settings.nav_home_label ?? "Chi sono"}
+            homeLabel={settings.nav_home_label ?? "Home"}
             reteLabel={settings.nav_rete_label ?? "Rete"}
+            chiSonoLabel={settings.nav_chi_sono_label ?? "Chi sono"}
+            blogLabel={settings.nav_blog_label ?? "Blog"}
             linkedinLabel={settings.linkedin_label ?? "LinkedIn"}
             contactLabel={settings.contact_button_label ?? "Scrivimi"}
             sections={sections.map((s) => ({

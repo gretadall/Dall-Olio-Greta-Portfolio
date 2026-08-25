@@ -13,6 +13,8 @@ export function Nav({
   contactEmail,
   homeLabel,
   reteLabel,
+  chiSonoLabel,
+  blogLabel,
   linkedinLabel,
   contactLabel,
   sections,
@@ -23,6 +25,8 @@ export function Nav({
   contactEmail: string | null;
   homeLabel: string;
   reteLabel: string;
+  chiSonoLabel: string;
+  blogLabel: string;
   linkedinLabel: string;
   contactLabel: string;
   sections: { slug: string; title: string; icon: string | null }[];
@@ -60,6 +64,18 @@ export function Nav({
               target={{ table: "site_settings", field: "nav_home_label" }}
             />
           </Link>
+          <Link href="/chi-sono" className={buttonClass}>
+            <EditableText
+              value={chiSonoLabel}
+              target={{ table: "site_settings", field: "nav_chi_sono_label" }}
+            />
+          </Link>
+          <Link href="/blog" className={buttonClass}>
+            <EditableText
+              value={blogLabel}
+              target={{ table: "site_settings", field: "nav_blog_label" }}
+            />
+          </Link>
           {linkedinUrl && (
             <a
               href={linkedinUrl}
@@ -90,6 +106,8 @@ export function Nav({
             sections={sections}
             homeLabel={homeLabel}
             reteLabel={reteLabel}
+            chiSonoLabel={chiSonoLabel}
+            blogLabel={blogLabel}
             linkedinUrl={linkedinUrl}
             linkedinLabel={linkedinLabel}
             contactEmail={contactEmail}

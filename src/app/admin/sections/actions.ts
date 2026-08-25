@@ -17,6 +17,7 @@ function readSectionForm(formData: FormData) {
   const isPublished = formData.get("is_published") === "on";
   const backgroundOpacity = Number(formData.get("background_opacity") ?? 100);
   const homeOverlayDarkness = Number(formData.get("home_overlay_darkness") ?? 55);
+  const pagePlacementInput = String(formData.get("page_placement") ?? "standalone").trim();
   const slug = slugify(slugInput || title);
 
   return {
@@ -28,7 +29,15 @@ function readSectionForm(formData: FormData) {
     isPublished,
     backgroundOpacity,
     homeOverlayDarkness,
+    pagePlacementInput,
   };
+}
+
+const PAGE_PLACEMENTS = ["standalone", "chi_sono"] as const;
+type PagePlacement = (typeof PAGE_PLACEMENTS)[number];
+
+function isPagePlacement(value: string): value is PagePlacement {
+  return (PAGE_PLACEMENTS as readonly string[]).includes(value);
 }
 
 export async function createSection(
@@ -44,6 +53,7 @@ export async function createSection(
     isPublished,
     backgroundOpacity,
     homeOverlayDarkness,
+    pagePlacementInput,
   } = readSectionForm(formData);
 
   if (!title) return { error: "Il titolo è obbligatorio." };
@@ -61,6 +71,10 @@ export async function createSection(
   ) {
     return { error: "Scurità sfondo in home non valida." };
   }
+  if (!isPagePlacement(pagePlacementInput)) {
+    return { error: "Valore non valido per \"Dove appare\"." };
+  }
+  const pagePlacement = pagePlacementInput;
 
   const supabase = await createClient();
   const { error } = await supabase.from("sections").insert({
@@ -72,6 +86,7 @@ export async function createSection(
     is_published: isPublished,
     background_opacity: backgroundOpacity,
     home_overlay_darkness: homeOverlayDarkness,
+    page_placement: pagePlacement,
   });
 
   if (error) {
@@ -102,6 +117,7 @@ export async function updateSection(
     isPublished,
     backgroundOpacity,
     homeOverlayDarkness,
+    pagePlacementInput,
   } = readSectionForm(formData);
 
   if (!title) return { error: "Il titolo è obbligatorio." };
@@ -119,6 +135,10 @@ export async function updateSection(
   ) {
     return { error: "Scurità sfondo in home non valida." };
   }
+  if (!isPagePlacement(pagePlacementInput)) {
+    return { error: "Valore non valido per \"Dove appare\"." };
+  }
+  const pagePlacement = pagePlacementInput;
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -132,6 +152,7 @@ export async function updateSection(
       is_published: isPublished,
       background_opacity: backgroundOpacity,
       home_overlay_darkness: homeOverlayDarkness,
+      page_placement: pagePlacement,
       updated_at: new Date().toISOString(),
     })
     .eq("id", sectionId);

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeFileName } from "@/lib/supabase/media";
+import { sanitizeEntryBody } from "@/lib/sanitize";
 
 const FONT_CHOICES = ["geist", "inter", "playfair", "space-mono"] as const;
 
@@ -103,6 +104,34 @@ export async function updateSiteSettings(
       linkedin_label: linkedinLabel,
       contact_button_label: contactButtonLabel,
       footer_text: footerText,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", true);
+
+  if (error) return { error: "Errore durante il salvataggio." };
+
+  revalidatePath("/", "layout");
+}
+
+export async function updateHomeContent(
+  _prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const visionText = String(formData.get("vision_text") ?? "").trim();
+  const valoriIntro = String(formData.get("valori_intro") ?? "").trim();
+  const valoriBody = String(formData.get("valori_body") ?? "").trim();
+  const formazioneIntro = String(formData.get("formazione_intro") ?? "").trim();
+  const formazioneBody = String(formData.get("formazione_body") ?? "").trim();
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("site_settings")
+    .update({
+      vision_text: visionText ? sanitizeEntryBody(visionText) : null,
+      valori_intro: valoriIntro || null,
+      valori_body: valoriBody ? sanitizeEntryBody(valoriBody) : null,
+      formazione_intro: formazioneIntro || null,
+      formazione_body: formazioneBody ? sanitizeEntryBody(formazioneBody) : null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", true);

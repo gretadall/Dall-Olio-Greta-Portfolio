@@ -12,6 +12,8 @@ export function HamburgerMenu({
   sections,
   homeLabel,
   reteLabel,
+  chiSonoLabel,
+  blogLabel,
   linkedinUrl,
   linkedinLabel,
   contactEmail,
@@ -20,6 +22,8 @@ export function HamburgerMenu({
   sections: SectionLink[];
   homeLabel: string;
   reteLabel: string;
+  chiSonoLabel: string;
+  blogLabel: string;
   linkedinUrl: string | null;
   linkedinLabel: string;
   contactEmail: string | null;
@@ -72,8 +76,11 @@ export function HamburgerMenu({
 
       {open && (
         <div className="absolute top-full right-0 z-30 mt-2 w-60 overflow-hidden rounded-xl border border-black/[.08] bg-background py-1 shadow-lg dark:border-white/[.145]">
-          <Link href="/#home" onClick={() => setOpen(false)} className={itemClass}>
+          <Link href="/" onClick={() => setOpen(false)} className={itemClass}>
             {homeLabel}
+          </Link>
+          <Link href="/chi-sono" onClick={() => setOpen(false)} className={itemClass}>
+            {chiSonoLabel}
           </Link>
 
           {sections.length > 0 && (
@@ -82,7 +89,7 @@ export function HamburgerMenu({
               {sections.map((s) => (
                 <Link
                   key={s.slug}
-                  href={`/#${s.slug}`}
+                  href={`/chi-sono#${s.slug}`}
                   onClick={() => setOpen(false)}
                   className={itemClass}
                 >
@@ -92,6 +99,12 @@ export function HamburgerMenu({
               ))}
             </>
           )}
+
+          <div className="my-1 border-t border-black/[.08] dark:border-white/[.145]" />
+
+          <Link href="/blog" onClick={() => setOpen(false)} className={itemClass}>
+            {blogLabel}
+          </Link>
 
           <div className="my-1 border-t border-black/[.08] dark:border-white/[.145]" />
 
