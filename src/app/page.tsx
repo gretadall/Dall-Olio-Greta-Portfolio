@@ -6,19 +6,26 @@ import { ExpandableSquare } from "@/components/home/ExpandableSquare";
 import { LinkSquare } from "@/components/home/LinkSquare";
 
 export default async function Home() {
-  const [settings, passioniSection] = await Promise.all([
+  const [settings, passioniSection, formazioneSection] = await Promise.all([
     getSiteSettings(),
     getSectionBySlug("passioni"),
+    getSectionBySlug("formazione-e-certificati"),
   ]);
 
-  const passioniEntries = passioniSection
-    ? await getPublishedEntries(passioniSection.id)
-    : [];
+  const [passioniEntries, formazioneEntries] = await Promise.all([
+    passioniSection ? getPublishedEntries(passioniSection.id) : Promise.resolve([]),
+    formazioneSection ? getPublishedEntries(formazioneSection.id) : Promise.resolve([]),
+  ]);
 
   const hobbyTeaser =
     passioniSection?.description ||
     passioniEntries[0]?.description ||
     "Le mie passioni, in arrivo.";
+
+  const formazioneTeaser =
+    formazioneSection?.description ||
+    formazioneEntries[0]?.description ||
+    "Il mio percorso formativo, in arrivo.";
 
   return (
     <div>
@@ -42,10 +49,10 @@ export default async function Home() {
           teaser={hobbyTeaser}
           href={passioniSection ? `/${passioniSection.slug}` : null}
         />
-        <ExpandableSquare
+        <LinkSquare
           title="Formazione"
-          intro={settings.formazione_intro}
-          body={settings.formazione_body}
+          teaser={formazioneTeaser}
+          href={formazioneSection ? `/${formazioneSection.slug}` : null}
         />
       </SquareGrid>
     </div>

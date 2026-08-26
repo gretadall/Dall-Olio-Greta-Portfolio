@@ -136,19 +136,6 @@ export async function getBlogCategories() {
   return data;
 }
 
-export async function getLatestBlogPosts(limit = 3) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("*, blog_categories(name, slug, color)")
-    .eq("is_published", true)
-    .order("published_at", { ascending: false, nullsFirst: false })
-    .limit(limit);
-
-  if (error) throw error;
-  return data;
-}
-
 export async function getPublishedBlogPostsPage({
   page,
   pageSize,
