@@ -64,6 +64,7 @@ export type Database = {
           is_published: boolean;
           graph_x: number | null;
           graph_y: number | null;
+          graph_z: number | null;
           brain_area:
             | "prefrontal"
             | "linguistic"
@@ -302,6 +303,20 @@ export type Database = {
           id: boolean;
         };
         Update: Partial<Database["public"]["Tables"]["site_settings"]["Row"]>;
+        Relationships: [];
+      };
+      brain_areas: {
+        Row: {
+          slug: string;
+          label: string;
+          description: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["brain_areas"]["Row"]> & {
+          slug: string;
+          label: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["brain_areas"]["Row"]>;
         Relationships: [];
       };
       blog_categories: {

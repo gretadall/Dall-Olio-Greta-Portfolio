@@ -1,12 +1,17 @@
-import { getPublicGraphData } from "@/lib/queries";
+import { getPublicGraphData, getBrainAreaContent } from "@/lib/queries";
 import { buildGraphNodes, buildGraphLinks } from "@/lib/graph";
+import { mergeBrainAreaContent } from "@/lib/brain-areas";
 import { BrainGraphLoader } from "@/components/graph/BrainGraphLoader";
 
 export default async function RetePage() {
-  const { sections, entries, connections } = await getPublicGraphData();
+  const [{ sections, entries, connections }, areaRows] = await Promise.all([
+    getPublicGraphData(),
+    getBrainAreaContent(),
+  ]);
 
   const nodes = buildGraphNodes(sections, entries);
   const links = buildGraphLinks(connections);
+  const areaContent = mergeBrainAreaContent(areaRows);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-16">
@@ -24,10 +29,11 @@ export default async function RetePage() {
       ) : (
         <div className="mt-12">
           <p className="mb-3 text-sm text-muted">
-            Clicca su un punto per vedere i suoi collegamenti. Il cervello
-            ruota da solo.
+            Il cervello ruota da solo — trascinalo per girarlo come vuoi.
+            Clicca su un punto per vedere i suoi collegamenti, o su una zona
+            colorata per scoprire a cosa corrisponde.
           </p>
-          <BrainGraphLoader nodes={nodes} links={links} />
+          <BrainGraphLoader nodes={nodes} links={links} areaContent={areaContent} />
           <p className="mt-4 text-xs text-muted">
             Le aree cerebrali sono un&apos;interpretazione artistica, non un
             modello scientifico.

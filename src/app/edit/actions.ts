@@ -137,6 +137,81 @@ export async function updateEntryField(id: string, field: EntryField, value: str
   revalidatePath("/", "layout");
 }
 
+const BRAIN_AREA_FIELDS = ["label", "description"] as const;
+export type BrainAreaField = (typeof BRAIN_AREA_FIELDS)[number];
+
+export async function updateBrainAreaField(
+  slug: string,
+  field: BrainAreaField,
+  value: string
+) {
+  await requireAdmin();
+  if (!(BRAIN_AREA_FIELDS as readonly string[]).includes(field)) {
+    throw new Error("Campo non modificabile.");
+  }
+
+  const trimmed = value.trim();
+  if (field === "label" && !trimmed) {
+    throw new Error("Questo campo non può essere vuoto.");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("brain_areas")
+    .update({
+      [field]: trimmed || null,
+      updated_at: new Date().toISOString(),
+    } as never)
+    .eq("slug", slug);
+
+  if (error) throw new Error("Errore durante il salvataggio.");
+
+  revalidatePath("/", "layout");
+}
+
+export async function updateEntryGraphPosition(
+  id: string,
+  x: number,
+  y: number,
+  z: number
+) {
+  await requireAdmin();
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("entries")
+    .update({
+      graph_x: x,
+      graph_y: y,
+      graph_z: z,
+      updated_at: new Date().toISOString(),
+    } as never)
+    .eq("id", id);
+
+  if (error) throw new Error("Errore durante il salvataggio della posizione.");
+
+  revalidatePath("/", "layout");
+}
+
+export async function resetEntryGraphPosition(id: string) {
+  await requireAdmin();
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("entries")
+    .update({
+      graph_x: null,
+      graph_y: null,
+      graph_z: null,
+      updated_at: new Date().toISOString(),
+    } as never)
+    .eq("id", id);
+
+  if (error) throw new Error("Errore durante il ripristino della posizione.");
+
+  revalidatePath("/", "layout");
+}
+
 const HOME_LAYOUT_SLOTS = [
   "intro.photo",
   "intro.text",
@@ -144,6 +219,10 @@ const HOME_LAYOUT_SLOTS = [
   "vision.body",
   "title",
   "teaser",
+  "square.vision",
+  "square.valori",
+  "square.hobby",
+  "square.formazione",
 ] as const;
 
 const HOME_LAYOUT_LIMIT = 150;

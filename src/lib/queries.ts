@@ -188,7 +188,7 @@ export async function getPublicGraphData() {
     supabase.from("sections").select("*").eq("is_published", true),
     supabase
       .from("entries")
-      .select("id, title, slug, section_id, graph_x, graph_y, brain_area")
+      .select("id, title, slug, section_id, graph_x, graph_y, graph_z, brain_area")
       .eq("is_published", true),
     supabase
       .from("connections")
@@ -215,4 +215,14 @@ export async function getPublicGraphData() {
     entries: publishedEntries,
     connections: visibleConnections,
   };
+}
+
+export async function getBrainAreaContent() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("brain_areas")
+    .select("slug, label, description");
+
+  if (error) throw error;
+  return data;
 }

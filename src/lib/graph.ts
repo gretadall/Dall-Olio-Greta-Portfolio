@@ -19,6 +19,7 @@ type EntryLike = {
   section_id: string;
   graph_x: number | null;
   graph_y: number | null;
+  graph_z: number | null;
   brain_area: BrainAreaSlug | null;
 };
 type ConnectionLike = {
@@ -42,6 +43,7 @@ export function buildGraphNodes(sections: SectionLike[], entries: EntryLike[]) {
     color: sectionColor.get(e.section_id) ?? "#888888",
     graphX: e.graph_x,
     graphY: e.graph_y,
+    graphZ: e.graph_z,
     brainArea: e.brain_area,
   }));
 }

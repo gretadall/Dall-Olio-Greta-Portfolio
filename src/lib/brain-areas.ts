@@ -77,6 +77,30 @@ export const BRAIN_AREAS: BrainArea[] = [
   },
 ];
 
+export type BrainAreaContent = { label: string; description: string };
+export type BrainAreaContentMap = Record<BrainAreaSlug, BrainAreaContent>;
+
+const DEFAULT_BRAIN_AREA_CONTENT: BrainAreaContentMap = Object.fromEntries(
+  BRAIN_AREAS.map((a) => [a.slug, { label: a.label, description: a.description }]),
+) as BrainAreaContentMap;
+
+// Merges admin-editable label/description rows from the `brain_areas` table
+// over the static defaults above (used as a fallback before the table is
+// seeded, or if a row is ever missing).
+export function mergeBrainAreaContent(
+  rows: { slug: string; label: string; description: string | null }[],
+): BrainAreaContentMap {
+  const merged = { ...DEFAULT_BRAIN_AREA_CONTENT };
+  for (const row of rows) {
+    if (!isBrainAreaSlug(row.slug)) continue;
+    merged[row.slug] = {
+      label: row.label || DEFAULT_BRAIN_AREA_CONTENT[row.slug].label,
+      description: row.description ?? DEFAULT_BRAIN_AREA_CONTENT[row.slug].description,
+    };
+  }
+  return merged;
+}
+
 const BRAIN_AREA_MAP = new Map(BRAIN_AREAS.map((a) => [a.slug, a]));
 
 export function isBrainAreaSlug(value: string): value is BrainAreaSlug {

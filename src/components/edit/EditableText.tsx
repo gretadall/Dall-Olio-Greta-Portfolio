@@ -6,16 +6,19 @@ import {
   updateSiteSettingsField,
   updateSectionField,
   updateEntryField,
+  updateBrainAreaField,
   type SiteSettingsTextField,
   type SiteSettingsColorField,
   type SectionField,
   type EntryField,
+  type BrainAreaField,
 } from "@/app/edit/actions";
 
 type Target =
   | { table: "site_settings"; field: SiteSettingsTextField | SiteSettingsColorField }
   | { table: "sections"; id: string; field: SectionField }
-  | { table: "entries"; id: string; field: EntryField };
+  | { table: "entries"; id: string; field: EntryField }
+  | { table: "brain_areas"; id: string; field: BrainAreaField };
 
 type Tag = "span" | "div" | "p" | "h1" | "h3";
 
@@ -70,8 +73,10 @@ export function EditableText({
         await updateSiteSettingsField(target.field, next);
       } else if (target.table === "sections") {
         await updateSectionField(target.id, target.field, next);
-      } else {
+      } else if (target.table === "entries") {
         await updateEntryField(target.id, target.field, next);
+      } else {
+        await updateBrainAreaField(target.id, target.field, next);
       }
       setText(next);
     } catch (err) {

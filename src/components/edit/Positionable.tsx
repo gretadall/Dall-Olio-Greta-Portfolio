@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEditMode } from "./EditModeProvider";
 import {
   updateHomeLayoutPosition,
@@ -27,12 +27,14 @@ export function Positionable({
   position,
   children,
   className,
+  canvasClass = "square-canvas",
 }: {
   slotKey: string;
   target: HomeLayoutTarget;
   position: { x: number; y: number } | null;
   children: React.ReactNode;
   className?: string;
+  canvasClass?: string;
 }) {
   const { editMode } = useEditMode();
   const posKey = position ? `${position.x},${position.y}` : "0,0";
@@ -48,10 +50,30 @@ export function Positionable({
   const [dragging, setDragging] = useState(false);
   const [guides, setGuides] = useState({ v: false, h: false });
   const [dragCanvasRect, setDragCanvasRect] = useState<DOMRect | null>(null);
+  const [canvasSize, setCanvasSize] = useState<{ w: number; h: number } | null>(
+    null
+  );
 
+  useEffect(() => {
+    function measure() {
+      const canvas = ref.current?.closest(`.${canvasClass}`) as HTMLElement | null;
+      if (!canvas) return;
+      setCanvasSize({ w: canvas.clientWidth, h: canvas.clientHeight });
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [canvasClass]);
+
+  // Positions are stored as a percentage of the canvas (the square/grid the
+  // element lives in), but CSS `translate(%)` is relative to the element's
+  // OWN size — so we convert to pixels here rather than passing the raw
+  // percentage straight into the transform.
+  const pxX = canvasSize ? (pos.x / 100) * canvasSize.w : 0;
+  const pxY = canvasSize ? (pos.y / 100) * canvasSize.h : 0;
   const style = {
-    "--pos-x": `${pos.x}%`,
-    "--pos-y": `${pos.y}%`,
+    "--pos-x": `${pxX}px`,
+    "--pos-y": `${pxY}px`,
   } as React.CSSProperties;
 
   if (!editMode) {
@@ -68,7 +90,7 @@ export function Positionable({
 
   function onHandlePointerDown(e: React.PointerEvent) {
     const el = ref.current;
-    const canvas = el?.closest(".square-canvas") as HTMLElement | null;
+    const canvas = el?.closest(`.${canvasClass}`) as HTMLElement | null;
     if (!el || !canvas) return;
 
     const elRect = el.getBoundingClientRect();

@@ -103,7 +103,7 @@ export async function getAdminGraphData() {
     supabase.from("sections").select("*"),
     supabase
       .from("entries")
-      .select("id, title, slug, section_id, graph_x, graph_y, brain_area"),
+      .select("id, title, slug, section_id, graph_x, graph_y, graph_z, brain_area"),
     supabase
       .from("connections")
       .select("id, from_entry_id, to_entry_id, label, bidirectional"),

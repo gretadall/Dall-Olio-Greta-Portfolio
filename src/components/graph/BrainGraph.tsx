@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import * as THREE from "three";
 import { Canvas, useLoader, type ThreeEvent } from "@react-three/fiber";
@@ -9,12 +9,14 @@ import { STLLoader } from "three/addons/loaders/STLLoader.js";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import {
   BRAIN_AREAS,
-  getBrainArea,
   nearestBrainArea,
   nodeDirection,
   resolveBrainArea,
 } from "@/lib/brain-areas";
-import type { BrainAreaSlug } from "@/lib/brain-areas";
+import type { BrainAreaContentMap, BrainAreaSlug } from "@/lib/brain-areas";
+import { useEditMode } from "@/components/edit/EditModeProvider";
+import { EditableText } from "@/components/edit/EditableText";
+import { updateEntryGraphPosition } from "@/app/edit/actions";
 
 export type GraphNode = {
   id: string;
@@ -22,6 +24,9 @@ export type GraphNode = {
   href: string;
   color: string;
   brainArea: BrainAreaSlug | null;
+  graphX: number | null;
+  graphY: number | null;
+  graphZ: number | null;
 };
 
 export type GraphLink = {
@@ -32,8 +37,11 @@ export type GraphLink = {
   bidirectional: boolean;
 };
 
+type Vec3 = [number, number, number];
+
 const AUTO_ROTATE_SPEED = 0.6;
-const NODE_SURFACE_OFFSET = 0.06;
+const NODE_SURFACE_OFFSET = 0.01;
+const CLICK_MOVE_THRESHOLD = 6; // px
 
 const AREA_COLOR: Record<BrainAreaSlug, [number, number, number]> = Object.fromEntries(
   BRAIN_AREAS.map((a) => {
@@ -48,7 +56,7 @@ const AREA_SLUGS = BRAIN_AREAS.map((a) => a.slug);
 // the file itself doesn't declare) into this scene's (x = left-right,
 // y = up, z = front). Flip a sign here if the loaded model turns out
 // mirrored or upside down.
-const AXIS_SIGN: [number, number, number] = [1, 1, 1];
+const AXIS_SIGN: Vec3 = [1, 1, 1];
 
 const TARGET_HALF_EXTENT = 1.5;
 // Percentile used for the robust bounding box: the raw scan includes a thin
@@ -279,26 +287,32 @@ function Cerebellum({ scale }: { scale: number }) {
 
   return (
     <group position={[0, -1.1, -1.35]} scale={1.15}>
-      <mesh geometry={geometry} renderOrder={1}>
-        <meshStandardMaterial color={CEREBELLUM_COLOR} roughness={0.4} metalness={0} depthTest={false} />
+      <mesh geometry={geometry}>
+        <meshStandardMaterial color={CEREBELLUM_COLOR} roughness={0.4} metalness={0} />
       </mesh>
     </group>
   );
 }
 
-function AreaLabels({ accentColor }: { accentColor: string }) {
+function AreaLabels({
+  accentColor,
+  areaContent,
+}: {
+  accentColor: string;
+  areaContent: BrainAreaContentMap;
+}) {
   return (
     <>
       {BRAIN_AREAS.map((area) => (
         <Billboard key={area.slug} position={area.anchor}>
           <Text
-            fontSize={0.11}
+            fontSize={0.075}
             color={accentColor}
             anchorX="center"
             anchorY="middle"
-            fillOpacity={0.5}
+            fillOpacity={0.55}
           >
-            {area.label}
+            {areaContent[area.slug].label}
           </Text>
         </Billboard>
       ))}
@@ -310,49 +324,59 @@ function Node({
   node,
   position,
   selected,
+  editable,
   onToggle,
+  onDragStart,
 }: {
   node: GraphNode;
-  position: [number, number, number];
+  position: Vec3;
   selected: boolean;
+  editable: boolean;
   onToggle: () => void;
+  onDragStart: (screenX: number, screenY: number) => void;
 }) {
+  const downScreen = useRef<{ x: number; y: number } | null>(null);
+
+  function handlePointerDown(e: ThreeEvent<PointerEvent>) {
+    e.stopPropagation();
+    downScreen.current = { x: e.nativeEvent.clientX, y: e.nativeEvent.clientY };
+    if (editable) onDragStart(e.nativeEvent.clientX, e.nativeEvent.clientY);
+  }
+
+  function handlePointerUp(e: ThreeEvent<PointerEvent>) {
+    e.stopPropagation();
+    const start = downScreen.current;
+    const moved =
+      start != null &&
+      Math.hypot(e.nativeEvent.clientX - start.x, e.nativeEvent.clientY - start.y) >
+        CLICK_MOVE_THRESHOLD;
+    if (!moved) onToggle();
+  }
+
+  const radius = selected ? 0.11 : 0.08;
+
   return (
     <group position={position}>
-      <mesh
-        renderOrder={1}
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggle();
-        }}
-      >
-        <sphereGeometry args={[selected ? 0.095 : 0.07, 16, 16]} />
-        <meshStandardMaterial
-          color={node.color}
-          emissive={node.color}
-          emissiveIntensity={selected ? 1.3 : 0.9}
-        />
-      </mesh>
-      {/* Thin dark ring so the dot reads clearly against any background color. */}
-      <mesh renderOrder={0}>
-        <sphereGeometry args={[selected ? 0.115 : 0.088, 16, 16]} />
-        <meshBasicMaterial color="black" />
-      </mesh>
-      {/* Larger invisible target so nodes stay easy to hit on touch screens. */}
-      <mesh
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggle();
-        }}
-        visible={false}
-      >
-        <sphereGeometry args={[0.18, 8, 8]} />
-      </mesh>
+      <Billboard>
+        {/* Thin dark ring so the dot reads clearly against any background color. */}
+        <mesh>
+          <circleGeometry args={[radius * 1.3, 24]} />
+          <meshBasicMaterial color="black" />
+        </mesh>
+        <mesh onPointerDown={handlePointerDown} onPointerUp={handlePointerUp}>
+          <circleGeometry args={[radius, 24]} />
+          <meshBasicMaterial color={node.color} />
+        </mesh>
+        {/* Larger invisible target so nodes stay easy to hit on touch screens. */}
+        <mesh onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} visible={false}>
+          <circleGeometry args={[0.2, 12]} />
+        </mesh>
+      </Billboard>
       {selected && (
         <Html center distanceFactor={6} style={{ pointerEvents: "auto" }}>
           <a
             href={node.href}
-            className="whitespace-nowrap rounded-md bg-black/80 px-2 py-1 text-xs font-medium text-white no-underline"
+            className="whitespace-nowrap rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-medium text-white no-underline"
           >
             {node.title}
           </a>
@@ -369,7 +393,7 @@ function Connections({
   accentColor,
 }: {
   links: GraphLink[];
-  positions: Map<string, [number, number, number]>;
+  positions: Map<string, Vec3>;
   selectedId: string | null;
   accentColor: string;
 }) {
@@ -422,26 +446,46 @@ function SceneContent({
   nodes,
   links,
   accentColor,
+  areaContent,
   selectedNodeId,
+  editable,
+  positionOverrides,
   onSelectNode,
   onSelectArea,
   onMissed,
+  onSavePosition,
+  onDraggingChange,
 }: {
   nodes: GraphNode[];
   links: GraphLink[];
   accentColor: string;
+  areaContent: BrainAreaContentMap;
   selectedNodeId: string | null;
+  editable: boolean;
+  positionOverrides: Map<string, Vec3>;
   onSelectNode: (id: string) => void;
   onSelectArea: (slug: BrainAreaSlug) => void;
   onMissed: () => void;
+  onSavePosition: (id: string, position: Vec3) => void;
+  onDraggingChange: (dragging: boolean) => void;
 }) {
   const { geometry, boundaryGeometry, scale } = useBrainSTLGeometry();
   const raycastSurface = useSurfaceRaycaster(geometry);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [liveDragPos, setLiveDragPos] = useState<Vec3 | null>(null);
 
-  const positions = useMemo(() => {
-    const map = new Map<string, [number, number, number]>();
+  const basePositions = useMemo(() => {
+    const map = new Map<string, Vec3>();
     const dir = new THREE.Vector3();
     for (const node of nodes) {
+      const saved =
+        node.graphX != null && node.graphY != null && node.graphZ != null
+          ? ([node.graphX, node.graphY, node.graphZ] as Vec3)
+          : positionOverrides.get(node.id);
+      if (saved) {
+        map.set(node.id, saved);
+        continue;
+      }
       const [dx, dy, dz] = nodeDirection(node.id, node.brainArea);
       dir.set(dx, dy, dz).normalize();
       const surfacePoint = raycastSurface(dir);
@@ -452,9 +496,48 @@ function SceneContent({
       ]);
     }
     return map;
-  }, [nodes, raycastSurface]);
+  }, [nodes, raycastSurface, positionOverrides]);
 
-  function handleClick(e: ThreeEvent<MouseEvent>) {
+  function startDrag(nodeId: string) {
+    setDraggingId(nodeId);
+    onDraggingChange(true);
+  }
+
+  function handleShellPointerMove(e: ThreeEvent<PointerEvent>) {
+    if (!draggingId) return;
+    e.stopPropagation();
+    setLiveDragPos([e.point.x, e.point.y, e.point.z]);
+  }
+
+  // Refs so the always-current values are visible to the window listener
+  // below without re-subscribing it on every drag-move.
+  const draggingIdRef = useRef(draggingId);
+  const liveDragPosRef = useRef(liveDragPos);
+  useEffect(() => {
+    draggingIdRef.current = draggingId;
+    liveDragPosRef.current = liveDragPos;
+  }, [draggingId, liveDragPos]);
+
+  function endDrag() {
+    const id = draggingIdRef.current;
+    const pos = liveDragPosRef.current;
+    if (id && pos) onSavePosition(id, pos);
+    setDraggingId(null);
+    setLiveDragPos(null);
+    onDraggingChange(false);
+  }
+
+  // Catch-all: a drag can end with the pointer released off the brain's
+  // silhouette, where no mesh is under the cursor to fire its own
+  // onPointerUp — the window listener guarantees the drag always stops.
+  useEffect(() => {
+    if (!draggingId) return;
+    window.addEventListener("pointerup", endDrag);
+    return () => window.removeEventListener("pointerup", endDrag);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draggingId]);
+
+  function handleAreaClick(e: ThreeEvent<MouseEvent>) {
     e.stopPropagation();
     const local = (e.object as THREE.Mesh).worldToLocal(e.point.clone());
     const area = nearestBrainArea([local.x, local.y, local.z]);
@@ -463,7 +546,11 @@ function SceneContent({
 
   return (
     <group onPointerMissed={onMissed}>
-      <mesh geometry={geometry} onClick={handleClick}>
+      <mesh
+        geometry={geometry}
+        onClick={handleAreaClick}
+        onPointerMove={handleShellPointerMove}
+      >
         <meshStandardMaterial vertexColors roughness={0.4} metalness={0} side={THREE.DoubleSide} />
       </mesh>
       <lineSegments geometry={boundaryGeometry}>
@@ -471,16 +558,17 @@ function SceneContent({
       </lineSegments>
       <Cerebellum scale={scale} />
       <Suspense fallback={null}>
-        <AreaLabels accentColor={accentColor} />
+        <AreaLabels accentColor={accentColor} areaContent={areaContent} />
       </Suspense>
       <Connections
         links={links}
-        positions={positions}
+        positions={basePositions}
         selectedId={selectedNodeId}
         accentColor={accentColor}
       />
       {nodes.map((node) => {
-        const position = positions.get(node.id);
+        const position =
+          draggingId === node.id && liveDragPos ? liveDragPos : basePositions.get(node.id);
         if (!position) return null;
         return (
           <Node
@@ -488,7 +576,9 @@ function SceneContent({
             node={node}
             position={position}
             selected={node.id === selectedNodeId}
+            editable={editable}
             onToggle={() => onSelectNode(node.id)}
+            onDragStart={() => startDrag(node.id)}
           />
         );
       })}
@@ -509,14 +599,19 @@ function useAccentColor() {
 export function BrainGraph({
   nodes,
   links,
+  areaContent,
 }: {
   nodes: GraphNode[];
   links: GraphLink[];
+  areaContent: BrainAreaContentMap;
 }) {
   const accentColor = useAccentColor();
+  const { editMode } = useEditMode();
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedAreaSlug, setSelectedAreaSlug] = useState<BrainAreaSlug | null>(null);
   const [autoRotate, setAutoRotate] = useState(true);
+  const [dragging, setDragging] = useState(false);
+  const [positionOverrides, setPositionOverrides] = useState<Map<string, Vec3>>(new Map());
 
   function selectNode(id: string) {
     setSelectedNodeId((prev) => (prev === id ? null : id));
@@ -533,7 +628,20 @@ export function BrainGraph({
     setSelectedAreaSlug(null);
   }
 
-  const selectedArea = selectedAreaSlug ? getBrainArea(selectedAreaSlug) : null;
+  async function savePosition(id: string, position: Vec3) {
+    setPositionOverrides((prev) => new Map(prev).set(id, position));
+    try {
+      await updateEntryGraphPosition(id, position[0], position[1], position[2]);
+    } catch {
+      // Position still applied locally for this session; the DB write
+      // failing (e.g. not actually an admin) just won't persist it.
+    }
+  }
+
+  const selectedContent = selectedAreaSlug ? areaContent[selectedAreaSlug] : null;
+  const selectedColor = selectedAreaSlug
+    ? BRAIN_AREAS.find((a) => a.slug === selectedAreaSlug)?.color
+    : undefined;
   const areaNodes = useMemo(() => {
     if (!selectedAreaSlug) return [];
     return nodes.filter(
@@ -541,7 +649,8 @@ export function BrainGraph({
     );
   }, [nodes, selectedAreaSlug]);
 
-  const rotating = autoRotate && selectedNodeId == null && selectedAreaSlug == null;
+  const rotating =
+    autoRotate && !dragging && selectedNodeId == null && selectedAreaSlug == null;
 
   return (
     <div>
@@ -556,6 +665,7 @@ export function BrainGraph({
           <directionalLight position={[2, 3, 2]} intensity={0.8} />
           <directionalLight position={[-2, -1, -2]} intensity={0.45} />
           <OrbitControls
+            enabled={!dragging}
             enableZoom={false}
             enablePan={false}
             autoRotate={rotating}
@@ -567,16 +677,21 @@ export function BrainGraph({
               nodes={nodes}
               links={links}
               accentColor={accentColor}
+              areaContent={areaContent}
               selectedNodeId={selectedNodeId}
+              editable={editMode}
+              positionOverrides={positionOverrides}
               onSelectNode={selectNode}
               onSelectArea={selectArea}
               onMissed={clearSelection}
+              onSavePosition={savePosition}
+              onDraggingChange={setDragging}
             />
           </Suspense>
         </Canvas>
       </div>
 
-      <div className="mx-auto mt-3 flex max-w-2xl justify-center">
+      <div className="mx-auto mt-3 flex max-w-2xl flex-wrap items-center justify-center gap-x-4 gap-y-1">
         <button
           type="button"
           onClick={() => setAutoRotate((v) => !v)}
@@ -584,14 +699,27 @@ export function BrainGraph({
         >
           {autoRotate ? "Ferma la rotazione" : "Riprendi la rotazione"}
         </button>
+        <p className="text-xs text-muted">
+          Clicca una zona colorata per scoprire a cosa corrisponde.
+        </p>
       </div>
 
-      {selectedArea && (
+      {selectedContent && selectedAreaSlug && (
         <div className="mx-auto mt-4 max-w-2xl rounded-lg border border-black/[.08] p-4 text-sm dark:border-white/[.12]">
-          <p className="font-medium" style={{ color: selectedArea.color }}>
-            {selectedArea.label}
-          </p>
-          <p className="mt-1 text-muted">{selectedArea.description}</p>
+          <EditableText
+            as="p"
+            className="font-medium"
+            style={selectedColor ? { color: selectedColor } : undefined}
+            value={selectedContent.label}
+            target={{ table: "brain_areas", id: selectedAreaSlug, field: "label" }}
+          />
+          <EditableText
+            as="p"
+            className="mt-1 text-muted"
+            value={selectedContent.description}
+            target={{ table: "brain_areas", id: selectedAreaSlug, field: "description" }}
+            multiline
+          />
           {areaNodes.length > 0 && (
             <ul className="mt-3 flex flex-wrap gap-2">
               {areaNodes.map((node) => (
