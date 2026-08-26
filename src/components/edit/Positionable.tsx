@@ -8,7 +8,18 @@ import {
   type HomeLayoutTarget,
 } from "@/app/edit/actions";
 
-const LIMIT = 40;
+const LIMIT = 150;
+const SNAP_PX = 8;
+
+type DragState = {
+  startX: number;
+  startY: number;
+  baseX: number;
+  baseY: number;
+  canvasRect: DOMRect;
+  naturalCenterX: number;
+  naturalCenterY: number;
+};
 
 export function Positionable({
   slotKey,
@@ -33,13 +44,10 @@ export function Positionable({
   }
 
   const ref = useRef<HTMLDivElement>(null);
-  const dragState = useRef<{
-    startX: number;
-    startY: number;
-    baseX: number;
-    baseY: number;
-  } | null>(null);
+  const dragState = useRef<DragState | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [guides, setGuides] = useState({ v: false, h: false });
+  const [dragCanvasRect, setDragCanvasRect] = useState<DOMRect | null>(null);
 
   const style = {
     "--pos-x": `${pos.x}%`,
@@ -60,25 +68,68 @@ export function Positionable({
 
   function onHandlePointerDown(e: React.PointerEvent) {
     const el = ref.current;
-    if (!el) return;
-    dragState.current = { startX: e.clientX, startY: e.clientY, baseX: pos.x, baseY: pos.y };
+    const canvas = el?.closest(".square-canvas") as HTMLElement | null;
+    if (!el || !canvas) return;
+
+    const elRect = el.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    const naturalCenterX =
+      elRect.left + elRect.width / 2 - (pos.x / 100) * canvasRect.width;
+    const naturalCenterY =
+      elRect.top + elRect.height / 2 - (pos.y / 100) * canvasRect.height;
+
+    dragState.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      baseX: pos.x,
+      baseY: pos.y,
+      canvasRect,
+      naturalCenterX,
+      naturalCenterY,
+    };
+    setDragCanvasRect(canvasRect);
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
     setDragging(true);
   }
 
   function onHandlePointerMove(e: React.PointerEvent) {
     const state = dragState.current;
-    const el = ref.current;
-    if (!state || !el) return;
-    const dxPct = ((e.clientX - state.startX) / el.offsetWidth) * 100;
-    const dyPct = ((e.clientY - state.startY) / el.offsetHeight) * 100;
-    setPos({ x: clamp(state.baseX + dxPct), y: clamp(state.baseY + dyPct) });
+    if (!state) return;
+
+    let nextX = clamp(
+      state.baseX + ((e.clientX - state.startX) / state.canvasRect.width) * 100
+    );
+    let nextY = clamp(
+      state.baseY + ((e.clientY - state.startY) / state.canvasRect.height) * 100
+    );
+
+    const canvasCenterX = state.canvasRect.left + state.canvasRect.width / 2;
+    const canvasCenterY = state.canvasRect.top + state.canvasRect.height / 2;
+    const centerX = state.naturalCenterX + (nextX / 100) * state.canvasRect.width;
+    const centerY = state.naturalCenterY + (nextY / 100) * state.canvasRect.height;
+
+    const snapV = Math.abs(centerX - canvasCenterX) < SNAP_PX;
+    const snapH = Math.abs(centerY - canvasCenterY) < SNAP_PX;
+    if (snapV) {
+      nextX = clamp(
+        nextX - ((centerX - canvasCenterX) / state.canvasRect.width) * 100
+      );
+    }
+    if (snapH) {
+      nextY = clamp(
+        nextY - ((centerY - canvasCenterY) / state.canvasRect.height) * 100
+      );
+    }
+
+    setGuides({ v: snapV, h: snapH });
+    setPos({ x: nextX, y: nextY });
   }
 
   function onHandlePointerUp() {
     if (!dragState.current) return;
     dragState.current = null;
     setDragging(false);
+    setGuides({ v: false, h: false });
     updateHomeLayoutPosition(target, slotKey, pos.x, pos.y).catch((err) => {
       window.alert(
         err instanceof Error ? err.message : "Errore durante il salvataggio."
@@ -131,6 +182,36 @@ export function Positionable({
         </button>
       )}
       {children}
+      {dragging && dragCanvasRect && guides.v && (
+        <div
+          aria-hidden
+          style={{
+            position: "fixed",
+            left: dragCanvasRect.left + dragCanvasRect.width / 2,
+            top: dragCanvasRect.top,
+            width: 1,
+            height: dragCanvasRect.height,
+            background: "#ef4444",
+            zIndex: 9999,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+      {dragging && dragCanvasRect && guides.h && (
+        <div
+          aria-hidden
+          style={{
+            position: "fixed",
+            left: dragCanvasRect.left,
+            top: dragCanvasRect.top + dragCanvasRect.height / 2,
+            width: dragCanvasRect.width,
+            height: 1,
+            background: "#ef4444",
+            zIndex: 9999,
+            pointerEvents: "none",
+          }}
+        />
+      )}
     </div>
   );
 }

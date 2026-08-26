@@ -43,7 +43,7 @@ export function ValoriSquare({
   );
 
   return (
-    <div className="rounded-xl border border-black/[.08] p-6 dark:border-white/[.145]">
+    <div className="square-canvas relative rounded-xl border border-black/[.08] p-6 dark:border-white/[.145]">
       {target ? (
         <Positionable slotKey="title" target={target} position={layout.title ?? null}>
           {titleEl}

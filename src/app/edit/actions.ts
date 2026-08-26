@@ -146,7 +146,7 @@ const HOME_LAYOUT_SLOTS = [
   "teaser",
 ] as const;
 
-const HOME_LAYOUT_LIMIT = 40;
+const HOME_LAYOUT_LIMIT = 150;
 
 export type HomeLayoutTarget =
   | { table: "site_settings" }

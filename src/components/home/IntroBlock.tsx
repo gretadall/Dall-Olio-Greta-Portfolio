@@ -16,7 +16,7 @@ export function IntroBlock({
   layout: HomeLayout;
 }) {
   return (
-    <section className="mx-auto flex w-full max-w-4xl flex-col items-center gap-8 px-6 py-20 sm:flex-row">
+    <section className="square-canvas relative mx-auto flex w-full max-w-4xl flex-col items-center gap-8 px-6 py-20 sm:flex-row">
       {heroPhotoPath && (
         <Positionable
           slotKey="intro.photo"

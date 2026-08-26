@@ -84,7 +84,7 @@ export function LinkSquare({
 
   if (!href) {
     return (
-      <div className="rounded-xl border border-black/[.08] p-6 dark:border-white/[.145]">
+      <div className="square-canvas relative rounded-xl border border-black/[.08] p-6 dark:border-white/[.145]">
         {content}
       </div>
     );
@@ -93,7 +93,7 @@ export function LinkSquare({
   return (
     <Link
       href={href}
-      className="group rounded-xl border border-black/[.08] p-6 transition-colors hover:border-black/[.16] dark:border-white/[.145] dark:hover:border-white/[.3]"
+      className="square-canvas group relative rounded-xl border border-black/[.08] p-6 transition-colors hover:border-black/[.16] dark:border-white/[.145] dark:hover:border-white/[.3]"
     >
       {content}
     </Link>
