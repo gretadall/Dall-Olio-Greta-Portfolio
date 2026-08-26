@@ -2,6 +2,7 @@ import Image from "next/image";
 import { getSiteSettings } from "@/lib/queries";
 import { getMediaUrl } from "@/lib/supabase/media";
 import { SettingsForm } from "@/components/admin/SettingsForm";
+import { HomeContentForm } from "@/components/admin/HomeContentForm";
 import { PhotoUploadForm } from "@/components/admin/PhotoUploadForm";
 import {
   uploadHeroPhoto,
@@ -23,6 +24,18 @@ export default async function AdminSettingsPage() {
         Personalizza titolo, colori e font del sito.
       </p>
       <SettingsForm settings={settings} />
+
+      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
+        <h2 className="text-lg font-semibold tracking-tight">
+          Contenuti home (Vision, Valori, Formazione)
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          I testi mostrati nei quadrati della home. Valori e Formazione hanno
+          un&apos;anteprima sempre visibile e un testo esteso dietro la
+          freccina.
+        </p>
+        <HomeContentForm settings={settings} />
+      </div>
 
       <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
         <h2 className="text-lg font-semibold tracking-tight">Foto profilo</h2>

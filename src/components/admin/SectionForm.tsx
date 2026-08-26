@@ -110,6 +110,22 @@ export function SectionForm({
         </span>
       </label>
 
+      <label className="flex flex-col gap-1 text-sm">
+        Dove appare
+        <select
+          name="page_placement"
+          defaultValue={section?.page_placement ?? "standalone"}
+          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        >
+          <option value="standalone">
+            Pagina a sé (raggiungibile solo dal proprio link)
+          </option>
+          <option value="chi_sono">
+            Nella pagina &quot;Chi sono&quot; (scorrimento)
+          </option>
+        </select>
+      </label>
+
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"

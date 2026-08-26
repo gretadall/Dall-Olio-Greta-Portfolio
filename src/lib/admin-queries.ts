@@ -155,6 +155,52 @@ export async function getTravelEntries() {
   return data;
 }
 
+export async function getAllBlogCategories() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("blog_categories")
+    .select("*")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getBlogCategoryById(id: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("blog_categories")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getAllBlogPosts() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*, blog_categories(name, color)")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getBlogPostById(id: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
 export async function getDashboardCounts() {
   const supabase = await createClient();
   const [sections, entries, comments, followers] = await Promise.all([

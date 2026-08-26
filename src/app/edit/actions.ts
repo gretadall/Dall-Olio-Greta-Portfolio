@@ -13,6 +13,8 @@ const SITE_SETTINGS_TEXT_FIELDS = [
   "linkedin_label",
   "contact_button_label",
   "footer_text",
+  "nav_chi_sono_label",
+  "nav_blog_label",
 ] as const;
 
 const SITE_SETTINGS_REQUIRED_TEXT_FIELDS = new Set<SiteSettingsTextField>([
@@ -22,6 +24,8 @@ const SITE_SETTINGS_REQUIRED_TEXT_FIELDS = new Set<SiteSettingsTextField>([
   "linkedin_label",
   "contact_button_label",
   "footer_text",
+  "nav_chi_sono_label",
+  "nav_blog_label",
 ]);
 
 const SITE_SETTINGS_COLOR_FIELDS = [

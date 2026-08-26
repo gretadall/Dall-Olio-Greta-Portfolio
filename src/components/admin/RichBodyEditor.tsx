@@ -38,9 +38,9 @@ function ToolbarButton({
   );
 }
 
-async function uploadToMedia(entryId: string, file: File) {
+async function uploadToMedia(mediaPathPrefix: string, entryId: string, file: File) {
   const supabase = createClient();
-  const path = `entries/${entryId}/${Date.now()}-${file.name}`;
+  const path = `${mediaPathPrefix}/${entryId}/${Date.now()}-${file.name}`;
   const { error } = await supabase.storage.from("media").upload(path, file);
   if (error) throw error;
   return getMediaUrl(path);
@@ -49,9 +49,13 @@ async function uploadToMedia(entryId: string, file: File) {
 export function RichBodyEditor({
   entryId,
   initialContent,
+  mediaPathPrefix = "entries",
+  fieldName = "body",
 }: {
   entryId: string;
   initialContent: string;
+  mediaPathPrefix?: string;
+  fieldName?: string;
 }) {
   const hiddenInputRef = useRef<HTMLInputElement>(null);
   const [videoPromptOpen, setVideoPromptOpen] = useState(false);
@@ -91,7 +95,7 @@ export function RichBodyEditor({
 
     setUploading(true);
     try {
-      const url = await uploadToMedia(entryId, file);
+      const url = await uploadToMedia(mediaPathPrefix, entryId, file);
       editor.chain().focus("end").setImage({ src: url }).run();
     } finally {
       setUploading(false);
@@ -105,7 +109,7 @@ export function RichBodyEditor({
 
     setUploading(true);
     try {
-      const url = await uploadToMedia(entryId, file);
+      const url = await uploadToMedia(mediaPathPrefix, entryId, file);
       editor
         .chain()
         .focus("end")
@@ -260,7 +264,7 @@ export function RichBodyEditor({
       )}
 
       <EditorContent editor={editor} />
-      <input ref={hiddenInputRef} type="hidden" name="body" />
+      <input ref={hiddenInputRef} type="hidden" name={fieldName} />
     </div>
   );
 }
