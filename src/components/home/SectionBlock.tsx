@@ -71,7 +71,12 @@ export function SectionBlock({
               href={`/${section.slug}`}
               className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary transition-opacity hover:opacity-70"
             >
-              Scopri tutto →
+              <EditableText
+                as="span"
+                value={section.cta_label}
+                target={{ table: "sections", id: section.id, field: "cta_label" }}
+              />
+              {" →"}
             </Link>
 
             <div className="mt-10">

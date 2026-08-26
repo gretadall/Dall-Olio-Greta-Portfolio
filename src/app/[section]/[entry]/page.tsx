@@ -39,43 +39,46 @@ export default async function EntryPage({
   ]);
 
   const period = formatPeriod(entry.period_start, entry.period_end);
+  const hasBackground = Boolean(section.background_image_path);
+  const mutedClass = hasBackground ? "text-white/75" : "text-muted";
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
       <SectionBackground
         imagePath={section.background_image_path}
         opacity={section.background_opacity}
+        darkness={section.home_overlay_darkness}
       />
       <Link
         href={`/${section.slug}`}
-        className="text-sm text-muted transition-opacity hover:opacity-70"
+        className={`text-sm transition-opacity hover:opacity-70 ${mutedClass}`}
       >
         ← {section.title}
       </Link>
 
-      <h1 className="mt-4 text-3xl font-semibold tracking-tight">
+      <h1
+        className={`mt-4 text-3xl font-semibold tracking-tight ${hasBackground ? "text-white" : ""}`}
+      >
         {entry.title}
       </h1>
 
-      <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted">
+      <div className={`mt-2 flex flex-wrap gap-3 text-sm ${mutedClass}`}>
         {period && <span>{period}</span>}
         {entry.location && <span>{entry.location}</span>}
       </div>
 
       {entry.description && (
-        <p className="mt-6 text-lg text-muted">
-          {entry.description}
-        </p>
+        <p className={`mt-6 text-lg ${mutedClass}`}>{entry.description}</p>
       )}
 
       {entry.body &&
         (looksLikeHtml(entry.body) ? (
           <div
-            className="rich-content mt-6 text-muted"
+            className={`rich-content mt-6 ${mutedClass}`}
             dangerouslySetInnerHTML={{ __html: entry.body }}
           />
         ) : (
-          <div className="mt-6 whitespace-pre-wrap text-muted">
+          <div className={`mt-6 whitespace-pre-wrap ${mutedClass}`}>
             {entry.body}
           </div>
         ))}

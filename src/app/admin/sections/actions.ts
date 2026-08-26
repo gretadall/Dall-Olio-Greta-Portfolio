@@ -13,6 +13,7 @@ function readSectionForm(formData: FormData) {
   const slugInput = String(formData.get("slug") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const icon = String(formData.get("icon") ?? "").trim();
+  const ctaLabel = String(formData.get("cta_label") ?? "").trim();
   const color = String(formData.get("color") ?? "").trim();
   const isPublished = formData.get("is_published") === "on";
   const backgroundOpacity = Number(formData.get("background_opacity") ?? 100);
@@ -25,6 +26,7 @@ function readSectionForm(formData: FormData) {
     slug,
     description,
     icon,
+    ctaLabel,
     color,
     isPublished,
     backgroundOpacity,
@@ -49,6 +51,7 @@ export async function createSection(
     slug,
     description,
     icon,
+    ctaLabel,
     color,
     isPublished,
     backgroundOpacity,
@@ -82,6 +85,7 @@ export async function createSection(
     slug,
     description: description || null,
     icon: icon || null,
+    cta_label: ctaLabel || "Scopri tutto",
     color: color || null,
     is_published: isPublished,
     background_opacity: backgroundOpacity,
@@ -113,6 +117,7 @@ export async function updateSection(
     slug,
     description,
     icon,
+    ctaLabel,
     color,
     isPublished,
     backgroundOpacity,
@@ -148,6 +153,7 @@ export async function updateSection(
       slug,
       description: description || null,
       icon: icon || null,
+      cta_label: ctaLabel || "Scopri tutto",
       color: color || null,
       is_published: isPublished,
       background_opacity: backgroundOpacity,

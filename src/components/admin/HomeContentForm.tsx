@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import type { Database } from "@/lib/supabase/types";
 import { RichBodyEditor } from "@/components/admin/RichBodyEditor";
 import { updateHomeContent } from "@/app/admin/settings/actions";
@@ -22,26 +23,26 @@ export function HomeContentForm({ settings }: { settings: SiteSettings }) {
         />
       </label>
 
-      <div className="flex flex-col gap-3">
-        <span className="text-sm">Valori</span>
-        <label className="flex flex-col gap-1 text-sm">
-          Testo introduttivo (sempre visibile)
-          <textarea
-            name="valori_intro"
-            rows={2}
-            defaultValue={settings.valori_intro ?? ""}
-            className="resize-none rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Testo esteso (dietro la freccina)
-          <RichBodyEditor
-            entryId="valori"
-            mediaPathPrefix="site-settings"
-            fieldName="valori_body"
-            initialContent={settings.valori_body ?? ""}
-          />
-        </label>
+      <label className="flex flex-col gap-1 text-sm">
+        Icona Vision (emoji, opzionale)
+        <input
+          name="vision_icon"
+          defaultValue={settings.vision_icon ?? ""}
+          placeholder="✨"
+          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        />
+      </label>
+
+      <div className="flex flex-col gap-1 rounded-lg border border-black/[.08] p-4 text-sm dark:border-white/[.145]">
+        <span>Valori</span>
+        <p className="text-zinc-500 dark:text-zinc-400">
+          I singoli valori (titolo + approfondimento) si gestiscono ora come
+          contenuti della sezione &quot;Valori&quot; in{" "}
+          <Link href="/admin/sections" className="text-primary hover:underline">
+            Sezioni
+          </Link>
+          .
+        </p>
       </div>
 
       <div className="flex flex-col gap-3">

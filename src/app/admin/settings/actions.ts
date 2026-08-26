@@ -118,8 +118,7 @@ export async function updateHomeContent(
   formData: FormData
 ): Promise<FormState> {
   const visionText = String(formData.get("vision_text") ?? "").trim();
-  const valoriIntro = String(formData.get("valori_intro") ?? "").trim();
-  const valoriBody = String(formData.get("valori_body") ?? "").trim();
+  const visionIcon = String(formData.get("vision_icon") ?? "").trim();
   const formazioneIntro = String(formData.get("formazione_intro") ?? "").trim();
   const formazioneBody = String(formData.get("formazione_body") ?? "").trim();
 
@@ -128,8 +127,7 @@ export async function updateHomeContent(
     .from("site_settings")
     .update({
       vision_text: visionText ? sanitizeEntryBody(visionText) : null,
-      valori_intro: valoriIntro || null,
-      valori_body: valoriBody ? sanitizeEntryBody(valoriBody) : null,
+      vision_icon: visionIcon || null,
       formazione_intro: formazioneIntro || null,
       formazione_body: formazioneBody ? sanitizeEntryBody(formazioneBody) : null,
       updated_at: new Date().toISOString(),

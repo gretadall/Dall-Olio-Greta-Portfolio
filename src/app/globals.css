@@ -123,6 +123,15 @@ body {
   transform: translateY(0);
 }
 
+.positionable {
+  transform: translate(var(--pos-x, 0), var(--pos-y, 0));
+}
+@media (max-width: 639px) {
+  .positionable {
+    transform: none !important;
+  }
+}
+
 @keyframes reveal-in {
   from {
     opacity: 0;

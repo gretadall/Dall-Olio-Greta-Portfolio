@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getIsAdmin } from "@/lib/supabase/auth";
+import type { HomeLayout } from "@/lib/supabase/types";
 
 const SITE_SETTINGS_TEXT_FIELDS = [
   "site_title",
@@ -15,6 +16,7 @@ const SITE_SETTINGS_TEXT_FIELDS = [
   "footer_text",
   "nav_chi_sono_label",
   "nav_blog_label",
+  "vision_icon",
 ] as const;
 
 const SITE_SETTINGS_REQUIRED_TEXT_FIELDS = new Set<SiteSettingsTextField>([
@@ -80,7 +82,7 @@ export async function updateSiteSettingsField(
   revalidatePath("/", "layout");
 }
 
-const SECTION_FIELDS = ["title", "description"] as const;
+const SECTION_FIELDS = ["title", "description", "icon", "cta_label"] as const;
 export type SectionField = (typeof SECTION_FIELDS)[number];
 
 export async function updateSectionField(
@@ -94,8 +96,8 @@ export async function updateSectionField(
   }
 
   const trimmed = value.trim();
-  if (field === "title" && !trimmed) {
-    throw new Error("Il titolo non può essere vuoto.");
+  if ((field === "title" || field === "cta_label") && !trimmed) {
+    throw new Error("Questo campo non può essere vuoto.");
   }
 
   const supabase = await createClient();
@@ -131,6 +133,88 @@ export async function updateEntryField(id: string, field: EntryField, value: str
     .eq("id", id);
 
   if (error) throw new Error("Errore durante il salvataggio.");
+
+  revalidatePath("/", "layout");
+}
+
+const HOME_LAYOUT_SLOTS = [
+  "intro.photo",
+  "intro.text",
+  "vision.heading",
+  "vision.body",
+  "title",
+  "teaser",
+] as const;
+
+const HOME_LAYOUT_LIMIT = 40;
+
+export type HomeLayoutTarget =
+  | { table: "site_settings" }
+  | { table: "sections"; id: string };
+
+async function loadHomeLayout(target: HomeLayoutTarget) {
+  const supabase = await createClient();
+  const query =
+    target.table === "site_settings"
+      ? supabase.from("site_settings").select("home_layout").eq("id", true)
+      : supabase.from("sections").select("home_layout").eq("id", target.id);
+
+  const { data, error } = await query.single();
+  if (error) throw new Error("Errore durante il caricamento della posizione.");
+  return { supabase, current: (data?.home_layout ?? {}) as HomeLayout };
+}
+
+async function saveHomeLayout(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  target: HomeLayoutTarget,
+  layout: HomeLayout
+) {
+  const query =
+    target.table === "site_settings"
+      ? supabase
+          .from("site_settings")
+          .update({ home_layout: layout, updated_at: new Date().toISOString() } as never)
+          .eq("id", true)
+      : supabase
+          .from("sections")
+          .update({ home_layout: layout, updated_at: new Date().toISOString() } as never)
+          .eq("id", target.id);
+
+  const { error } = await query;
+  if (error) throw new Error("Errore durante il salvataggio della posizione.");
+}
+
+export async function updateHomeLayoutPosition(
+  target: HomeLayoutTarget,
+  slotKey: string,
+  x: number,
+  y: number
+) {
+  await requireAdmin();
+  if (!(HOME_LAYOUT_SLOTS as readonly string[]).includes(slotKey)) {
+    throw new Error("Elemento non spostabile.");
+  }
+
+  const clamp = (n: number) =>
+    Math.max(-HOME_LAYOUT_LIMIT, Math.min(HOME_LAYOUT_LIMIT, Math.round(n)));
+
+  const { supabase, current } = await loadHomeLayout(target);
+  const next = { ...current, [slotKey]: { x: clamp(x), y: clamp(y) } };
+  await saveHomeLayout(supabase, target, next);
+
+  revalidatePath("/", "layout");
+}
+
+export async function resetHomeLayoutPosition(
+  target: HomeLayoutTarget,
+  slotKey: string
+) {
+  await requireAdmin();
+
+  const { supabase, current } = await loadHomeLayout(target);
+  const next = { ...current };
+  delete next[slotKey];
+  await saveHomeLayout(supabase, target, next);
 
   revalidatePath("/", "layout");
 }

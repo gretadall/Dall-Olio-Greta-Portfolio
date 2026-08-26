@@ -16,16 +16,23 @@ function formatPeriod(entry: Entry) {
 export function EntryCard({
   sectionSlug,
   entry,
+  hasBackground = false,
 }: {
   sectionSlug: string;
   entry: Entry;
+  hasBackground?: boolean;
 }) {
   const period = formatPeriod(entry);
+  const mutedClass = hasBackground ? "text-white/75" : "text-muted";
 
   return (
     <Link
       href={`/${sectionSlug}/${entry.slug}`}
-      className="group relative flex flex-col gap-1 rounded-xl border border-black/[.08] p-6 transition-colors hover:border-black/[.16] dark:border-white/[.145] dark:hover:border-white/[.3]"
+      className={`group relative flex flex-col gap-1 rounded-xl border p-6 transition-colors ${
+        hasBackground
+          ? "border-white/15 hover:border-white/30"
+          : "border-black/[.08] hover:border-black/[.16] dark:border-white/[.145] dark:hover:border-white/[.3]"
+      }`}
     >
       <DeleteButton
         label={entry.title}
@@ -34,25 +41,15 @@ export function EntryCard({
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <EditableText
           as="h3"
-          className="text-base font-semibold tracking-tight"
+          className={`text-base font-semibold tracking-tight ${hasBackground ? "text-white" : ""}`}
           value={entry.title}
           target={{ table: "entries", id: entry.id, field: "title" }}
         />
-        {period && (
-          <span className="text-xs text-muted">
-            {period}
-          </span>
-        )}
+        {period && <span className={`text-xs ${mutedClass}`}>{period}</span>}
       </div>
-      {entry.location && (
-        <span className="text-xs text-muted">
-          {entry.location}
-        </span>
-      )}
+      {entry.location && <span className={`text-xs ${mutedClass}`}>{entry.location}</span>}
       {entry.description && (
-        <p className="mt-1 text-sm text-muted">
-          {entry.description}
-        </p>
+        <p className={`mt-1 text-sm ${mutedClass}`}>{entry.description}</p>
       )}
     </Link>
   );

@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import type { Database } from "@/lib/supabase/types";
 import { RichBodyEditor } from "@/components/admin/RichBodyEditor";
+import { BRAIN_AREAS } from "@/lib/brain-areas";
 
 type Entry = Database["public"]["Tables"]["entries"]["Row"];
 type FormState = { error?: string } | undefined;
@@ -100,6 +101,22 @@ export function EntryForm({
             </span>
           </>
         )}
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Area cerebrale (posizione nella rete 3D)
+        <select
+          name="brain_area"
+          defaultValue={entry?.brain_area ?? ""}
+          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+        >
+          <option value="">— Automatica —</option>
+          {BRAIN_AREAS.map((area) => (
+            <option key={area.slug} value={area.slug}>
+              {area.label}
+            </option>
+          ))}
+        </select>
       </label>
 
       <label className="flex items-center gap-2 text-sm">

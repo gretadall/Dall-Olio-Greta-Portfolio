@@ -9,6 +9,8 @@ export const GRAPH_PALETTE = [
   "#ec4899",
 ];
 
+import type { BrainAreaSlug } from "./brain-areas";
+
 type SectionLike = { id: string; slug: string; color: string | null };
 type EntryLike = {
   id: string;
@@ -17,6 +19,7 @@ type EntryLike = {
   section_id: string;
   graph_x: number | null;
   graph_y: number | null;
+  brain_area: BrainAreaSlug | null;
 };
 type ConnectionLike = {
   id: string;
@@ -39,6 +42,7 @@ export function buildGraphNodes(sections: SectionLike[], entries: EntryLike[]) {
     color: sectionColor.get(e.section_id) ?? "#888888",
     graphX: e.graph_x,
     graphY: e.graph_y,
+    brainArea: e.brain_area,
   }));
 }
 

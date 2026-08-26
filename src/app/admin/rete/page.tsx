@@ -1,7 +1,6 @@
 import { getAdminGraphData } from "@/lib/admin-queries";
-import { NetworkGraph } from "@/components/graph/NetworkGraph";
 import { buildGraphNodes, buildGraphLinks } from "@/lib/graph";
-import { saveGraphPositions } from "./actions";
+import { BrainGraphLoader } from "@/components/graph/BrainGraphLoader";
 
 export default async function AdminRetePage() {
   const { sections, entries, connections } = await getAdminGraphData();
@@ -13,8 +12,9 @@ export default async function AdminRetePage() {
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">Rete</h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Trascina i pallini per sistemarli come preferisci, poi salva. La
-        disposizione salvata è quella che vedranno tutti i visitatori.
+        Anteprima di come i visitatori vedono la rete 3D. Per spostare un
+        nodo in un&apos;altra area cerebrale, apri il contenuto e cambia
+        &quot;Area cerebrale&quot; nel suo modulo di modifica.
       </p>
 
       {nodes.length === 0 ? (
@@ -23,12 +23,7 @@ export default async function AdminRetePage() {
         </p>
       ) : (
         <div className="mt-8">
-          <NetworkGraph
-            nodes={nodes}
-            links={links}
-            editable
-            onSave={saveGraphPositions}
-          />
+          <BrainGraphLoader nodes={nodes} links={links} />
         </div>
       )}
     </div>

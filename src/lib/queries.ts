@@ -188,7 +188,7 @@ export async function getPublicGraphData() {
     supabase.from("sections").select("*").eq("is_published", true),
     supabase
       .from("entries")
-      .select("id, title, slug, section_id, graph_x, graph_y")
+      .select("id, title, slug, section_id, graph_x, graph_y, brain_area")
       .eq("is_published", true),
     supabase
       .from("connections")

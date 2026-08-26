@@ -1,6 +1,6 @@
 import { getPublicGraphData } from "@/lib/queries";
-import { NetworkGraph } from "@/components/graph/NetworkGraph";
 import { buildGraphNodes, buildGraphLinks } from "@/lib/graph";
+import { BrainGraphLoader } from "@/components/graph/BrainGraphLoader";
 
 export default async function RetePage() {
   const { sections, entries, connections } = await getPublicGraphData();
@@ -23,7 +23,15 @@ export default async function RetePage() {
         </p>
       ) : (
         <div className="mt-12">
-          <NetworkGraph nodes={nodes} links={links} />
+          <p className="mb-3 text-sm text-muted">
+            Clicca su un punto per vedere i suoi collegamenti. Il cervello
+            ruota da solo.
+          </p>
+          <BrainGraphLoader nodes={nodes} links={links} />
+          <p className="mt-4 text-xs text-muted">
+            Le aree cerebrali sono un&apos;interpretazione artistica, non un
+            modello scientifico.
+          </p>
         </div>
       )}
     </div>

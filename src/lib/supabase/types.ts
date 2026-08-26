@@ -1,6 +1,8 @@
 // Hand-written to match supabase/migrations/*.sql. Once the project is linked,
 // prefer regenerating with `supabase gen types typescript` and replacing this file.
 
+export type HomeLayout = Record<string, { x: number; y: number }>;
+
 export type Database = {
   public: {
     Tables: {
@@ -28,10 +30,12 @@ export type Database = {
           description: string | null;
           icon: string | null;
           color: string | null;
+          cta_label: string;
           background_image_path: string | null;
           background_opacity: number;
           home_overlay_darkness: number;
           page_placement: "standalone" | "chi_sono";
+          home_layout: HomeLayout;
           sort_order: number;
           is_published: boolean;
           created_at: string;
@@ -60,6 +64,14 @@ export type Database = {
           is_published: boolean;
           graph_x: number | null;
           graph_y: number | null;
+          brain_area:
+            | "prefrontal"
+            | "linguistic"
+            | "motor"
+            | "limbic"
+            | "hippocampus"
+            | "associative"
+            | null;
           created_at: string;
           updated_at: string;
         };
@@ -276,12 +288,14 @@ export type Database = {
           contact_button_label: string;
           footer_text: string;
           vision_text: string | null;
+          vision_icon: string | null;
           valori_intro: string | null;
           valori_body: string | null;
           formazione_intro: string | null;
           formazione_body: string | null;
           nav_chi_sono_label: string;
           nav_blog_label: string;
+          home_layout: HomeLayout;
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]> & {
