@@ -223,6 +223,8 @@ const HOME_LAYOUT_SLOTS = [
   "square.valori",
   "square.hobby",
   "square.formazione",
+  "nav.brand",
+  "nav.buttons",
 ] as const;
 
 const HOME_LAYOUT_LIMIT = 150;
@@ -294,6 +296,28 @@ export async function resetHomeLayoutPosition(
   const next = { ...current };
   delete next[slotKey];
   await saveHomeLayout(supabase, target, next);
+
+  revalidatePath("/", "layout");
+}
+
+export async function resetAllHomeLayouts() {
+  await requireAdmin();
+
+  const supabase = await createClient();
+  const [settingsResult, sectionsResult] = await Promise.all([
+    supabase
+      .from("site_settings")
+      .update({ home_layout: {}, updated_at: new Date().toISOString() } as never)
+      .eq("id", true),
+    supabase
+      .from("sections")
+      .update({ home_layout: {}, updated_at: new Date().toISOString() } as never)
+      .neq("id", "00000000-0000-0000-0000-000000000000"),
+  ]);
+
+  if (settingsResult.error || sectionsResult.error) {
+    throw new Error("Errore durante l'azzeramento delle posizioni.");
+  }
 
   revalidatePath("/", "layout");
 }

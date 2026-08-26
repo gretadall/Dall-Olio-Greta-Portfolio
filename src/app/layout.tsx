@@ -137,6 +137,7 @@ export default async function RootLayout({
               title: s.title,
               icon: s.icon,
             }))}
+            layout={settings.home_layout}
           />
           <main className="flex flex-1 flex-col">{children}</main>
           <Footer text={settings.footer_text ?? "Built by Greta dall'Olio"} />

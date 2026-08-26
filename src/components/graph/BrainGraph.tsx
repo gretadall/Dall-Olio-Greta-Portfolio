@@ -40,7 +40,7 @@ export type GraphLink = {
 type Vec3 = [number, number, number];
 
 const AUTO_ROTATE_SPEED = 0.6;
-const NODE_SURFACE_OFFSET = 0.01;
+const NODE_SURFACE_OFFSET = 0.05;
 const CLICK_MOVE_THRESHOLD = 6; // px
 
 const AREA_COLOR: Record<BrainAreaSlug, [number, number, number]> = Object.fromEntries(
@@ -353,14 +353,14 @@ function Node({
     if (!moved) onToggle();
   }
 
-  const radius = selected ? 0.11 : 0.08;
+  const radius = selected ? 0.065 : 0.045;
 
   return (
     <group position={position}>
       <Billboard>
         {/* Thin dark ring so the dot reads clearly against any background color. */}
         <mesh>
-          <circleGeometry args={[radius * 1.3, 24]} />
+          <circleGeometry args={[radius * 1.35, 24]} />
           <meshBasicMaterial color="black" />
         </mesh>
         <mesh onPointerDown={handlePointerDown} onPointerUp={handlePointerUp}>
@@ -369,7 +369,7 @@ function Node({
         </mesh>
         {/* Larger invisible target so nodes stay easy to hit on touch screens. */}
         <mesh onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} visible={false}>
-          <circleGeometry args={[0.2, 12]} />
+          <circleGeometry args={[0.16, 12]} />
         </mesh>
       </Billboard>
       {selected && (
@@ -506,7 +506,14 @@ function SceneContent({
   function handleShellPointerMove(e: ThreeEvent<PointerEvent>) {
     if (!draggingId) return;
     e.stopPropagation();
-    setLiveDragPos([e.point.x, e.point.y, e.point.z]);
+    // Push out along the local surface normal so the dragged dot sits
+    // visibly on top of the shell, same as the auto-placed ones.
+    const n = e.face?.normal;
+    setLiveDragPos([
+      e.point.x + (n?.x ?? 0) * NODE_SURFACE_OFFSET,
+      e.point.y + (n?.y ?? 0) * NODE_SURFACE_OFFSET,
+      e.point.z + (n?.z ?? 0) * NODE_SURFACE_OFFSET,
+    ]);
   }
 
   // Refs so the always-current values are visible to the window listener
