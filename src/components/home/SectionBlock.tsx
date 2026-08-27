@@ -3,7 +3,6 @@ import Image from "next/image";
 import type { Database } from "@/lib/supabase/types";
 import { getMediaUrl } from "@/lib/supabase/media";
 import { TravelGlobe, type GlobePin } from "@/components/TravelGlobe";
-import { LazyMount } from "@/components/LazyMount";
 import { EditableText } from "@/components/edit/EditableText";
 import { DeleteButton } from "@/components/edit/DeleteButton";
 import { deleteEntry } from "@/app/admin/sections/[sectionId]/entries/actions";
@@ -83,9 +82,7 @@ export function SectionBlock({
             <div className="mt-10">
               {isTravel ? (
                 <div className="flex flex-col items-center gap-6">
-                  <LazyMount placeholderClassName="h-[340px] w-[340px] max-w-full animate-pulse rounded-full bg-black/[.04] dark:bg-white/[.06]">
-                    <TravelGlobe pins={travelPins ?? []} compact />
-                  </LazyMount>
+                  <TravelGlobe pins={travelPins ?? []} compact />
                   {preview.length > 0 && (
                     <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm">
                       {preview.map((entry) => (
