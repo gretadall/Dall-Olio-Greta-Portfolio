@@ -298,6 +298,11 @@ export type Database = {
           nav_blog_label: string;
           home_layout: HomeLayout;
           logo_glow_intensity: number;
+          rete_title: string | null;
+          rete_intro: string | null;
+          rete_hint: string | null;
+          rete_note: string | null;
+          rete_disclaimer: string | null;
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]> & {

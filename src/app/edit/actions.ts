@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getIsAdmin } from "@/lib/supabase/auth";
 import type { HomeLayout } from "@/lib/supabase/types";
+import { isBrainAreaSlug, type BrainAreaSlug } from "@/lib/brain-areas";
 
 const SITE_SETTINGS_TEXT_FIELDS = [
   "site_title",
@@ -17,6 +18,11 @@ const SITE_SETTINGS_TEXT_FIELDS = [
   "nav_chi_sono_label",
   "nav_blog_label",
   "vision_icon",
+  "rete_title",
+  "rete_intro",
+  "rete_hint",
+  "rete_note",
+  "rete_disclaimer",
 ] as const;
 
 const SITE_SETTINGS_REQUIRED_TEXT_FIELDS = new Set<SiteSettingsTextField>([
@@ -173,9 +179,13 @@ export async function updateEntryGraphPosition(
   id: string,
   x: number,
   y: number,
-  z: number
+  z: number,
+  brainArea?: BrainAreaSlug
 ) {
   await requireAdmin();
+  if (brainArea != null && !isBrainAreaSlug(brainArea)) {
+    throw new Error("Area cerebrale non valida.");
+  }
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -184,6 +194,7 @@ export async function updateEntryGraphPosition(
       graph_x: x,
       graph_y: y,
       graph_z: z,
+      ...(brainArea != null ? { brain_area: brainArea } : {}),
       updated_at: new Date().toISOString(),
     } as never)
     .eq("id", id);

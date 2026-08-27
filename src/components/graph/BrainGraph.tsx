@@ -668,10 +668,12 @@ export function BrainGraph({
   nodes,
   links,
   areaContent,
+  noteText,
 }: {
   nodes: GraphNode[];
   links: GraphLink[];
   areaContent: BrainAreaContentMap;
+  noteText: string;
 }) {
   const accentColor = useAccentColor();
   const { editMode } = useEditMode();
@@ -680,6 +682,9 @@ export function BrainGraph({
   const [autoRotate, setAutoRotate] = useState(true);
   const [dragging, setDragging] = useState(false);
   const [positionOverrides, setPositionOverrides] = useState<Map<string, Vec3>>(new Map());
+  const [brainAreaOverrides, setBrainAreaOverrides] = useState<Map<string, BrainAreaSlug>>(
+    new Map(),
+  );
 
   function selectNode(id: string) {
     setSelectedNodeId((prev) => (prev === id ? null : id));
@@ -693,11 +698,19 @@ export function BrainGraph({
 
   async function savePosition(id: string, position: Vec3) {
     setPositionOverrides((prev) => new Map(prev).set(id, position));
+
+    // Dropping a node into a different area's territory reassigns it there
+    // too — not just the raw coordinates — so the area's node list and
+    // future placement stay consistent with where it visibly ended up.
+    const dir = new THREE.Vector3(...position).normalize();
+    const area = nearestBrainArea([dir.x, dir.y, dir.z]).slug;
+    setBrainAreaOverrides((prev) => new Map(prev).set(id, area));
+
     try {
-      await updateEntryGraphPosition(id, position[0], position[1], position[2]);
+      await updateEntryGraphPosition(id, position[0], position[1], position[2], area);
     } catch {
-      // Position still applied locally for this session; the DB write
-      // failing (e.g. not actually an admin) just won't persist it.
+      // Position/area still applied locally for this session; the DB
+      // write failing (e.g. not actually an admin) just won't persist it.
     }
   }
 
@@ -707,10 +720,11 @@ export function BrainGraph({
     : undefined;
   const areaNodes = useMemo(() => {
     if (!selectedAreaSlug) return [];
-    return nodes.filter(
-      (node) => resolveBrainArea(node.id, node.brainArea).slug === selectedAreaSlug,
-    );
-  }, [nodes, selectedAreaSlug]);
+    return nodes.filter((node) => {
+      const brainArea = brainAreaOverrides.get(node.id) ?? node.brainArea;
+      return resolveBrainArea(node.id, brainArea).slug === selectedAreaSlug;
+    });
+  }, [nodes, selectedAreaSlug, brainAreaOverrides]);
 
   const rotating =
     autoRotate && !dragging && selectedNodeId == null && selectedAreaSlug == null;
@@ -765,9 +779,12 @@ export function BrainGraph({
         >
           {autoRotate ? "Ferma la rotazione" : "Riprendi la rotazione"}
         </button>
-        <p className="text-xs text-muted">
-          Clicca una zona colorata per scoprire a cosa corrisponde.
-        </p>
+        <EditableText
+          as="p"
+          className="text-xs text-muted"
+          value={noteText}
+          target={{ table: "site_settings", field: "rete_note" }}
+        />
       </div>
 
       {selectedContent && selectedAreaSlug && (

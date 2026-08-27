@@ -18,10 +18,14 @@ export function BrainGraphLoader({
   nodes,
   links,
   areaContent,
+  noteText,
 }: {
   nodes: GraphNode[];
   links: GraphLink[];
   areaContent: BrainAreaContentMap;
+  noteText: string;
 }) {
-  return <BrainGraph nodes={nodes} links={links} areaContent={areaContent} />;
+  return (
+    <BrainGraph nodes={nodes} links={links} areaContent={areaContent} noteText={noteText} />
+  );
 }
