@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import * as THREE from "three";
 import { Canvas, useLoader, type ThreeEvent } from "@react-three/fiber";
 import { Billboard, Line, OrbitControls, Text } from "@react-three/drei";
@@ -64,9 +63,6 @@ const TARGET_HALF_EXTENT = 1.5;
 // would otherwise dominate a plain min/max bounding box and squash the
 // brain itself into a fraction of the frame.
 const TRIM_PERCENTILE = 0.02;
-// Nudges boundary lines outward along the surface normal so they sit on
-// top of the shell instead of z-fighting with it.
-const BOUNDARY_OFFSET = 0.012;
 // Smoothing passes for the per-vertex area assignment: the raw scan mesh is
 // dense and irregular, so a hard nearest-area cut through it zigzags along
 // individual triangle edges. Repeatedly relabeling each vertex to match the
@@ -250,43 +246,7 @@ function useBrainSTLGeometry() {
     }
     geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
-    // Boundary lines: one segment per triangle edge whose two endpoints
-    // belong to different (smoothed) areas, so the color regions read as
-    // distinct zones with a clean edge rather than a soft-edged texture.
-    const boundaryPositions: number[] = [];
-    if (idxArray) {
-      const normalAttr = geometry.attributes.normal;
-      const seen = new Set<number>();
-      const vertexCount = pos.count;
-      const pushEdge = (a: number, b: number) => {
-        const key = a < b ? a * vertexCount + b : b * vertexCount + a;
-        if (seen.has(key)) return;
-        seen.add(key);
-        for (const v of [a, b]) {
-          boundaryPositions.push(
-            finalPos[v * 3] + normalAttr.getX(v) * BOUNDARY_OFFSET,
-            finalPos[v * 3 + 1] + normalAttr.getY(v) * BOUNDARY_OFFSET,
-            finalPos[v * 3 + 2] + normalAttr.getZ(v) * BOUNDARY_OFFSET,
-          );
-        }
-      };
-      for (let t = 0; t < idxArray.length; t += 3) {
-        const a = idxArray[t];
-        const b = idxArray[t + 1];
-        const c = idxArray[t + 2];
-        if (labels[a] !== labels[b]) pushEdge(a, b);
-        if (labels[b] !== labels[c]) pushEdge(b, c);
-        if (labels[c] !== labels[a]) pushEdge(c, a);
-      }
-    }
-
-    const boundaryGeometry = new THREE.BufferGeometry();
-    boundaryGeometry.setAttribute(
-      "position",
-      new THREE.BufferAttribute(new Float32Array(boundaryPositions), 3),
-    );
-
-    return { geometry, boundaryGeometry, scale };
+    return { geometry, scale };
   }, [raw]);
 }
 
@@ -384,7 +344,6 @@ function Node({
   onDragStart: (screenX: number, screenY: number) => void;
 }) {
   const downScreen = useRef<{ x: number; y: number } | null>(null);
-  const router = useRouter();
 
   function handlePointerDown(e: ThreeEvent<PointerEvent>) {
     e.stopPropagation();
@@ -400,11 +359,6 @@ function Node({
       Math.hypot(e.nativeEvent.clientX - start.x, e.nativeEvent.clientY - start.y) >
         CLICK_MOVE_THRESHOLD;
     if (!moved) onToggle();
-  }
-
-  function handleLabelClick(e: ThreeEvent<MouseEvent>) {
-    e.stopPropagation();
-    router.push(node.href);
   }
 
   const radius = selected ? 0.05 : 0.035;
@@ -444,7 +398,8 @@ function Node({
           into a screen-space offset that can dip under a nearby bump. */}
       <group position={labelOffset}>
         <Billboard>
-          {/* Always-on, small label naming the node; click to open it. */}
+          {/* Always-on, small label naming the node — display only, click
+              is reserved for the dot (toggles its connections). */}
           <Text
             fontSize={0.045}
             color="#ffffff"
@@ -452,7 +407,6 @@ function Node({
             outlineColor="#000000"
             anchorX="center"
             anchorY="middle"
-            onClick={handleLabelClick}
           >
             {node.title}
           </Text>
@@ -581,7 +535,7 @@ function SceneContent({
   onSavePosition: (id: string, position: Vec3) => void;
   onDraggingChange: (dragging: boolean) => void;
 }) {
-  const { geometry, boundaryGeometry, scale } = useBrainSTLGeometry();
+  const { geometry, scale } = useBrainSTLGeometry();
   const raycastSurface = useSurfaceRaycaster(geometry);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [liveDragPos, setLiveDragPos] = useState<Vec3 | null>(null);
@@ -672,9 +626,6 @@ function SceneContent({
       >
         <meshStandardMaterial vertexColors roughness={0.4} metalness={0} side={THREE.DoubleSide} />
       </mesh>
-      <lineSegments geometry={boundaryGeometry}>
-        <lineBasicMaterial color="black" />
-      </lineSegments>
       <Cerebellum scale={scale} />
       <Suspense fallback={null}>
         <AreaLabels accentColor={accentColor} areaContent={areaContent} />
@@ -777,15 +728,19 @@ export function BrainGraph({
         <Canvas
           flat
           camera={{ position: [0, 0.4, 3.8], fov: 45 }}
-          gl={{ alpha: true, antialias: false }}
-          dpr={1}
+          gl={{ alpha: true, antialias: true }}
+          dpr={[1, 2]}
         >
           <ambientLight intensity={1.25} />
           <directionalLight position={[2, 3, 2]} intensity={0.8} />
           <directionalLight position={[-2, -1, -2]} intensity={0.45} />
           <OrbitControls
             enabled={!dragging}
-            enableZoom={false}
+            enableDamping={false}
+            rotateSpeed={0.6}
+            enableZoom
+            minDistance={2}
+            maxDistance={7}
             enablePan={false}
             autoRotate={rotating}
             autoRotateSpeed={AUTO_ROTATE_SPEED}
