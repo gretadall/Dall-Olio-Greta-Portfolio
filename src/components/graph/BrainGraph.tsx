@@ -278,9 +278,9 @@ function useCerebellumGeometry(scale: number) {
   }, [raw, scale]);
 }
 
-// Distinct from every brain-area color so the cerebellum reads as its own
-// structure rather than blending into the motor area's zone.
-const CEREBELLUM_COLOR = "#14b8a6";
+// Same color as the motor area (theirs is "area motoria & cervelletto"),
+// so the cerebellum reads as part of that zone rather than its own.
+const CEREBELLUM_COLOR = BRAIN_AREAS.find((a) => a.slug === "motor")!.color;
 
 function Cerebellum({ scale }: { scale: number }) {
   const geometry = useCerebellumGeometry(scale);
@@ -353,7 +353,7 @@ function Node({
     if (!moved) onToggle();
   }
 
-  const radius = selected ? 0.065 : 0.045;
+  const radius = selected ? 0.05 : 0.035;
 
   return (
     <group position={position}>
@@ -369,21 +369,63 @@ function Node({
         </mesh>
         {/* Larger invisible target so nodes stay easy to hit on touch screens. */}
         <mesh onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} visible={false}>
-          <circleGeometry args={[0.16, 12]} />
+          <circleGeometry args={[0.14, 12]} />
         </mesh>
       </Billboard>
-      {selected && (
-        <Html center distanceFactor={6} style={{ pointerEvents: "auto" }}>
-          <a
-            href={node.href}
-            className="whitespace-nowrap rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-medium text-white no-underline"
-          >
-            {node.title}
-          </a>
-        </Html>
-      )}
+      {/* Always-on, small label naming the node; click to open it. A plain
+          DOM overlay rather than WebGL text — it's never subject to 3D
+          depth/occlusion, so it can't end up hidden behind the (bumpy,
+          real) brain surface the way a 3D-space label could. No
+          distanceFactor: that scales the label by camera distance, which
+          made it huge — this way it's a fixed, normal CSS pixel size like
+          the rest of the page's small text. */}
+      <Html center position={[0, -0.09, 0]} style={{ pointerEvents: "auto" }}>
+        <Link
+          href={node.href}
+          className="whitespace-nowrap text-xs font-medium text-white no-underline"
+          style={{ textShadow: "0 0 3px #000, 0 0 3px #000, 0 0 3px #000" }}
+        >
+          {node.title}
+        </Link>
+      </Html>
     </group>
   );
+}
+
+// Spherical interpolation between two direction vectors (both assumed
+// already normalized).
+function slerpDir(a: THREE.Vector3, b: THREE.Vector3, t: number, out: THREE.Vector3) {
+  const dot = THREE.MathUtils.clamp(a.dot(b), -1, 1);
+  const theta = Math.acos(dot);
+  if (theta < 1e-5) return out.copy(a);
+  const sinTheta = Math.sin(theta);
+  const w1 = Math.sin((1 - t) * theta) / sinTheta;
+  const w2 = Math.sin(t * theta) / sinTheta;
+  return out.copy(a).multiplyScalar(w1).addScaledVector(b, w2);
+}
+
+// A straight chord between two surface points cuts through the opaque
+// brain's interior — invisible along most of its length, and occlusion
+// looks wrong as the brain rotates. Arcing over the surface instead (slerp
+// the direction, lerp the radius, bulge the midpoint outward) keeps the
+// connection visibly riding the shell, with normal depth testing then
+// correctly hiding it once it swings around to the far side.
+function arcPoints(source: Vec3, target: Vec3, segments = 20): Vec3[] {
+  const a = new THREE.Vector3(...source);
+  const b = new THREE.Vector3(...target);
+  const ra = a.length();
+  const rb = b.length();
+  const da = a.clone().normalize();
+  const db = b.clone().normalize();
+  const dir = new THREE.Vector3();
+  const points: Vec3[] = [];
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    slerpDir(da, db, t, dir).normalize();
+    const r = THREE.MathUtils.lerp(ra, rb, t) * (1 + 0.14 * Math.sin(Math.PI * t));
+    points.push([dir.x * r, dir.y * r, dir.z * r]);
+  }
+  return points;
 }
 
 function Connections({
@@ -410,7 +452,7 @@ function Connections({
         return (
           <Line
             key={link.id}
-            points={[source, target]}
+            points={arcPoints(source, target)}
             color={accentColor}
             transparent
             opacity={0.9}
