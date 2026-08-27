@@ -7,8 +7,6 @@ import * as THREE from "three";
 import { Canvas, useLoader, type ThreeEvent } from "@react-three/fiber";
 import { Billboard, Line, OrbitControls, Text } from "@react-three/drei";
 import { STLLoader } from "three/addons/loaders/STLLoader.js";
-import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
-import { SimplifyModifier } from "three/addons/modifiers/SimplifyModifier.js";
 import {
   BRAIN_AREAS,
   nearestBrainArea,
@@ -76,16 +74,51 @@ const BOUNDARY_OFFSET = 0.012;
 const SMOOTH_ITERATIONS = 14;
 // The source scans are far denser than this scene needs (the brain STL has
 // ~82k triangles, the cerebellum ~48k) — full resolution was the main cause
-// of choppy rotation/dragging. Decimated once at load time, not per frame.
-const BRAIN_KEEP_FRACTION = 0.3;
-const CEREBELLUM_KEEP_FRACTION = 0.2;
+// of choppy rotation/dragging. Snapping vertices to a coarse grid (in the
+// STL's raw mm units) and dropping the triangles that collapse to a point
+// decimates both in well under 100ms; three.js's own SimplifyModifier was
+// tried first and took *minutes* on this mesh size — unusable.
+const BRAIN_VOXEL_MM = 4;
+const CEREBELLUM_VOXEL_MM = 2;
 
-function simplifyGeometry(geometry: THREE.BufferGeometry, keepFraction: number) {
-  const currentCount = geometry.attributes.position.count;
-  const targetCount = Math.max(300, Math.floor(currentCount * keepFraction));
-  const removeCount = currentCount - targetCount;
-  if (removeCount <= 0) return geometry;
-  return new SimplifyModifier().modify(geometry, removeCount);
+function fastDecimate(geometry: THREE.BufferGeometry, voxelSize: number) {
+  const pos = geometry.attributes.position;
+  const vertexCount = pos.count;
+  const keyToIndex = new Map<string, number>();
+  const newPositions: number[] = [];
+  const remap = new Int32Array(vertexCount);
+
+  for (let i = 0; i < vertexCount; i++) {
+    const gx = Math.round(pos.getX(i) / voxelSize);
+    const gy = Math.round(pos.getY(i) / voxelSize);
+    const gz = Math.round(pos.getZ(i) / voxelSize);
+    const key = `${gx},${gy},${gz}`;
+    let idx = keyToIndex.get(key);
+    if (idx === undefined) {
+      idx = newPositions.length / 3;
+      newPositions.push(gx * voxelSize, gy * voxelSize, gz * voxelSize);
+      keyToIndex.set(key, idx);
+    }
+    remap[i] = idx;
+  }
+
+  const sourceIndex = geometry.index;
+  const triangleCount = sourceIndex ? sourceIndex.count / 3 : vertexCount / 3;
+  const newIndices: number[] = [];
+  for (let t = 0; t < triangleCount; t++) {
+    const i0 = sourceIndex ? sourceIndex.getX(t * 3) : t * 3;
+    const i1 = sourceIndex ? sourceIndex.getX(t * 3 + 1) : t * 3 + 1;
+    const i2 = sourceIndex ? sourceIndex.getX(t * 3 + 2) : t * 3 + 2;
+    const a = remap[i0];
+    const b = remap[i1];
+    const c = remap[i2];
+    if (a !== b && b !== c && a !== c) newIndices.push(a, b, c);
+  }
+
+  const result = new THREE.BufferGeometry();
+  result.setAttribute("position", new THREE.Float32BufferAttribute(newPositions, 3));
+  result.setIndex(newIndices);
+  return result;
 }
 
 function percentileBounds(values: Float32Array, stride: number, component: number, p: number) {
@@ -162,7 +195,7 @@ function useBrainSTLGeometry() {
   const raw = useLoader(STLLoader, "/models/brain.stl");
 
   return useMemo(() => {
-    const merged = simplifyGeometry(mergeVertices(raw, 1e-4), BRAIN_KEEP_FRACTION);
+    const merged = fastDecimate(raw, BRAIN_VOXEL_MM);
     const pos = merged.attributes.position;
     const values = pos.array as Float32Array;
 
@@ -264,7 +297,7 @@ function useCerebellumGeometry(scale: number) {
   const raw = useLoader(STLLoader, "/models/cerebellum.stl");
 
   return useMemo(() => {
-    const merged = simplifyGeometry(mergeVertices(raw, 1e-4), CEREBELLUM_KEEP_FRACTION);
+    const merged = fastDecimate(raw, CEREBELLUM_VOXEL_MM);
     merged.computeBoundingBox();
     const bb = merged.boundingBox!;
     const cx = (bb.min.x + bb.max.x) / 2;
