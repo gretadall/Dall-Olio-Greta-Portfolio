@@ -74,8 +74,8 @@ const SMOOTH_ITERATIONS = 14;
 // STL's raw mm units) and dropping the triangles that collapse to a point
 // decimates both in well under 100ms; three.js's own SimplifyModifier was
 // tried first and took *minutes* on this mesh size — unusable.
-const BRAIN_VOXEL_MM = 4;
-const CEREBELLUM_VOXEL_MM = 2;
+const BRAIN_VOXEL_MM = 2;
+const CEREBELLUM_VOXEL_MM = 1;
 
 function fastDecimate(geometry: THREE.BufferGeometry, voxelSize: number) {
   const pos = geometry.attributes.position;
@@ -446,7 +446,7 @@ function arcPoints(source: Vec3, target: Vec3, segments = 20): Vec3[] {
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
     slerpDir(da, db, t, dir).normalize();
-    const r = THREE.MathUtils.lerp(ra, rb, t) * (1 + 0.14 * Math.sin(Math.PI * t));
+    const r = THREE.MathUtils.lerp(ra, rb, t) * (1 + 0.2 * Math.sin(Math.PI * t));
     points.push([dir.x * r, dir.y * r, dir.z * r]);
   }
   return points;
