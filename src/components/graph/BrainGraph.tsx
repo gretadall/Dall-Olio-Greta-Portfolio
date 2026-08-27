@@ -8,6 +8,7 @@ import { Canvas, useLoader, type ThreeEvent } from "@react-three/fiber";
 import { Billboard, Line, OrbitControls, Text } from "@react-three/drei";
 import { STLLoader } from "three/addons/loaders/STLLoader.js";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
+import { SimplifyModifier } from "three/addons/modifiers/SimplifyModifier.js";
 import {
   BRAIN_AREAS,
   nearestBrainArea,
@@ -73,6 +74,19 @@ const BOUNDARY_OFFSET = 0.012;
 // individual triangle edges. Repeatedly relabeling each vertex to match the
 // majority of its neighbors erodes that into a smooth, rounded boundary.
 const SMOOTH_ITERATIONS = 14;
+// The source scans are far denser than this scene needs (the brain STL has
+// ~82k triangles, the cerebellum ~48k) — full resolution was the main cause
+// of choppy rotation/dragging. Decimated once at load time, not per frame.
+const BRAIN_KEEP_FRACTION = 0.3;
+const CEREBELLUM_KEEP_FRACTION = 0.2;
+
+function simplifyGeometry(geometry: THREE.BufferGeometry, keepFraction: number) {
+  const currentCount = geometry.attributes.position.count;
+  const targetCount = Math.max(300, Math.floor(currentCount * keepFraction));
+  const removeCount = currentCount - targetCount;
+  if (removeCount <= 0) return geometry;
+  return new SimplifyModifier().modify(geometry, removeCount);
+}
 
 function percentileBounds(values: Float32Array, stride: number, component: number, p: number) {
   const count = values.length / stride;
@@ -148,7 +162,7 @@ function useBrainSTLGeometry() {
   const raw = useLoader(STLLoader, "/models/brain.stl");
 
   return useMemo(() => {
-    const merged = mergeVertices(raw, 1e-4);
+    const merged = simplifyGeometry(mergeVertices(raw, 1e-4), BRAIN_KEEP_FRACTION);
     const pos = merged.attributes.position;
     const values = pos.array as Float32Array;
 
@@ -250,7 +264,7 @@ function useCerebellumGeometry(scale: number) {
   const raw = useLoader(STLLoader, "/models/cerebellum.stl");
 
   return useMemo(() => {
-    const merged = mergeVertices(raw, 1e-4);
+    const merged = simplifyGeometry(mergeVertices(raw, 1e-4), CEREBELLUM_KEEP_FRACTION);
     merged.computeBoundingBox();
     const bb = merged.boundingBox!;
     const cx = (bb.min.x + bb.max.x) / 2;
@@ -730,8 +744,8 @@ export function BrainGraph({
         <Canvas
           flat
           camera={{ position: [0, 0.4, 3.8], fov: 45 }}
-          gl={{ alpha: true, antialias: true }}
-          dpr={[1, 1.5]}
+          gl={{ alpha: true, antialias: false }}
+          dpr={1}
         >
           <ambientLight intensity={1.25} />
           <directionalLight position={[2, 3, 2]} intensity={0.8} />
