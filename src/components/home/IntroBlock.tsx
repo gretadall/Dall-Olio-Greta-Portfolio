@@ -24,14 +24,14 @@ export function IntroBlock({
           slotKey="intro.photo"
           target={{ table: "site_settings" }}
           position={layout["intro.photo"] ?? null}
-          className="w-full shrink-0 sm:w-64"
+          className="w-full shrink-0 sm:w-96"
         >
           <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl sm:aspect-auto sm:h-full sm:min-h-[22rem]">
             <Image
               src={getMediaUrl(heroPhotoPath)}
               alt={ownerName}
               fill
-              sizes="(min-width: 640px) 16rem, 100vw"
+              sizes="(min-width: 640px) 24rem, 100vw"
               className="object-cover"
             />
           </div>
