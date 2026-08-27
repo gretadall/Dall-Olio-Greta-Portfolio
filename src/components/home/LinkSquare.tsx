@@ -4,7 +4,7 @@ import { EditableText } from "@/components/edit/EditableText";
 import type { HomeLayout } from "@/lib/supabase/types";
 
 export const CARD_CLASS =
-  "square-canvas relative rounded-2xl bg-zinc-950 p-6 ring-1 ring-white/10 transition-colors hover:ring-white/20";
+  "square-canvas relative rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/[.06] transition-shadow hover:shadow-md dark:bg-zinc-900 dark:ring-white/[.08]";
 
 export function LinkSquare({
   title,
@@ -35,14 +35,14 @@ export function LinkSquare({
       ) : (
         icon && <span className="text-3xl leading-none">{icon}</span>
       )}
-      <h2 className="text-lg font-bold tracking-tight text-white sm:text-xl">
+      <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
         {title}
       </h2>
     </div>
   );
   const teaserEl = (
     <>
-      <p className="text-sm text-zinc-400">{teaser}</p>
+      <p className="text-sm text-muted">{teaser}</p>
       {href && (
         <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary">
           {sectionId ? (

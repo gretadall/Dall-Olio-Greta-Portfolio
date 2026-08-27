@@ -22,7 +22,7 @@ export function IntroBlock({
   squares: React.ReactNode;
 }) {
   return (
-    <section className="square-canvas relative mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-16 sm:flex-row sm:items-stretch">
+    <section className="square-canvas relative flex w-full flex-col gap-8 px-6 py-16 sm:flex-row sm:items-stretch sm:px-12">
       {heroPhotoPath && (
         <Positionable
           slotKey="intro.photo"

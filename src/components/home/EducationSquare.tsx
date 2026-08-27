@@ -31,19 +31,19 @@ export function EducationSquare({
     <>
       <div className="flex items-center gap-2">
         <span className="h-0.5 w-6 bg-primary" />
-        <span className="text-xs font-semibold tracking-[0.2em] text-zinc-500 uppercase">
+        <span className="text-xs font-semibold tracking-[0.2em] text-muted uppercase">
           {label}
         </span>
       </div>
       <ul className="mt-4 flex flex-col gap-3">
         {preview.length === 0 ? (
-          <li className="text-sm text-zinc-400">Contenuto in arrivo.</li>
+          <li className="text-sm text-muted">Contenuto in arrivo.</li>
         ) : (
           preview.map((entry) => (
             <li key={entry.id} className="border-l-2 border-primary/40 pl-3">
-              <p className="text-sm font-semibold text-white">{entry.title}</p>
+              <p className="text-sm font-semibold text-foreground">{entry.title}</p>
               {formatSubtitle(entry) && (
-                <p className="text-xs text-zinc-500">{formatSubtitle(entry)}</p>
+                <p className="text-xs text-muted">{formatSubtitle(entry)}</p>
               )}
             </li>
           ))

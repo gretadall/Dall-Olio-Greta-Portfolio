@@ -26,7 +26,7 @@ export function VisionSquare({
             value={icon ?? "🔭"}
             target={{ table: "site_settings", field: "vision_icon" }}
           />
-          <h2 className="text-lg font-bold tracking-tight text-white sm:text-xl">
+          <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
             Vision
           </h2>
         </div>
@@ -38,7 +38,7 @@ export function VisionSquare({
         className="mt-3"
       >
         <div
-          className="rich-content text-sm text-zinc-400 [&_a]:text-primary"
+          className="rich-content text-sm text-muted [&_a]:text-primary"
           dangerouslySetInnerHTML={{
             __html: text || "<p>Contenuto in arrivo.</p>",
           }}
