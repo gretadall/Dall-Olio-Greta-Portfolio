@@ -89,6 +89,7 @@ export default async function RootLayout({
             ${settings.background_color ? `--background: ${settings.background_color};` : ""}
             ${settings.font_color ? `--foreground: ${settings.font_color};` : ""}
             ${settings.muted_color ? `--muted: ${settings.muted_color};` : ""}
+            --logo-glow: ${(settings.logo_glow_intensity ?? 25) / 100};
           }
           body {
             font-family: ${fontVar}, Arial, Helvetica, sans-serif !important;
@@ -154,6 +155,7 @@ export default async function RootLayout({
                   nav_title_color:
                     settings.nav_title_color ?? settings.primary_color,
                 }}
+                logoGlowIntensity={settings.logo_glow_intensity ?? 25}
               />
             </>
           )}

@@ -18,7 +18,7 @@ export function IntroBlock({
   squares: React.ReactNode;
 }) {
   return (
-    <section className="square-canvas relative mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-16 sm:flex-row sm:items-stretch">
+    <section className="square-canvas relative mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-16 sm:flex-row sm:items-start">
       {heroPhotoPath && (
         <Positionable
           slotKey="intro.photo"
@@ -26,7 +26,7 @@ export function IntroBlock({
           position={layout["intro.photo"] ?? null}
           className="w-full shrink-0 sm:w-96"
         >
-          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl sm:aspect-auto sm:h-full sm:min-h-[22rem]">
+          <div className="relative aspect-[6/5] w-full overflow-hidden rounded-2xl">
             <Image
               src={getMediaUrl(heroPhotoPath)}
               alt={ownerName}

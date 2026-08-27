@@ -297,6 +297,7 @@ export type Database = {
           nav_chi_sono_label: string;
           nav_blog_label: string;
           home_layout: HomeLayout;
+          logo_glow_intensity: number;
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]> & {

@@ -48,14 +48,19 @@ export function Nav({
             <span className="relative flex shrink-0 items-center justify-center">
               <span
                 aria-hidden
-                className="absolute inset-0 -z-10 scale-150 rounded-full bg-primary/10 blur-xl"
+                className="absolute inset-0 -z-10 scale-[2] rounded-full bg-white blur-2xl"
+                style={{ opacity: "var(--logo-glow, 0.25)" }}
+              />
+              <span
+                aria-hidden
+                className="absolute inset-0 -z-10 scale-125 rounded-full bg-primary/10 blur-lg"
               />
               <Image
                 src="/logo.png"
                 alt={siteTitle}
-                width={96}
-                height={96}
-                className="h-16 w-16 object-contain sm:h-20 sm:w-20"
+                width={112}
+                height={112}
+                className="h-20 w-20 object-contain sm:h-24 sm:w-24"
               />
             </span>
             <EditableText

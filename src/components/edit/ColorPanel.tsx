@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useEditMode } from "./EditModeProvider";
 import {
   updateSiteSettingsField,
+  updateLogoGlowIntensity,
   type SiteSettingsColorField,
 } from "@/app/edit/actions";
 
@@ -22,13 +23,17 @@ const SWATCHES: {
 
 export function ColorPanel({
   colors,
+  logoGlowIntensity,
 }: {
   colors: Record<SiteSettingsColorField, string>;
+  logoGlowIntensity: number;
 }) {
   const { editMode, colorPanelOpen } = useEditMode();
   const timers = useRef<
     Partial<Record<SiteSettingsColorField, ReturnType<typeof setTimeout>>>
   >({});
+  const glowTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [glow, setGlow] = useState(logoGlowIntensity);
 
   if (!editMode || !colorPanelOpen) return null;
 
@@ -44,6 +49,19 @@ export function ColorPanel({
     if (existing) clearTimeout(existing);
     timers.current[field] = setTimeout(() => {
       updateSiteSettingsField(field, value).catch((err) => {
+        window.alert(
+          err instanceof Error ? err.message : "Errore durante il salvataggio."
+        );
+      });
+    }, 400);
+  }
+
+  function handleGlowChange(value: number) {
+    setGlow(value);
+    document.documentElement.style.setProperty("--logo-glow", `${value / 100}`);
+    if (glowTimer.current) clearTimeout(glowTimer.current);
+    glowTimer.current = setTimeout(() => {
+      updateLogoGlowIntensity(value).catch((err) => {
         window.alert(
           err instanceof Error ? err.message : "Errore durante il salvataggio."
         );
@@ -67,6 +85,18 @@ export function ColorPanel({
           />
         </label>
       ))}
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="flex items-center justify-between gap-4">
+          Alone logo <span className="text-xs text-zinc-500">{glow}%</span>
+        </span>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={glow}
+          onChange={(e) => handleGlowChange(Number(e.target.value))}
+        />
+      </label>
     </div>
   );
 }

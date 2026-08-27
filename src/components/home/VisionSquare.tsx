@@ -22,7 +22,7 @@ export function VisionSquare({
           <EditableText
             as="span"
             className="text-2xl leading-none"
-            value={icon ?? ""}
+            value={icon ?? "🔭"}
             target={{ table: "site_settings", field: "vision_icon" }}
           />
           <h2 className="text-xs font-semibold tracking-[0.2em] text-muted uppercase">

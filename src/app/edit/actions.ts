@@ -321,3 +321,22 @@ export async function resetAllHomeLayouts() {
 
   revalidatePath("/", "layout");
 }
+
+export async function updateLogoGlowIntensity(value: number) {
+  await requireAdmin();
+
+  const clamped = Math.max(0, Math.min(100, Math.round(value)));
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("site_settings")
+    .update({
+      logo_glow_intensity: clamped,
+      updated_at: new Date().toISOString(),
+    } as never)
+    .eq("id", true);
+
+  if (error) throw new Error("Errore durante il salvataggio.");
+
+  revalidatePath("/", "layout");
+}
