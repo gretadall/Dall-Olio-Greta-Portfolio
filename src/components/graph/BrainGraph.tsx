@@ -331,6 +331,7 @@ function Node({
   editable,
   onToggle,
   onDragStart,
+  onInteractionStart,
 }: {
   node: GraphNode;
   position: Vec3;
@@ -338,12 +339,18 @@ function Node({
   editable: boolean;
   onToggle: () => void;
   onDragStart: (screenX: number, screenY: number) => void;
+  onInteractionStart: () => void;
 }) {
   const downScreen = useRef<{ x: number; y: number } | null>(null);
 
   function handlePointerDown(e: ThreeEvent<PointerEvent>) {
     e.stopPropagation();
     downScreen.current = { x: e.nativeEvent.clientX, y: e.nativeEvent.clientY };
+    // Freeze auto-rotation the instant a node is pressed, before it can
+    // shift the (small) dot out from under the pointer by the time it's
+    // released — otherwise the up-event's raycast can miss the node
+    // entirely and the click silently does nothing.
+    onInteractionStart();
     if (editable) onDragStart(e.nativeEvent.clientX, e.nativeEvent.clientY);
   }
 
@@ -385,7 +392,7 @@ function Node({
         </mesh>
         {/* Larger invisible target so nodes stay easy to hit on touch screens. */}
         <mesh onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} visible={false}>
-          <circleGeometry args={[0.14, 12]} />
+          <circleGeometry args={[0.19, 12]} />
         </mesh>
       </Billboard>
       {/* Offset applied here, outside the dot's own Billboard, so it's a
@@ -513,6 +520,7 @@ function SceneContent({
   onSelectArea,
   onSavePosition,
   onDraggingChange,
+  onInteractionStart,
 }: {
   nodes: GraphNode[];
   links: GraphLink[];
@@ -524,6 +532,7 @@ function SceneContent({
   onSelectArea: (slug: BrainAreaSlug) => void;
   onSavePosition: (id: string, position: Vec3) => void;
   onDraggingChange: (dragging: boolean) => void;
+  onInteractionStart: () => void;
 }) {
   const { geometry, scale } = useBrainSTLGeometry();
   const raycastSurface = useSurfaceRaycaster(geometry);
@@ -634,6 +643,7 @@ function SceneContent({
             editable={editable}
             onToggle={() => onSelectNode(node.id)}
             onDragStart={() => startDrag(node.id)}
+            onInteractionStart={onInteractionStart}
           />
         );
       })}
@@ -665,6 +675,10 @@ export function BrainGraph({
   function selectNode(id: string) {
     setSelectedNodeId((prev) => (prev === id ? null : id));
     setSelectedAreaSlug(null);
+  }
+
+  function pauseRotation() {
+    setAutoRotate(false);
   }
 
   function selectArea(slug: BrainAreaSlug) {
@@ -741,6 +755,7 @@ export function BrainGraph({
               onSelectArea={selectArea}
               onSavePosition={savePosition}
               onDraggingChange={setDragging}
+              onInteractionStart={pauseRotation}
             />
           </Suspense>
         </Canvas>
