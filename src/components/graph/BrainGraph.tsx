@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import Link from "next/link";
 import * as THREE from "three";
 import { Canvas, useLoader, type ThreeEvent } from "@react-three/fiber";
@@ -325,6 +325,7 @@ function Node({
   position,
   selected,
   editable,
+  occluder,
   onToggle,
   onDragStart,
 }: {
@@ -332,6 +333,7 @@ function Node({
   position: Vec3;
   selected: boolean;
   editable: boolean;
+  occluder: RefObject<THREE.Object3D | null>;
   onToggle: () => void;
   onDragStart: (screenX: number, screenY: number) => void;
 }) {
@@ -372,14 +374,18 @@ function Node({
           <circleGeometry args={[0.14, 12]} />
         </mesh>
       </Billboard>
-      {/* Always-on, small label naming the node; click to open it. A plain
-          DOM overlay rather than WebGL text — it's never subject to 3D
-          depth/occlusion, so it can't end up hidden behind the (bumpy,
-          real) brain surface the way a 3D-space label could. No
-          distanceFactor: that scales the label by camera distance, which
-          made it huge — this way it's a fixed, normal CSS pixel size like
-          the rest of the page's small text. */}
-      <Html center position={[0, -0.09, 0]} style={{ pointerEvents: "auto" }}>
+      {/* Always-on, small label naming the node; click to open it. A DOM
+          overlay (fixed CSS pixel size, not scaled by camera distance —
+          that was what made it huge) rather than WebGL text, so a nearby
+          surface bump can't swallow it the way 3D-space text could.
+          `occlude` raycasts against the brain shell specifically, so the
+          label still disappears once the brain rotates it to the far side. */}
+      <Html
+        center
+        position={[0, -0.09, 0]}
+        occlude={[occluder as RefObject<THREE.Object3D>]}
+        style={{ pointerEvents: "auto" }}
+      >
         <Link
           href={node.href}
           className="whitespace-nowrap text-xs font-medium text-white no-underline"
@@ -513,6 +519,7 @@ function SceneContent({
 }) {
   const { geometry, boundaryGeometry, scale } = useBrainSTLGeometry();
   const raycastSurface = useSurfaceRaycaster(geometry);
+  const shellRef = useRef<THREE.Mesh>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [liveDragPos, setLiveDragPos] = useState<Vec3 | null>(null);
 
@@ -596,6 +603,7 @@ function SceneContent({
   return (
     <group onPointerMissed={onMissed}>
       <mesh
+        ref={shellRef}
         geometry={geometry}
         onClick={handleAreaClick}
         onPointerMove={handleShellPointerMove}
@@ -626,6 +634,7 @@ function SceneContent({
             position={position}
             selected={node.id === selectedNodeId}
             editable={editable}
+            occluder={shellRef}
             onToggle={() => onSelectNode(node.id)}
             onDragStart={() => startDrag(node.id)}
           />
