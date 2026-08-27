@@ -3,6 +3,7 @@ import { IntroBlock } from "@/components/home/IntroBlock";
 import { SquareGrid } from "@/components/home/SquareGrid";
 import { VisionSquare } from "@/components/home/VisionSquare";
 import { LinkSquare } from "@/components/home/LinkSquare";
+import { EducationSquare } from "@/components/home/EducationSquare";
 import { Positionable } from "@/components/edit/Positionable";
 
 export default async function Home() {
@@ -26,10 +27,6 @@ export default async function Home() {
     passioniEntries[0]?.description ||
     "Le mie passioni, in arrivo.";
 
-  const formazioneTeaser =
-    formazioneSection?.description ||
-    formazioneEntries[0]?.description ||
-    "Il mio percorso formativo, in arrivo.";
 
   return (
     <div>
@@ -95,14 +92,10 @@ export default async function Home() {
               position={settings.home_layout["square.formazione"] ?? null}
               canvasClass="home-canvas"
             >
-              <LinkSquare
-                title="Formazione"
-                icon={formazioneSection?.icon ?? null}
-                teaser={formazioneTeaser}
+              <EducationSquare
+                label={formazioneSection?.title ?? "Formazione"}
+                entries={formazioneEntries}
                 href={formazioneSection ? `/${formazioneSection.slug}` : null}
-                sectionId={formazioneSection?.id ?? null}
-                ctaLabel={formazioneSection?.cta_label ?? "Scopri tutto"}
-                layout={formazioneSection?.home_layout ?? {}}
               />
             </Positionable>
           </SquareGrid>

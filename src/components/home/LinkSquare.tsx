@@ -3,6 +3,9 @@ import { Positionable } from "@/components/edit/Positionable";
 import { EditableText } from "@/components/edit/EditableText";
 import type { HomeLayout } from "@/lib/supabase/types";
 
+export const CARD_CLASS =
+  "square-canvas relative rounded-2xl bg-zinc-950 p-6 ring-1 ring-white/10 transition-colors hover:ring-white/20";
+
 export function LinkSquare({
   title,
   icon,
@@ -21,25 +24,25 @@ export function LinkSquare({
   layout: HomeLayout;
 }) {
   const titleEl = (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       {sectionId ? (
         <EditableText
           as="span"
-          className="text-2xl leading-none"
+          className="text-3xl leading-none"
           value={icon ?? ""}
           target={{ table: "sections", id: sectionId, field: "icon" }}
         />
       ) : (
-        icon && <span className="text-2xl leading-none">{icon}</span>
+        icon && <span className="text-3xl leading-none">{icon}</span>
       )}
-      <h2 className="text-xs font-semibold tracking-[0.2em] text-muted uppercase">
+      <h2 className="text-lg font-bold tracking-tight text-white sm:text-xl">
         {title}
       </h2>
     </div>
   );
   const teaserEl = (
     <>
-      <p className="text-sm text-muted">{teaser}</p>
+      <p className="text-sm text-zinc-400">{teaser}</p>
       {href && (
         <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary">
           {sectionId ? (
@@ -83,18 +86,11 @@ export function LinkSquare({
   );
 
   if (!href) {
-    return (
-      <div className="square-canvas relative rounded-xl border border-black/[.08] p-6 dark:border-white/[.145]">
-        {content}
-      </div>
-    );
+    return <div className={CARD_CLASS}>{content}</div>;
   }
 
   return (
-    <Link
-      href={href}
-      className="square-canvas group relative rounded-xl border border-black/[.08] p-6 transition-colors hover:border-black/[.16] dark:border-white/[.145] dark:hover:border-white/[.3]"
-    >
+    <Link href={href} className={`group ${CARD_CLASS}`}>
       {content}
     </Link>
   );
