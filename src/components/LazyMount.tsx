@@ -1,39 +1,31 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 // Defers mounting (and any data-fetching/heavy init) of `children` until the
-// wrapper scrolls near the viewport, instead of doing that work immediately
-// on page load regardless of scroll position.
+// visitor clicks to load it — a click is always reliable, unlike viewport
+// detection (IntersectionObserver never fired reliably here in practice).
 export function LazyMount({
   children,
-  placeholderClassName,
+  label,
+  icon,
 }: {
   children: React.ReactNode;
-  placeholderClassName?: string;
+  label: string;
+  icon?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "600px 0px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  if (loaded) return <>{children}</>;
 
-  if (!visible) {
-    return <div ref={ref} className={placeholderClassName} />;
-  }
-
-  return <div ref={ref}>{children}</div>;
+  return (
+    <button
+      type="button"
+      onClick={() => setLoaded(true)}
+      className="flex h-[340px] w-[340px] max-w-full flex-col items-center justify-center gap-2 rounded-full border border-dashed border-black/[.16] text-sm font-medium text-primary transition-colors hover:border-primary/50 dark:border-white/[.2]"
+    >
+      {icon && <span className="text-3xl">{icon}</span>}
+      {label}
+    </button>
+  );
 }
