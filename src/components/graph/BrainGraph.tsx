@@ -1,10 +1,11 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import * as THREE from "three";
 import { Canvas, useLoader, type ThreeEvent } from "@react-three/fiber";
-import { Billboard, Html, Line, OrbitControls, Text } from "@react-three/drei";
+import { Billboard, Line, OrbitControls, Text } from "@react-three/drei";
 import { STLLoader } from "three/addons/loaders/STLLoader.js";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 import {
@@ -325,7 +326,6 @@ function Node({
   position,
   selected,
   editable,
-  occluder,
   onToggle,
   onDragStart,
 }: {
@@ -333,11 +333,11 @@ function Node({
   position: Vec3;
   selected: boolean;
   editable: boolean;
-  occluder: RefObject<THREE.Object3D | null>;
   onToggle: () => void;
   onDragStart: (screenX: number, screenY: number) => void;
 }) {
   const downScreen = useRef<{ x: number; y: number } | null>(null);
+  const router = useRouter();
 
   function handlePointerDown(e: ThreeEvent<PointerEvent>) {
     e.stopPropagation();
@@ -355,7 +355,24 @@ function Node({
     if (!moved) onToggle();
   }
 
+  function handleLabelClick(e: ThreeEvent<MouseEvent>) {
+    e.stopPropagation();
+    router.push(node.href);
+  }
+
   const radius = selected ? 0.05 : 0.035;
+
+  // Push the label further out along the same ray from the brain's
+  // center that already places the dot correctly outside the surface
+  // (rather than offsetting it sideways in screen space, which could dip
+  // back under a nearby bump and get lost — a real bug this replaced).
+  // Normal depth testing then hides it on the far side for free, with no
+  // per-frame raycasting needed (an earlier occlusion approach that made
+  // interaction noticeably choppy with ~30 of these on screen).
+  const labelOffset = useMemo(() => {
+    const dir = new THREE.Vector3(...position).normalize();
+    return dir.multiplyScalar(0.1).toArray() as Vec3;
+  }, [position]);
 
   return (
     <group position={position}>
@@ -374,26 +391,26 @@ function Node({
           <circleGeometry args={[0.14, 12]} />
         </mesh>
       </Billboard>
-      {/* Always-on, small label naming the node; click to open it. A DOM
-          overlay (fixed CSS pixel size, not scaled by camera distance —
-          that was what made it huge) rather than WebGL text, so a nearby
-          surface bump can't swallow it the way 3D-space text could.
-          `occlude` raycasts against the brain shell specifically, so the
-          label still disappears once the brain rotates it to the far side. */}
-      <Html
-        center
-        position={[0, -0.09, 0]}
-        occlude={[occluder as RefObject<THREE.Object3D>]}
-        style={{ pointerEvents: "auto" }}
-      >
-        <Link
-          href={node.href}
-          className="whitespace-nowrap text-xs font-medium text-white no-underline"
-          style={{ textShadow: "0 0 3px #000, 0 0 3px #000, 0 0 3px #000" }}
-        >
-          {node.title}
-        </Link>
-      </Html>
+      {/* Offset applied here, outside the dot's own Billboard, so it's a
+          true world-space push further along the same radial line —
+          Billboard rotates its contents, which would otherwise turn this
+          into a screen-space offset that can dip under a nearby bump. */}
+      <group position={labelOffset}>
+        <Billboard>
+          {/* Always-on, small label naming the node; click to open it. */}
+          <Text
+            fontSize={0.045}
+            color="#ffffff"
+            outlineWidth={0.005}
+            outlineColor="#000000"
+            anchorX="center"
+            anchorY="middle"
+            onClick={handleLabelClick}
+          >
+            {node.title}
+          </Text>
+        </Billboard>
+      </group>
     </group>
   );
 }
@@ -519,7 +536,6 @@ function SceneContent({
 }) {
   const { geometry, boundaryGeometry, scale } = useBrainSTLGeometry();
   const raycastSurface = useSurfaceRaycaster(geometry);
-  const shellRef = useRef<THREE.Mesh>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [liveDragPos, setLiveDragPos] = useState<Vec3 | null>(null);
 
@@ -603,7 +619,6 @@ function SceneContent({
   return (
     <group onPointerMissed={onMissed}>
       <mesh
-        ref={shellRef}
         geometry={geometry}
         onClick={handleAreaClick}
         onPointerMove={handleShellPointerMove}
@@ -634,7 +649,6 @@ function SceneContent({
             position={position}
             selected={node.id === selectedNodeId}
             editable={editable}
-            occluder={shellRef}
             onToggle={() => onSelectNode(node.id)}
             onDragStart={() => startDrag(node.id)}
           />
