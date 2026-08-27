@@ -40,6 +40,8 @@ export default async function Home() {
           "Questo non è un CV. È un ritratto più completo di chi sono, oltre a competenze ed esperienze: valori, viaggi, attitudini e molto altro."
         }
         heroPhotoPath={settings.hero_photo_path}
+        linkedinUrl={settings.linkedin_url}
+        contactEmail={settings.contact_email}
         layout={settings.home_layout}
         squares={
           <SquareGrid>

@@ -18,7 +18,7 @@ export function VisionSquare({
         target={{ table: "site_settings" }}
         position={layout["vision.heading"] ?? null}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2">
           <EditableText
             as="span"
             className="text-2xl leading-none"
