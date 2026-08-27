@@ -45,13 +45,19 @@ export function Nav({
           canvasClass="nav-canvas"
         >
           <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3">
-            <Image
-              src="/logo.png"
-              alt={siteTitle}
-              width={64}
-              height={64}
-              className="h-11 w-11 shrink-0 object-contain sm:h-14 sm:w-14"
-            />
+            <span className="relative flex shrink-0 items-center justify-center">
+              <span
+                aria-hidden
+                className="absolute inset-0 -z-10 scale-150 rounded-full bg-primary/10 blur-xl"
+              />
+              <Image
+                src="/logo.png"
+                alt={siteTitle}
+                width={96}
+                height={96}
+                className="h-16 w-16 object-contain sm:h-20 sm:w-20"
+              />
+            </span>
             <EditableText
               as="span"
               className="truncate text-base font-semibold tracking-tight text-primary sm:text-lg"
