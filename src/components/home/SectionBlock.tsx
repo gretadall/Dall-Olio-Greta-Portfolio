@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { Database } from "@/lib/supabase/types";
@@ -15,13 +18,12 @@ export function SectionBlock({
   section,
   entries,
   travelPins,
-  onExplore,
 }: {
   section: Section;
   entries: Entry[];
   travelPins?: GlobePin[];
-  onExplore?: () => void;
 }) {
+  const [exploreOpen, setExploreOpen] = useState(false);
   const isTravel = section.slug === "viaggi";
   const preview = entries.slice(0, 4);
   const hasBackground = Boolean(section.background_image_path);
@@ -86,18 +88,36 @@ export function SectionBlock({
                 <div className="flex flex-col items-center gap-6">
                   <TravelGlobe pins={travelPins ?? []} compact />
                   {preview.length > 0 && (
-                    <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm">
-                      {preview.map((entry) => (
-                        <li key={entry.id}>
-                          <Link
-                            href={`/${section.slug}/${entry.slug}`}
-                            className="font-medium text-primary transition-opacity hover:opacity-70"
-                          >
-                            {entry.title}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setExploreOpen((v) => !v)}
+                        aria-expanded={exploreOpen}
+                        className="flex items-center gap-1 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+                      >
+                        Esplora
+                        <span
+                          aria-hidden
+                          className={`inline-block transition-transform ${exploreOpen ? "rotate-180" : ""}`}
+                        >
+                          ▾
+                        </span>
+                      </button>
+                      {exploreOpen && (
+                        <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm">
+                          {preview.map((entry) => (
+                            <li key={entry.id}>
+                              <Link
+                                href={`/${section.slug}/${entry.slug}`}
+                                className="font-medium text-primary transition-opacity hover:opacity-70"
+                              >
+                                {entry.title}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
                   )}
                 </div>
               ) : preview.length === 0 ? (
@@ -147,21 +167,6 @@ export function SectionBlock({
           </div>
         </div>
       </Reveal>
-
-      {onExplore && (
-        <button
-          type="button"
-          onClick={onExplore}
-          className={`absolute bottom-6 right-6 z-10 flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-sm transition-colors ${
-            hasBackground
-              ? "border-white/30 bg-black/30 text-white hover:bg-black/50"
-              : "border-black/[.12] bg-white/70 text-foreground hover:border-black/[.24] dark:border-white/[.16] dark:bg-black/30"
-          }`}
-        >
-          Esplora
-          <span aria-hidden>↓</span>
-        </button>
-      )}
     </section>
   );
 }
