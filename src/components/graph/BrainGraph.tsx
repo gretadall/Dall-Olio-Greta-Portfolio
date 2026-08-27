@@ -518,7 +518,6 @@ function SceneContent({
   positionOverrides,
   onSelectNode,
   onSelectArea,
-  onMissed,
   onSavePosition,
   onDraggingChange,
 }: {
@@ -531,7 +530,6 @@ function SceneContent({
   positionOverrides: Map<string, Vec3>;
   onSelectNode: (id: string) => void;
   onSelectArea: (slug: BrainAreaSlug) => void;
-  onMissed: () => void;
   onSavePosition: (id: string, position: Vec3) => void;
   onDraggingChange: (dragging: boolean) => void;
 }) {
@@ -618,7 +616,7 @@ function SceneContent({
   }
 
   return (
-    <group onPointerMissed={onMissed}>
+    <group>
       <mesh
         geometry={geometry}
         onClick={handleAreaClick}
@@ -693,11 +691,6 @@ export function BrainGraph({
     setSelectedNodeId(null);
   }
 
-  function clearSelection() {
-    setSelectedNodeId(null);
-    setSelectedAreaSlug(null);
-  }
-
   async function savePosition(id: string, position: Vec3) {
     setPositionOverrides((prev) => new Map(prev).set(id, position));
     try {
@@ -757,7 +750,6 @@ export function BrainGraph({
               positionOverrides={positionOverrides}
               onSelectNode={selectNode}
               onSelectArea={selectArea}
-              onMissed={clearSelection}
               onSavePosition={savePosition}
               onDraggingChange={setDragging}
             />
