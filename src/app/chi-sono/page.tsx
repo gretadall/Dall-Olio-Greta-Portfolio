@@ -20,7 +20,7 @@ export default async function ChiSonoPage() {
 
   return (
     <div>
-      <div className="mx-auto w-full max-w-4xl px-6 pt-16">
+      <div className="mx-auto flex h-40 w-full max-w-4xl items-center px-6">
         <h1 className="text-3xl font-semibold tracking-tight">Chi sono</h1>
       </div>
 
