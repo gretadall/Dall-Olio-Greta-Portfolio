@@ -302,23 +302,19 @@ function Cerebellum({ scale }: { scale: number }) {
   );
 }
 
-function AreaLabels({
-  accentColor,
-  areaContent,
-}: {
-  accentColor: string;
-  areaContent: BrainAreaContentMap;
-}) {
+function AreaLabels({ areaContent }: { areaContent: BrainAreaContentMap }) {
   return (
     <>
       {BRAIN_AREAS.map((area) => (
         <Billboard key={area.slug} position={area.anchor}>
           <Text
             fontSize={0.075}
-            color={accentColor}
+            color="#ffffff"
+            outlineWidth={0.004}
+            outlineColor="#000000"
             anchorX="center"
             anchorY="middle"
-            fillOpacity={0.55}
+            fillOpacity={0.75}
           >
             {areaContent[area.slug].label}
           </Text>
@@ -456,12 +452,10 @@ function Connections({
   links,
   positions,
   selectedId,
-  accentColor,
 }: {
   links: GraphLink[];
   positions: Map<string, Vec3>;
   selectedId: string | null;
-  accentColor: string;
 }) {
   if (selectedId == null) return null;
 
@@ -477,10 +471,10 @@ function Connections({
           <Line
             key={link.id}
             points={arcPoints(source, target)}
-            color={accentColor}
+            color="#ffffff"
             transparent
-            opacity={0.9}
-            lineWidth={1.5}
+            opacity={0.95}
+            lineWidth={2.5}
           />
         );
       })}
@@ -511,7 +505,6 @@ function useSurfaceRaycaster(geometry: THREE.BufferGeometry) {
 function SceneContent({
   nodes,
   links,
-  accentColor,
   areaContent,
   selectedNodeId,
   editable,
@@ -523,7 +516,6 @@ function SceneContent({
 }: {
   nodes: GraphNode[];
   links: GraphLink[];
-  accentColor: string;
   areaContent: BrainAreaContentMap;
   selectedNodeId: string | null;
   editable: boolean;
@@ -626,14 +618,9 @@ function SceneContent({
       </mesh>
       <Cerebellum scale={scale} />
       <Suspense fallback={null}>
-        <AreaLabels accentColor={accentColor} areaContent={areaContent} />
+        <AreaLabels areaContent={areaContent} />
       </Suspense>
-      <Connections
-        links={links}
-        positions={basePositions}
-        selectedId={selectedNodeId}
-        accentColor={accentColor}
-      />
+      <Connections links={links} positions={basePositions} selectedId={selectedNodeId} />
       {nodes.map((node) => {
         const position =
           draggingId === node.id && liveDragPos ? liveDragPos : basePositions.get(node.id);
@@ -654,16 +641,6 @@ function SceneContent({
   );
 }
 
-function useAccentColor() {
-  const [accent] = useState(() => {
-    const value = getComputedStyle(document.documentElement)
-      .getPropertyValue("--accent")
-      .trim();
-    return value || "#3b82f6";
-  });
-  return accent;
-}
-
 export function BrainGraph({
   nodes,
   links,
@@ -675,7 +652,6 @@ export function BrainGraph({
   areaContent: BrainAreaContentMap;
   noteText: string;
 }) {
-  const accentColor = useAccentColor();
   const { editMode } = useEditMode();
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedAreaSlug, setSelectedAreaSlug] = useState<BrainAreaSlug | null>(null);
@@ -757,7 +733,6 @@ export function BrainGraph({
             <SceneContent
               nodes={nodes}
               links={links}
-              accentColor={accentColor}
               areaContent={areaContent}
               selectedNodeId={selectedNodeId}
               editable={editMode}
