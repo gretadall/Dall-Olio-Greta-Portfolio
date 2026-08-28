@@ -303,6 +303,8 @@ export type Database = {
           rete_hint: string | null;
           rete_note: string | null;
           rete_disclaimer: string | null;
+          blog_title: string;
+          blog_empty_text: string | null;
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]> & {

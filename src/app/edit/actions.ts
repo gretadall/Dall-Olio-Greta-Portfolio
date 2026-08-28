@@ -23,6 +23,8 @@ const SITE_SETTINGS_TEXT_FIELDS = [
   "rete_hint",
   "rete_note",
   "rete_disclaimer",
+  "blog_title",
+  "blog_empty_text",
 ] as const;
 
 const SITE_SETTINGS_REQUIRED_TEXT_FIELDS = new Set<SiteSettingsTextField>([
@@ -34,6 +36,7 @@ const SITE_SETTINGS_REQUIRED_TEXT_FIELDS = new Set<SiteSettingsTextField>([
   "footer_text",
   "nav_chi_sono_label",
   "nav_blog_label",
+  "blog_title",
 ]);
 
 const SITE_SETTINGS_COLOR_FIELDS = [

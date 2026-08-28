@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
-import { useLayoutEffect, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useEffect, useMemo, useRef, useState } from "react";
 import type { GlobeMethods } from "react-globe.gl";
 import { toEnglishCountryName } from "@/lib/country-names";
 
@@ -181,6 +181,62 @@ export function TravelGlobe({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [expanded]);
 
+  // react-globe.gl re-derives every country's mesh/material whenever one of
+  // these accessor props changes identity, not just when the underlying
+  // data does — passed inline, they're new closures (and trigger a full
+  // ~195-country rebuild) on every re-render of this component, including
+  // ones with nothing to do with the polygons (opening a pin's vignette,
+  // resizing). Stable callbacks keep those re-renders cheap.
+  const polygonCapColor = useCallback(
+    (d: object) =>
+      visitedCountries.has((d as CountryFeature).properties.name) ? VISITED_COLOR : PLAIN_FILL,
+    [visitedCountries]
+  );
+  const polygonSideColor = useCallback(
+    (d: object) =>
+      visitedCountries.has((d as CountryFeature).properties.name)
+        ? VISITED_SIDE_COLOR
+        : PLAIN_SIDE,
+    [visitedCountries]
+  );
+  const polygonStrokeColor = useCallback(
+    (d: object) =>
+      visitedCountries.has((d as CountryFeature).properties.name)
+        ? VISITED_STROKE
+        : PLAIN_STROKE,
+    [visitedCountries]
+  );
+  const polygonAltitude = useCallback(
+    (d: object) => (visitedCountries.has((d as CountryFeature).properties.name) ? 0.012 : 0.005),
+    [visitedCountries]
+  );
+  // setActivePin (a useState setter) is referentially stable across
+  // renders, so this can stay a fixed callback and never force
+  // react-globe.gl to recreate every pin's DOM element.
+  const htmlElement = useCallback((d: object) => {
+    const pin = d as GlobePin;
+    const el = document.createElement("div");
+    el.className = `travel-pin${pin.href ? " travel-pin--linked" : ""}`;
+    el.setAttribute("role", "button");
+    el.setAttribute("tabindex", "0");
+    const sub = pin.country ? ` · ${escapeHtml(pin.country)}` : "";
+    el.innerHTML = `
+      <span class="travel-pin__flag">📍</span>
+      <span class="travel-pin__label">${escapeHtml(pin.label)}${sub}</span>
+    `;
+    el.onclick = (e) => {
+      e.stopPropagation();
+      setActivePin(pin);
+    };
+    el.onkeydown = (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        setActivePin(pin);
+      }
+    };
+    return el;
+  }, []);
+
   return (
     <div
       className={
@@ -208,54 +264,16 @@ export function TravelGlobe({
             atmosphereColor="#f97316"
             atmosphereAltitude={0.18}
             polygonsData={countries}
-            polygonCapColor={(d) =>
-              visitedCountries.has((d as CountryFeature).properties.name)
-                ? VISITED_COLOR
-                : PLAIN_FILL
-            }
-            polygonSideColor={(d) =>
-              visitedCountries.has((d as CountryFeature).properties.name)
-                ? VISITED_SIDE_COLOR
-                : PLAIN_SIDE
-            }
-            polygonStrokeColor={(d) =>
-              visitedCountries.has((d as CountryFeature).properties.name)
-                ? VISITED_STROKE
-                : PLAIN_STROKE
-            }
-            polygonAltitude={(d) =>
-              visitedCountries.has((d as CountryFeature).properties.name)
-                ? 0.012
-                : 0.005
-            }
+            polygonCapColor={polygonCapColor}
+            polygonSideColor={polygonSideColor}
+            polygonStrokeColor={polygonStrokeColor}
+            polygonAltitude={polygonAltitude}
             polygonsTransitionDuration={0}
             htmlElementsData={pins}
             htmlLat="lat"
             htmlLng="lng"
             htmlAltitude={0.01}
-            htmlElement={(d) => {
-              const pin = d as GlobePin;
-              const el = document.createElement("div");
-              el.className = `travel-pin${pin.href ? " travel-pin--linked" : ""}`;
-              el.setAttribute("role", "button");
-              el.setAttribute("tabindex", "0");
-              const sub = pin.country ? ` · ${escapeHtml(pin.country)}` : "";
-              el.innerHTML = `
-                <span class="travel-pin__flag">📍</span>
-                <span class="travel-pin__label">${escapeHtml(pin.label)}${sub}</span>
-              `;
-              el.onclick = (e) => {
-                e.stopPropagation();
-                setActivePin(pin);
-              };
-              el.onkeydown = (e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setActivePin(pin);
-                }
-              };
-              return el;
-            }}
+            htmlElement={htmlElement}
           />
         )}
       </div>

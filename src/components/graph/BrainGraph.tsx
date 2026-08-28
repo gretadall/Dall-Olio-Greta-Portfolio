@@ -431,13 +431,27 @@ function slerpDir(a: THREE.Vector3, b: THREE.Vector3, t: number, out: THREE.Vect
   return out.copy(a).multiplyScalar(w1).addScaledVector(b, w2);
 }
 
+// Extra clearance (scene units) kept between an arc point and the true mesh
+// surface below it, on top of whatever the bulge formula already gives —
+// same idea as NODE_SURFACE_OFFSET, so the line never touches the shell.
+const ARC_SURFACE_CLEARANCE = 0.03;
+
 // A straight chord between two surface points cuts through the opaque
 // brain's interior — invisible along most of its length, and occlusion
 // looks wrong as the brain rotates. Arcing over the surface instead (slerp
 // the direction, lerp the radius, bulge the midpoint outward) keeps the
-// connection visibly riding the shell, with normal depth testing then
-// correctly hiding it once it swings around to the far side.
-function arcPoints(source: Vec3, target: Vec3, segments = 20): Vec3[] {
+// connection visibly riding the shell in the common case. But the brain
+// isn't a sphere — for two nodes that straddle a lobe, a radius merely
+// interpolated from the endpoints' distance-from-center can still land
+// *inside* the actual (locally bulging) mesh at that angle, silently
+// hiding the segment behind it. Raycasting each point against the real
+// surface and clamping the radius to clear it removes that guesswork.
+function arcPoints(
+  source: Vec3,
+  target: Vec3,
+  raycastSurface: (dir: THREE.Vector3) => THREE.Vector3,
+  segments = 20,
+): Vec3[] {
   const a = new THREE.Vector3(...source);
   const b = new THREE.Vector3(...target);
   const ra = a.length();
@@ -449,7 +463,9 @@ function arcPoints(source: Vec3, target: Vec3, segments = 20): Vec3[] {
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
     slerpDir(da, db, t, dir).normalize();
-    const r = THREE.MathUtils.lerp(ra, rb, t) * (1 + 0.2 * Math.sin(Math.PI * t));
+    const bulgedR = THREE.MathUtils.lerp(ra, rb, t) * (1 + 0.2 * Math.sin(Math.PI * t));
+    const surfaceR = raycastSurface(dir).length() + ARC_SURFACE_CLEARANCE;
+    const r = Math.max(bulgedR, surfaceR);
     points.push([dir.x * r, dir.y * r, dir.z * r]);
   }
   return points;
@@ -459,10 +475,12 @@ function Connections({
   links,
   positions,
   selectedId,
+  raycastSurface,
 }: {
   links: GraphLink[];
   positions: Map<string, Vec3>;
   selectedId: string | null;
+  raycastSurface: (dir: THREE.Vector3) => THREE.Vector3;
 }) {
   if (selectedId == null) return null;
 
@@ -477,7 +495,7 @@ function Connections({
         return (
           <Line
             key={link.id}
-            points={arcPoints(source, target)}
+            points={arcPoints(source, target, raycastSurface)}
             color="#ffffff"
             transparent
             opacity={0.95}
@@ -629,7 +647,12 @@ function SceneContent({
       <Suspense fallback={null}>
         <AreaLabels areaContent={areaContent} />
       </Suspense>
-      <Connections links={links} positions={basePositions} selectedId={selectedNodeId} />
+      <Connections
+        links={links}
+        positions={basePositions}
+        selectedId={selectedNodeId}
+        raycastSurface={raycastSurface}
+      />
       {nodes.map((node) => {
         const position =
           draggingId === node.id && liveDragPos ? liveDragPos : basePositions.get(node.id);
