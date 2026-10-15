@@ -28,5 +28,7 @@ function formatMonthYear(input: string) {
 // "set 2022 – oggi", "gen 2026 – giu 2026", or "" when there's no start date.
 export function formatPeriod(start: string | null, end: string | null): string {
   if (!start) return "";
-  return `${formatMonthYear(start)} – ${end ? formatMonthYear(end) : "oggi"}`;
+  if (!end) return `${formatMonthYear(start)} – oggi`;
+  const [from, to] = [formatMonthYear(start), formatMonthYear(end)];
+  return from === to ? from : `${from} – ${to}`;
 }

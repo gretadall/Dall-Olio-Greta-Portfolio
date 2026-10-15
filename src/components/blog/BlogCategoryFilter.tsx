@@ -13,26 +13,30 @@ export function BlogCategoryFilter({
   if (categories.length === 0) return null;
 
   const pillClass = (active: boolean) =>
-    `shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+    `shrink-0 rounded-full border px-4 py-1.5 text-sm transition-colors ${
       active
-        ? "border-primary bg-primary text-white"
-        : "border-black/[.12] text-muted hover:border-black/[.24] dark:border-white/[.16] dark:hover:border-white/[.3]"
+        ? "border-primary text-primary"
+        : "border-line text-muted hover:border-foreground/40 hover:text-foreground"
     }`;
 
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2">
-      <Link href="/blog" className={pillClass(!activeSlug)}>
+    <nav aria-label="Categorie" className="flex gap-2 overflow-x-auto pb-1">
+      <Link href="/blog" className={pillClass(!activeSlug)} aria-current={!activeSlug ? "page" : undefined}>
         Tutti
       </Link>
-      {categories.map((category) => (
-        <Link
-          key={category.id}
-          href={`/blog?category=${category.slug}`}
-          className={pillClass(activeSlug === category.slug)}
-        >
-          {category.name}
-        </Link>
-      ))}
-    </div>
+      {categories.map((category) => {
+        const active = activeSlug === category.slug;
+        return (
+          <Link
+            key={category.id}
+            href={`/blog?category=${category.slug}`}
+            className={pillClass(active)}
+            aria-current={active ? "page" : undefined}
+          >
+            {category.name}
+          </Link>
+        );
+      })}
+    </nav>
   );
 }

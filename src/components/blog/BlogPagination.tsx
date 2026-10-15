@@ -25,10 +25,10 @@ export function BlogPagination({
         <Link
           key={page}
           href={href(page)}
-          className={`flex h-9 w-9 items-center justify-center rounded-full border text-sm font-medium transition-colors ${
+          className={`flex h-9 w-9 items-center justify-center rounded-md border font-mono text-xs transition-colors ${
             page === currentPage
-              ? "border-primary bg-primary text-white"
-              : "border-black/[.12] text-muted hover:border-black/[.24] dark:border-white/[.16] dark:hover:border-white/[.3]"
+              ? "border-primary text-primary"
+              : "border-line text-muted hover:text-foreground"
           }`}
         >
           {page}

@@ -5,9 +5,10 @@ import {
   getPublishedTravelPins,
 } from "@/lib/queries";
 import { EntryCard } from "@/components/EntryCard";
-import { SectionBackground } from "@/components/SectionBackground";
+import { PageBody, PageHeader } from "@/components/PageHeader";
 import { TravelGlobe } from "@/components/TravelGlobe";
 import { EditableText } from "@/components/edit/EditableText";
+import { Eyebrow } from "@/components/home/SectionHeader";
 import { buildGlobePins } from "@/lib/travel-pins";
 
 export default async function SectionPage({
@@ -21,76 +22,68 @@ export default async function SectionPage({
   if (!section) notFound();
 
   const isTravel = section.slug === "viaggi";
-  const hasBackground = Boolean(section.background_image_path);
 
   const [entries, travelPinsRaw] = await Promise.all([
     getPublishedEntries(section.id),
     isTravel ? getPublishedTravelPins() : Promise.resolve([]),
   ]);
 
-  const travelPins = buildGlobePins(travelPinsRaw);
-
   return (
-    <div className="mx-auto w-full max-w-4xl px-6 py-16">
-      <SectionBackground
-        imagePath={section.background_image_path}
-        opacity={section.background_opacity}
-        darkness={section.home_overlay_darkness}
-      />
-      <div className="flex items-center gap-2">
-        {section.icon && <span className="text-2xl">{section.icon}</span>}
-        <EditableText
-          as="h1"
-          className={`text-3xl font-semibold tracking-tight ${hasBackground ? "text-white" : ""}`}
-          value={section.title}
-          target={{ table: "sections", id: section.id, field: "title" }}
-        />
-      </div>
-      <EditableText
-        as="p"
-        className={`mt-3 max-w-2xl ${hasBackground ? "text-white/75" : "text-muted"}`}
-        value={section.description ?? ""}
-        target={{ table: "sections", id: section.id, field: "description" }}
-        multiline
+    <>
+      <PageHeader
+        back={{ href: "/chi-sono", label: "Chi sono" }}
+        label={
+          <>
+            {section.icon && <span aria-hidden className="text-sm tracking-normal">{section.icon}</span>}
+            {entries.length} {entries.length === 1 ? "elemento" : "elementi"}
+          </>
+        }
+        title={
+          <EditableText
+            value={section.title}
+            target={{ table: "sections", id: section.id, field: "title" }}
+          />
+        }
+        intro={
+          section.description && (
+            <EditableText
+              as="p"
+              value={section.description}
+              target={{ table: "sections", id: section.id, field: "description" }}
+              multiline
+            />
+          )
+        }
       />
 
       {isTravel && (
-        <div className="mt-10">
-          <TravelGlobe pins={travelPins} />
-          <p className={`mt-4 text-center text-xs ${hasBackground ? "text-white/75" : "text-muted"}`}>
-            Ogni bandierina è un luogo in cui sono stata: cliccala per
-            scoprirlo. Quelle in evidenza hanno anche un racconto da leggere.
+        <PageBody>
+          <div className="rounded-lg border border-line bg-surface px-4 py-8 sm:px-8 sm:py-10">
+            <TravelGlobe pins={buildGlobePins(travelPinsRaw)} />
+          </div>
+          <p className="mt-4 text-center text-sm text-muted">
+            Ogni bandierina è un luogo in cui sono stata: cliccala per scoprirlo. Quelle in evidenza
+            hanno anche un racconto da leggere.
           </p>
-        </div>
+        </PageBody>
       )}
 
-      {entries.length === 0 ? (
-        <p className={`mt-12 text-sm ${hasBackground ? "text-white/75" : "text-muted"}`}>
-          Nessun contenuto pubblicato ancora in questa sezione.
-        </p>
-      ) : (
-        <div className="mt-12">
-          {isTravel && (
-            <h2
-              className={`mb-4 text-xs font-semibold tracking-[0.2em] uppercase ${
-                hasBackground ? "text-white/75" : "text-muted"
-              }`}
-            >
-              Storie
-            </h2>
-          )}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <PageBody>
+        {isTravel && (
+          <div className="mb-10">
+            <Eyebrow>Storie</Eyebrow>
+          </div>
+        )}
+        {entries.length === 0 ? (
+          <p className="text-muted">Nessun contenuto pubblicato ancora in questa sezione.</p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {entries.map((entry) => (
-              <EntryCard
-                key={entry.id}
-                sectionSlug={section.slug}
-                entry={entry}
-                hasBackground={hasBackground}
-              />
+              <EntryCard key={entry.id} sectionSlug={section.slug} entry={entry} />
             ))}
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </PageBody>
+    </>
   );
 }

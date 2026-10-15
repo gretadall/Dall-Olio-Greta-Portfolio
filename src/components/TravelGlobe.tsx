@@ -15,9 +15,10 @@ type CountryFeature = {
   geometry: unknown;
 };
 
-const VISITED_COLOR = "#f97316";
-const VISITED_SIDE_COLOR = "rgba(249, 115, 22, 0.35)";
-const VISITED_STROKE = "#fed7aa";
+// The site's pink accent.
+const VISITED_COLOR = "#f399d2";
+const VISITED_SIDE_COLOR = "rgba(243, 153, 210, 0.35)";
+const VISITED_STROKE = "#fbd5ec";
 const PLAIN_FILL = "rgba(255, 255, 255, 0.035)";
 const PLAIN_SIDE = "rgba(255, 255, 255, 0.05)";
 const PLAIN_STROKE = "rgba(255, 255, 255, 0.3)";
@@ -285,7 +286,7 @@ export function TravelGlobe({
           </span>
           <span>
             <strong className={expanded ? "text-white" : "text-foreground"}>{storieCount}</strong>{" "}
-            Storie
+            Tappe
           </span>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { BlogCategoryFilter } from "@/components/blog/BlogCategoryFilter";
 import { BlogPostCard } from "@/components/blog/BlogPostCard";
 import { BlogPagination } from "@/components/blog/BlogPagination";
 import { EditableText } from "@/components/edit/EditableText";
+import { PageBody, PageHeader } from "@/components/PageHeader";
 
 const PAGE_SIZE = 8;
 
@@ -23,43 +24,45 @@ export default async function BlogPage({
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 py-16">
-      <EditableText
-        as="h1"
-        className="text-3xl font-semibold tracking-tight"
-        value={settings.blog_title ?? "Blog"}
-        target={{ table: "site_settings", field: "blog_title" }}
-      />
+    <>
+      <PageHeader
+        label={total === 0 ? "In arrivo" : `${total} ${total === 1 ? "articolo" : "articoli"}`}
+        title={
+          <EditableText
+            value={settings.blog_title ?? "Blog"}
+            target={{ table: "site_settings", field: "blog_title" }}
+          />
+        }
+      >
+        {categories.length > 0 && (
+          <div className="mt-10">
+            <BlogCategoryFilter categories={categories} activeSlug={category} />
+          </div>
+        )}
+      </PageHeader>
 
-      <div className="mt-8">
-        <BlogCategoryFilter categories={categories} activeSlug={category} />
-      </div>
+      <PageBody>
+        {posts.length === 0 ? (
+          <EditableText
+            as="p"
+            className="text-muted"
+            value={settings.blog_empty_text ?? "Nessun articolo pubblicato ancora."}
+            target={{ table: "site_settings", field: "blog_empty_text" }}
+          />
+        ) : (
+          <ul className="divide-y divide-line border-y border-line">
+            {posts.map((post) => (
+              <li key={post.id}>
+                <BlogPostCard post={post} />
+              </li>
+            ))}
+          </ul>
+        )}
 
-      {posts.length === 0 ? (
-        <EditableText
-          as="p"
-          className="mt-12 text-sm text-muted"
-          value={settings.blog_empty_text ?? "Nessun articolo pubblicato ancora."}
-          target={{ table: "site_settings", field: "blog_empty_text" }}
-        />
-      ) : (
-        <div className="mt-4 flex flex-col">
-          {posts.map((post) => (
-            <BlogPostCard key={post.id} post={post} />
-          ))}
+        <div className="mt-10">
+          <BlogPagination currentPage={page} totalPages={totalPages} categorySlug={category} />
         </div>
-      )}
-
-      <div className="mt-10 flex flex-wrap items-center justify-between gap-4">
-        <BlogPagination
-          currentPage={page}
-          totalPages={totalPages}
-          categorySlug={category}
-        />
-        <span className="text-xs text-muted">
-          {total} {total === 1 ? "articolo pubblicato" : "articoli pubblicati"}
-        </span>
-      </div>
-    </div>
+      </PageBody>
+    </>
   );
 }

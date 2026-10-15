@@ -83,13 +83,13 @@ export async function getEntryConnections(entryId: string) {
     supabase
       .from("connections")
       .select(
-        "id, label, bidirectional, to_entry:entries!connections_to_entry_id_fkey(title, slug, sections(slug))"
+        "id, label, bidirectional, to_entry:entries!connections_to_entry_id_fkey(title, slug, sections(slug, title))"
       )
       .eq("from_entry_id", entryId),
     supabase
       .from("connections")
       .select(
-        "id, label, bidirectional, from_entry:entries!connections_from_entry_id_fkey(title, slug, sections(slug))"
+        "id, label, bidirectional, from_entry:entries!connections_from_entry_id_fkey(title, slug, sections(slug, title))"
       )
       .eq("to_entry_id", entryId),
   ]);

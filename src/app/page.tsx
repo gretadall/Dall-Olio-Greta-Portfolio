@@ -15,6 +15,7 @@ import type { Database } from "@/lib/supabase/types";
 import { EditableText } from "@/components/edit/EditableText";
 import { Eyebrow, HomeSection, MoreLink, SectionHeader } from "@/components/home/SectionHeader";
 import { MiniGlobe } from "@/components/home/MiniGlobe";
+import { EntryCard } from "@/components/EntryCard";
 
 type Section = Database["public"]["Tables"]["sections"]["Row"];
 type Entry = Database["public"]["Tables"]["entries"]["Row"];
@@ -31,32 +32,6 @@ function SectionDescription({ section }: { section: Section }) {
       target={{ table: "sections", id: section.id, field: "description" }}
       multiline
     />
-  );
-}
-
-function ProjectCard({ section, entry }: { section: Section; entry: Entry }) {
-  const period = formatPeriod(entry.period_start, entry.period_end);
-  return (
-    <Link
-      href={`/${section.slug}/${entry.slug}`}
-      className="group flex flex-col rounded-lg border border-line bg-surface p-6 transition-colors hover:border-primary/60"
-    >
-      {period && (
-        <p className="font-mono text-[11px] tracking-[0.14em] text-muted uppercase">{period}</p>
-      )}
-      <h3 className="mt-3 text-lg font-semibold tracking-tight">{entry.title}</h3>
-      {entry.description && (
-        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted">
-          {entry.description}
-        </p>
-      )}
-      <span className="mt-auto pt-6 font-mono text-[11px] tracking-[0.14em] text-primary uppercase">
-        Scopri di più{" "}
-        <span aria-hidden className="inline-block transition-transform group-hover:translate-x-0.5">
-          →
-        </span>
-      </span>
-    </Link>
   );
 }
 
@@ -212,7 +187,7 @@ export default async function Home() {
             {entriesOf(progetti)
               .slice(0, 3)
               .map((entry) => (
-                <ProjectCard key={entry.id} section={progetti} entry={entry} />
+                <EntryCard key={entry.id} sectionSlug={progetti.slug} entry={entry} />
               ))}
           </div>
         </HomeSection>

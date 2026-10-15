@@ -8,32 +8,26 @@ type BlogPost = Database["public"]["Tables"]["blog_posts"]["Row"] & {
 
 export function BlogPostCard({ post }: { post: BlogPost }) {
   return (
-    <Link
-      href={`/blog/${post.slug}`}
-      className="group flex flex-col gap-2 border-b border-black/[.08] py-6 dark:border-white/[.145]"
-    >
-      {post.blog_categories && (
-        <span
-          className="w-fit rounded-full px-3 py-1 text-xs font-semibold text-white"
-          style={{ backgroundColor: post.blog_categories.color }}
-        >
-          {post.blog_categories.name}
+    <Link href={`/blog/${post.slug}`} className="group grid gap-2 py-7 sm:grid-cols-[12rem_1fr_auto] sm:gap-8">
+      <span className="font-mono text-xs text-muted">
+        {post.published_at ? formatItalianDate(post.published_at) : ""}
+        {post.blog_categories && (
+          <span className="mt-1 block text-primary">{post.blog_categories.name}</span>
+        )}
+      </span>
+      <span>
+        <span className="block text-xl font-semibold tracking-tight transition-colors group-hover:text-primary">
+          {post.title}
         </span>
-      )}
-      <h2 className="text-xl font-semibold tracking-tight transition-opacity group-hover:opacity-70">
-        {post.title}
-      </h2>
-      {post.excerpt && (
-        <p className="line-clamp-3 text-sm text-muted">{post.excerpt}</p>
-      )}
-      <div className="mt-1 flex items-center justify-between gap-4">
-        {post.published_at && (
-          <span className="text-xs text-muted">
-            {formatItalianDate(post.published_at)}
+        {post.excerpt && (
+          <span className="mt-2 line-clamp-2 block text-sm leading-relaxed text-muted">
+            {post.excerpt}
           </span>
         )}
-        <span className="text-sm font-medium text-primary">→</span>
-      </div>
+      </span>
+      <span aria-hidden className="hidden text-muted transition-colors group-hover:text-primary sm:block">
+        ↗
+      </span>
     </Link>
   );
 }
