@@ -37,7 +37,7 @@ export default async function BlogPostPage({
               width={1200}
               height={675}
               sizes="(min-width: 768px) 672px, 100vw"
-              className="mb-10 w-full rounded-lg border border-line object-cover"
+              className="mb-10 w-full rounded-2xl border border-line object-cover"
             />
           )}
           {post.body && (

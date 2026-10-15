@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Inter } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { EditModeProvider } from "@/components/edit/EditModeProvider";
@@ -9,15 +9,17 @@ import { getSiteSettings } from "@/lib/queries";
 import { getIsAdmin } from "@/lib/supabase/auth";
 import "./globals.css";
 
-// Two families only: Inter for reading, a mono for the small labels.
+// Two families: Inter for reading, Playfair Display (the same high-contrast
+// serif feel as the GD monogram) for titles and accents.
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
+  style: ["normal", "italic"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -41,7 +43,7 @@ export default async function RootLayout({
   return (
     <html
       lang="it"
-      className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${playfair.variable} h-full antialiased`}
     >
       <head>
         <style>{`

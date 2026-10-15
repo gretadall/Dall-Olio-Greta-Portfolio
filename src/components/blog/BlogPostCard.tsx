@@ -9,14 +9,14 @@ type BlogPost = Database["public"]["Tables"]["blog_posts"]["Row"] & {
 export function BlogPostCard({ post }: { post: BlogPost }) {
   return (
     <Link href={`/blog/${post.slug}`} className="group grid gap-2 py-7 sm:grid-cols-[12rem_1fr_auto] sm:gap-8">
-      <span className="font-mono text-xs text-muted">
+      <span className="font-medium tabular-nums text-xs text-muted">
         {post.published_at ? formatItalianDate(post.published_at) : ""}
         {post.blog_categories && (
           <span className="mt-1 block text-primary">{post.blog_categories.name}</span>
         )}
       </span>
       <span>
-        <span className="block text-xl font-semibold tracking-tight transition-colors group-hover:text-primary">
+        <span className="block font-serif text-2xl transition-colors group-hover:text-primary">
           {post.title}
         </span>
         {post.excerpt && (

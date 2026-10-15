@@ -38,6 +38,7 @@ export default async function EntryPage({
   const prev = index > 0 ? siblings[index - 1] : null;
   const next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : null;
 
+  const cover = media.find((m) => /\.(jpe?g|webp|png)$/i.test(m.storage_path));
   const period = formatPeriod(entry.period_start, entry.period_end);
   const facts = [
     period && { label: "Periodo", value: period },
@@ -48,10 +49,11 @@ export default async function EntryPage({
     <>
       <PageHeader
         back={{ href: `/${section.slug}`, label: section.title }}
+        imagePath={cover?.storage_path}
         label={
           <>
-            {section.icon && <span aria-hidden className="text-sm tracking-normal">{section.icon}</span>}
             {section.title}
+            {section.icon && <span aria-hidden className="not-italic">{section.icon}</span>}
           </>
         }
         title={entry.title}
@@ -60,7 +62,7 @@ export default async function EntryPage({
           <dl className="mt-10 flex flex-wrap gap-x-12 gap-y-4">
             {facts.map((fact) => (
               <div key={fact.label}>
-                <dt className="font-mono text-[11px] tracking-[0.14em] text-muted uppercase">
+                <dt className="font-medium tabular-nums text-[11px] tracking-[0.14em] text-muted uppercase">
                   {fact.label}
                 </dt>
                 <dd className="mt-1">{fact.value}</dd>
@@ -73,7 +75,7 @@ export default async function EntryPage({
       <PageBody>
         <article className="max-w-2xl">
           {entry.description && (
-            <p className="text-xl leading-relaxed">{entry.description}</p>
+            <p className="font-serif text-2xl leading-snug">{entry.description}</p>
           )}
 
           {entry.body &&
@@ -96,7 +98,7 @@ export default async function EntryPage({
                   href={getMediaUrl(photo.storage_path)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border border-line bg-surface p-4 text-center text-sm text-muted transition-colors hover:border-primary/60 hover:text-foreground"
+                  className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-line bg-surface p-4 text-center text-sm text-muted transition-colors hover:border-primary/60 hover:text-foreground"
                 >
                   <span aria-hidden className="text-3xl">📄</span>
                   {photo.alt_text || "Apri PDF"}
@@ -109,7 +111,7 @@ export default async function EntryPage({
                   width={400}
                   height={400}
                   sizes="(min-width: 640px) 33vw, 50vw"
-                  className="aspect-square w-full rounded-lg border border-line object-cover"
+                  className="aspect-square w-full rounded-2xl border border-line object-cover"
                 />
               )
             )}
@@ -127,7 +129,7 @@ export default async function EntryPage({
                 href={`/${section.slug}/${prev.slug}`}
                 className="group border-b border-line px-5 py-8 sm:border-r sm:border-b-0 sm:px-8"
               >
-                <span className="font-mono text-[11px] tracking-[0.14em] text-muted uppercase">
+                <span className="font-medium tabular-nums text-[11px] tracking-[0.14em] text-muted uppercase">
                   ← Precedente
                 </span>
                 <span className="mt-2 block text-lg font-semibold tracking-tight transition-colors group-hover:text-primary">
@@ -142,7 +144,7 @@ export default async function EntryPage({
                 href={`/${section.slug}/${next.slug}`}
                 className="group px-5 py-8 text-right sm:px-8"
               >
-                <span className="font-mono text-[11px] tracking-[0.14em] text-muted uppercase">
+                <span className="font-medium tabular-nums text-[11px] tracking-[0.14em] text-muted uppercase">
                   Successivo →
                 </span>
                 <span className="mt-2 block text-lg font-semibold tracking-tight transition-colors group-hover:text-primary">

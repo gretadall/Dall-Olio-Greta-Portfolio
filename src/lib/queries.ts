@@ -241,3 +241,35 @@ export async function getPublishedEntriesForSections(sectionIds: string[]) {
   if (error) throw error;
   return data;
 }
+
+const PHOTO_PATH = /\.(jpe?g|webp)$/i;
+
+// Photos the visitor would recognise as "real life" (no PDFs, screenshots or
+// app graphics), in upload order, with the entry they belong to.
+export async function getPersonalPhotos() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("entry_media")
+    .select("id, storage_path, alt_text, entry_id, entries!inner(title, slug, is_published, sections!inner(slug, is_published))")
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  return data.flatMap((m) => {
+    const entry = Array.isArray(m.entries) ? m.entries[0] : m.entries;
+    const section = entry && (Array.isArray(entry.sections) ? entry.sections[0] : entry.sections);
+    if (!entry?.is_published || !section?.is_published) return [];
+    if (!PHOTO_PATH.test(m.storage_path) || /screenshot/i.test(m.storage_path)) return [];
+    return [
+      {
+        id: m.id,
+        entryId: m.entry_id,
+        path: m.storage_path,
+        alt: m.alt_text ?? entry.title,
+        title: entry.title,
+        href: `/${section.slug}/${entry.slug}`,
+      },
+    ];
+  });
+}
+
+export type PersonalPhoto = Awaited<ReturnType<typeof getPersonalPhotos>>[number];

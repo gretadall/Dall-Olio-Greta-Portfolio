@@ -83,7 +83,7 @@ export function Nav({
               href={gmailComposeUrl(contactEmail)}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden rounded-md border border-line px-3.5 py-1.5 text-sm transition-colors hover:border-primary hover:text-primary sm:inline-block"
+              className="hidden rounded-full border border-line px-4 py-1.5 text-sm transition-colors hover:border-primary hover:text-primary sm:inline-block"
             >
               Scrivimi
             </a>
@@ -94,7 +94,7 @@ export function Nav({
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Chiudi menu" : "Apri menu"}
-            className="flex h-9 w-9 items-center justify-center rounded-md border border-line md:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-line md:hidden"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-4 w-4">
               {open ? (

@@ -18,7 +18,8 @@ function project(lat: number, lng: number) {
   const y =
     C -
     R * (Math.cos(phi0) * Math.sin(phi) - Math.sin(phi0) * Math.cos(phi) * Math.cos(lambda));
-  return { x, y, visible: cosC > 0 };
+  // Rounded so server and browser render byte-identical markup.
+  return { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10, visible: cosC > 0 };
 }
 
 // Sample a line of constant latitude or longitude into an SVG path, drawing

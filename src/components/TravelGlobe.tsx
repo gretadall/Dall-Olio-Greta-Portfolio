@@ -3,25 +3,21 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
-import { useCallback, useLayoutEffect, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { GlobeMethods } from "react-globe.gl";
-import { toEnglishCountryName } from "@/lib/country-names";
+import type { CountryShape } from "@/lib/globe-countries";
+import { MiniGlobe } from "@/components/home/MiniGlobe";
 
 const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
 
-type CountryFeature = {
-  type: "Feature";
-  properties: { name: string };
-  geometry: unknown;
-};
-
 // The site's pink accent.
-const VISITED_COLOR = "#f399d2";
-const VISITED_SIDE_COLOR = "rgba(243, 153, 210, 0.35)";
-const VISITED_STROKE = "#fbd5ec";
-const PLAIN_FILL = "rgba(255, 255, 255, 0.035)";
-const PLAIN_SIDE = "rgba(255, 255, 255, 0.05)";
-const PLAIN_STROKE = "rgba(255, 255, 255, 0.3)";
+const PINK = "#f399d2";
+const COUNTRY_CAP = "rgba(243, 153, 210, 0.55)";
+const COUNTRY_SIDE = "rgba(243, 153, 210, 0.25)";
+const COUNTRY_STROKE = "#fbd5ec";
+
+const AUTO_ROTATE_SPEED = 0.7;
+const RESUME_ROTATION_AFTER_MS = 3000;
 
 export type GlobePin = {
   id: string;
@@ -75,10 +71,7 @@ function PinVignette({ pin, onClose }: { pin: GlobePin; onClose: () => void }) {
             {formatCoord(pin.lat, "N", "S")} · {formatCoord(pin.lng, "E", "O")}
           </p>
           {pin.href && (
-            <Link
-              href={pin.href}
-              className="mt-2 inline-block text-xs font-semibold text-primary"
-            >
+            <Link href={pin.href} className="mt-2 inline-block text-xs font-semibold text-primary">
               Leggi il racconto →
             </Link>
           )}
@@ -88,7 +81,7 @@ function PinVignette({ pin, onClose }: { pin: GlobePin; onClose: () => void }) {
   );
 }
 
-function ExpandIcon({ expanded }: { expanded: boolean }) {
+function ExpandIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -100,56 +93,39 @@ function ExpandIcon({ expanded }: { expanded: boolean }) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      {expanded ? (
-        <path d="M9 3v4a2 2 0 0 1-2 2H3M21 9h-4a2 2 0 0 1-2-2V3M3 15h4a2 2 0 0 1 2 2v4M15 21v-4a2 2 0 0 1 2-2h4" />
-      ) : (
-        <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" />
-      )}
+      <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" />
     </svg>
   );
 }
 
+// Accessors handed to react-globe.gl live at module level so their identity
+// never changes: a new closure makes the library rebuild every object.
+const pinColor = (d: object) => ((d as GlobePin).href ? PINK : "#ffffff");
+const pinLabel = (d: object) => {
+  const pin = d as GlobePin;
+  const sub = pin.country ? ` · ${escapeHtml(pin.country)}` : "";
+  return `<div class="globe-tooltip">${escapeHtml(pin.label)}${sub}</div>`;
+};
+const countryCap = () => COUNTRY_CAP;
+const countrySide = () => COUNTRY_SIDE;
+const countryStroke = () => COUNTRY_STROKE;
+const RENDERER_CONFIG = { antialias: true, alpha: true, powerPreference: "high-performance" as const };
+
 export function TravelGlobe({
   pins,
-  compact = false,
+  countries,
 }: {
   pins: GlobePin[];
-  compact?: boolean;
+  countries: CountryShape[];
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
+  const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [size, setSize] = useState(0);
+  const [ready, setReady] = useState(false);
   const [activePin, setActivePin] = useState<GlobePin | null>(null);
   const [expanded, setExpanded] = useState(false);
-  const inlineMax = compact ? 340 : 520;
-  const maxSize = expanded ? 640 : inlineMax;
-  const [countries, setCountries] = useState<CountryFeature[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/globe/countries.geojson")
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled) setCountries(data.features);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const visitedCountries = useMemo(
-    () =>
-      new Set(
-        pins
-          .map((p) => p.country)
-          .filter((c): c is string => Boolean(c))
-          .map((c) => toEnglishCountryName(c))
-      ),
-    [pins]
-  );
-  const storieCount = pins.length;
-  const paesiCount = visitedCountries.size;
+  const maxSize = expanded ? 640 : 520;
 
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -165,15 +141,41 @@ export function TravelGlobe({
     return () => observer.disconnect();
   }, [maxSize]);
 
-  useEffect(() => {
+  // Configure the scene once the library says it's ready (the component is
+  // loaded lazily, so the ref is not there on first render).
+  const onGlobeReady = useCallback(() => {
     const globe = globeRef.current;
     if (!globe) return;
-    globe.pointOfView({ lat: 25, lng: 15, altitude: 2.1 }, 0);
+
+    // Retina screens render 4-9x the pixels for no visible gain on a globe.
+    globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    globe.pointOfView({ lat: 38, lng: 12, altitude: 2 }, 0);
+
     const controls = globe.controls();
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.4;
-    controls.enableZoom = expanded;
-  }, [size, expanded]);
+    controls.autoRotateSpeed = AUTO_ROTATE_SPEED;
+    controls.enableZoom = false;
+
+    // Stop spinning while someone is dragging, pick it back up a bit later.
+    controls.addEventListener("start", () => {
+      controls.autoRotate = false;
+      if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    });
+    controls.addEventListener("end", () => {
+      resumeTimer.current = setTimeout(() => {
+        controls.autoRotate = true;
+      }, RESUME_ROTATION_AFTER_MS);
+    });
+
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    const globe = globeRef.current;
+    if (globe && ready) globe.controls().enableZoom = expanded;
+  }, [expanded, ready]);
 
   useEffect(() => {
     if (!expanded) return;
@@ -184,140 +186,97 @@ export function TravelGlobe({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [expanded]);
 
-  // The globe auto-rotates continuously, which means three.js keeps
-  // re-rendering ~240 country meshes every frame for as long as it's
-  // mounted — including while it's scrolled out of view, which was
-  // stealing frames from the page's own scroll and making the sections
-  // above/below it feel sluggish. Pausing the render loop outright while
-  // it's off-screen removes that cost entirely, not just the visible part.
+  // Don't render frames while the globe is scrolled out of view.
   useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const globe = globeRef.current;
-        if (!globe) return;
-        if (entry.isIntersecting) globe.resumeAnimation();
-        else globe.pauseAnimation();
-      },
-      { threshold: 0 }
-    );
+    if (!el || !ready) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      const globe = globeRef.current;
+      if (!globe) return;
+      if (entry.isIntersecting) globe.resumeAnimation();
+      else globe.pauseAnimation();
+    });
     observer.observe(el);
     return () => observer.disconnect();
+  }, [ready]);
+
+  useEffect(() => () => {
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
   }, []);
 
-  // react-globe.gl re-derives every country's mesh/material whenever one of
-  // these accessor props changes identity, not just when the underlying
-  // data does — passed inline, they're new closures (and trigger a full
-  // ~195-country rebuild) on every re-render of this component, including
-  // ones with nothing to do with the polygons (opening a pin's vignette,
-  // resizing). Stable callbacks keep those re-renders cheap.
-  const polygonCapColor = useCallback(
-    (d: object) =>
-      visitedCountries.has((d as CountryFeature).properties.name) ? VISITED_COLOR : PLAIN_FILL,
-    [visitedCountries]
-  );
-  const polygonSideColor = useCallback(
-    (d: object) =>
-      visitedCountries.has((d as CountryFeature).properties.name)
-        ? VISITED_SIDE_COLOR
-        : PLAIN_SIDE,
-    [visitedCountries]
-  );
-  const polygonStrokeColor = useCallback(
-    (d: object) =>
-      visitedCountries.has((d as CountryFeature).properties.name)
-        ? VISITED_STROKE
-        : PLAIN_STROKE,
-    [visitedCountries]
-  );
-  const polygonAltitude = useCallback(
-    (d: object) => (visitedCountries.has((d as CountryFeature).properties.name) ? 0.012 : 0.005),
-    [visitedCountries]
-  );
-  // setActivePin (a useState setter) is referentially stable across
-  // renders, so this can stay a fixed callback and never force
-  // react-globe.gl to recreate every pin's DOM element.
-  const htmlElement = useCallback((d: object) => {
-    const pin = d as GlobePin;
-    const el = document.createElement("div");
-    el.className = `travel-pin${pin.href ? " travel-pin--linked" : ""}`;
-    el.setAttribute("role", "button");
-    el.setAttribute("tabindex", "0");
-    const sub = pin.country ? ` · ${escapeHtml(pin.country)}` : "";
-    el.innerHTML = `
-      <span class="travel-pin__flag">📍</span>
-      <span class="travel-pin__label">${escapeHtml(pin.label)}${sub}</span>
-    `;
-    el.onclick = (e) => {
-      e.stopPropagation();
-      setActivePin(pin);
-    };
-    el.onkeydown = (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        setActivePin(pin);
-      }
-    };
-    return el;
-  }, []);
+  const onPointClick = useCallback((d: object) => setActivePin(d as GlobePin), []);
+
+  const countriesVisited = new Set(pins.map((p) => p.country).filter(Boolean)).size;
 
   return (
     <div
       className={
         expanded
-          ? "fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/85 p-6 backdrop-blur-sm"
-          : "relative mx-auto w-full"
+          ? "fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/90 p-6 backdrop-blur-sm"
+          : "relative mx-auto w-full max-w-[520px]"
       }
-      style={expanded ? undefined : { maxWidth: inlineMax }}
     >
       {activePin && <PinVignette pin={activePin} onClose={() => setActivePin(null)} />}
 
       <div className="mb-3 flex flex-col items-center gap-1.5 text-center">
-        <p className={`text-[11px] tracking-wide ${expanded ? "text-white/60" : "text-muted"}`}>
-          Trascina per ruotare · scorri per zoomare · clicca un paese
+        <p className="text-[11px] tracking-wide text-muted">
+          Trascina per ruotare · clicca una puntina{expanded ? " · scorri per zoomare" : ""}
         </p>
-        <div
-          className={`flex items-center gap-4 text-xs ${expanded ? "text-white/80" : "text-muted"}`}
-        >
+        <div className="flex items-center gap-4 text-xs text-muted">
           <span>
-            <strong className={expanded ? "text-white" : "text-foreground"}>{paesiCount}</strong>{" "}
-            Paesi
+            <strong className="text-foreground">{countriesVisited}</strong> Paesi
           </span>
           <span>
-            <strong className={expanded ? "text-white" : "text-foreground"}>{storieCount}</strong>{" "}
-            Tappe
+            <strong className="text-foreground">{pins.length}</strong> Tappe
           </span>
         </div>
       </div>
 
       <div
         ref={containerRef}
-        className="mx-auto flex w-full items-center justify-center"
+        className="relative mx-auto flex w-full items-center justify-center"
         style={{ maxWidth: maxSize, aspectRatio: "1 / 1" }}
       >
+        {/* Instant stand-in while three.js loads, cross-faded away when ready. */}
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-700 ${
+            ready ? "opacity-0" : "animate-pulse opacity-100"
+          }`}
+        >
+          <MiniGlobe pins={pins} />
+        </div>
         {size > 0 && (
-          <Globe
-            ref={globeRef}
-            width={size}
-            height={size}
-            backgroundColor="rgba(0,0,0,0)"
-            globeImageUrl="/globe/earth-dark.jpg"
-            showAtmosphere
-            atmosphereColor="#f97316"
-            atmosphereAltitude={0.18}
-            polygonsData={countries}
-            polygonCapColor={polygonCapColor}
-            polygonSideColor={polygonSideColor}
-            polygonStrokeColor={polygonStrokeColor}
-            polygonAltitude={polygonAltitude}
-            polygonsTransitionDuration={0}
-            htmlElementsData={pins}
-            htmlLat="lat"
-            htmlLng="lng"
-            htmlAltitude={0.01}
-            htmlElement={htmlElement}
-          />
+          <div className={`transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}>
+            <Globe
+              ref={globeRef}
+              width={size}
+              height={size}
+              rendererConfig={RENDERER_CONFIG}
+              onGlobeReady={onGlobeReady}
+              backgroundColor="rgba(0,0,0,0)"
+              globeImageUrl="/globe/earth-dark.jpg"
+              showAtmosphere
+              atmosphereColor={PINK}
+              atmosphereAltitude={0.16}
+              polygonsData={countries}
+              polygonCapColor={countryCap}
+              polygonSideColor={countrySide}
+              polygonStrokeColor={countryStroke}
+              polygonAltitude={0.008}
+              polygonsTransitionDuration={0}
+              pointsData={pins}
+              pointLat="lat"
+              pointLng="lng"
+              pointColor={pinColor}
+              pointAltitude={0.06}
+              pointRadius={0.45}
+              pointResolution={8}
+              pointsTransitionDuration={0}
+              pointLabel={pinLabel}
+              onPointClick={onPointClick}
+            />
+          </div>
         )}
       </div>
 
@@ -331,11 +290,7 @@ export function TravelGlobe({
             : "absolute right-1 bottom-1 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur transition-colors hover:bg-black/70"
         }
       >
-        {expanded ? (
-          "Chiudi"
-        ) : (
-          <ExpandIcon expanded={false} />
-        )}
+        {expanded ? "Chiudi" : <ExpandIcon />}
       </button>
     </div>
   );

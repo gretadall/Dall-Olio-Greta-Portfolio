@@ -1,10 +1,10 @@
 import Link from "next/link";
 
-// Small mono label with a pink rule, e.g. "— 02 / Progetti".
+// Small pink italic label that opens a block, e.g. "✦ vision e valori".
 export function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p className="flex items-center gap-3 font-mono text-[11px] tracking-[0.18em] text-muted uppercase">
-      <span aria-hidden className="h-px w-6 bg-primary" />
+    <p className="flex items-center gap-2 font-serif text-base text-primary italic">
+      <span aria-hidden className="text-xs not-italic">✦</span>
       {children}
     </p>
   );
@@ -20,7 +20,7 @@ export function MoreLink({
   return (
     <Link
       href={href}
-      className="group inline-flex shrink-0 items-center gap-1.5 text-sm text-primary"
+      className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-line px-4 py-2 text-sm transition-colors hover:border-primary hover:text-primary"
     >
       {children}
       <span
@@ -34,28 +34,22 @@ export function MoreLink({
 }
 
 export function SectionHeader({
-  index,
   label,
   title,
   subtitle,
   more,
 }: {
-  index: number;
   label: string;
-  title: string;
+  title: React.ReactNode;
   subtitle?: React.ReactNode;
   more?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+    <div className="reveal flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
       <div className="max-w-2xl">
-        <Eyebrow>
-          {String(index).padStart(2, "0")} / {label}
-        </Eyebrow>
-        <h2 className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">
-          {title}
-        </h2>
-        {subtitle && <div className="mt-3 text-muted">{subtitle}</div>}
+        <Eyebrow>{label}</Eyebrow>
+        <h2 className="mt-4 font-serif text-4xl leading-[1.1] sm:text-5xl">{title}</h2>
+        {subtitle && <div className="mt-4 text-muted">{subtitle}</div>}
       </div>
       {more}
     </div>
@@ -70,7 +64,7 @@ export function HomeSection({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="border-t border-line">
+    <section id={id}>
       <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">{children}</div>
     </section>
   );

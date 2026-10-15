@@ -25,7 +25,7 @@ export function BlogPagination({
         <Link
           key={page}
           href={href(page)}
-          className={`flex h-9 w-9 items-center justify-center rounded-md border font-mono text-xs transition-colors ${
+          className={`flex h-9 w-9 items-center justify-center rounded-md border font-medium tabular-nums text-xs transition-colors ${
             page === currentPage
               ? "border-primary text-primary"
               : "border-line text-muted hover:text-foreground"
