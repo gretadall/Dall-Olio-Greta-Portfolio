@@ -33,6 +33,53 @@ export const UI_TEXT_GROUPS: Record<string, Group> = {
       "home.hero.secondary": { label: "Pulsante secondario", value: "Chi sono" },
     },
   },
+  story: {
+    title: "Home: il racconto (bozze da riscrivere)",
+    texts: {
+      "home.story.label": { label: "Apertura: etichetta", value: "prima di iniziare" },
+      "home.story.title": {
+        label: "Apertura: titolo",
+        value: "Questo non è un CV. *È quello che c'è dietro.*",
+      },
+      "home.story.body": {
+        label: "Apertura: testo (una riga vuota = nuovo paragrafo)",
+        value:
+          "Non sono mai riuscita a fare una cosa sola. Scrivo, mi alleno, viaggio, costruisco progetti insieme ad altre persone.\n\nPer un po' ho pensato che fosse un difetto. Poi ho capito che è il mio modo di imparare: ogni cosa che provo ne accende un'altra.\n\nQuello che segue non è un elenco di titoli. Sono le cose che ho fatto davvero, nell'ordine in cui le ho vissute.",
+      },
+      "home.story.hook": {
+        label: "Apertura: invito a scorrere",
+        value: "Scorri fino in fondo: c'è una cosa per te alla fine.",
+      },
+      "home.doors.title": { label: "Porte: domanda", value: "Da dove vuoi *iniziare*?" },
+      "home.doors.build": { label: "Porta 1: titolo", value: "Quello che costruisco" },
+      "home.doors.buildText": { label: "Porta 1: testo", value: "Progetti, idee, esperimenti." },
+      "home.doors.travel": { label: "Porta 2: titolo", value: "Dove sono stata" },
+      "home.doors.travelText": { label: "Porta 2: testo", value: "I luoghi che mi hanno cambiata." },
+      "home.doors.beyond": { label: "Porta 3: titolo", value: "Quello che mi forma" },
+      "home.doors.beyondText": { label: "Porta 3: testo", value: "Sport, passioni, lingue." },
+      "home.doors.hint": {
+        label: "Porte: nota",
+        value: "tanto, alla fine, portano tutte nello stesso posto",
+      },
+      "home.note.projects": { label: "Nota a margine: progetti", value: "alcuni sono ancora in corso" },
+      "home.note.path": { label: "Nota a margine: percorso", value: "e non è ancora finita" },
+      "home.note.travel": {
+        label: "Nota a margine: viaggi",
+        value: "obiettivo: tutti i paesi del mondo",
+      },
+      "home.note.beyond": { label: "Nota a margine: fuori dal lavoro", value: "qui mi diverto di più" },
+      "home.path.now": { label: "Percorso: ultima tappa", value: "oggi" },
+      "home.path.nowText": {
+        label: "Percorso: testo dell'ultima tappa",
+        value: "Il resto lo sto ancora scrivendo.",
+      },
+      "home.end.label": { label: "Finale: etichetta", value: "se sei arrivato fin qui" },
+      "home.end.stats": {
+        label: "Finale: riepilogo",
+        value: "Hai appena attraversato {projects} progetti, {countries} paesi e {moments} momenti della mia vita.",
+      },
+    },
+  },
   homeSections: {
     title: "Home: sezioni",
     texts: {
@@ -51,7 +98,7 @@ export const UI_TEXT_GROUPS: Record<string, Group> = {
       "home.path.title": { label: "Percorso: titolo", value: "La strada *fin qui*." },
       "home.path.subtitle": {
         label: "Percorso: sottotitolo",
-        value: "Esperienze e formazione, dalla più recente.",
+        value: "Dall’inizio a oggi, una tappa alla volta.",
       },
       "home.path.experience": { label: "Percorso: pulsante esperienze", value: "Esperienze" },
       "home.path.education": { label: "Percorso: pulsante formazione", value: "Formazione" },

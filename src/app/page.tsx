@@ -16,11 +16,13 @@ import { gmailComposeUrl } from "@/lib/contact";
 import { sanitizeEntryBody } from "@/lib/sanitize";
 import type { Database } from "@/lib/supabase/types";
 import { EditableText } from "@/components/edit/EditableText";
-import { Eyebrow, HomeSection, MoreLink, SectionHeader } from "@/components/home/SectionHeader";
+import { Eyebrow, HomeSection, MarginNote, MoreLink, SectionHeader } from "@/components/home/SectionHeader";
 import { MiniGlobe } from "@/components/home/MiniGlobe";
 import { WordMarquee } from "@/components/home/Marquees";
 import { PhotoCarousel } from "@/components/home/PhotoCarousel";
 import { EntryCard } from "@/components/EntryCard";
+import { FlightPath } from "@/components/home/FlightPath";
+import { StoryTimeline, type TimelineItem } from "@/components/home/StoryTimeline";
 import { T } from "@/components/UiTexts";
 
 type Section = Database["public"]["Tables"]["sections"]["Row"];
@@ -100,10 +102,33 @@ export default async function Home() {
   const viaggi = section("viaggi");
   const beyond = ["sport", "passioni", "lingue"].map(section).filter((s) => s !== null);
 
-  const percorso = [esperienze, formazione]
+  // The whole story, oldest first: every dated entry from the sections that
+  // tell what happened (the same story told twice only counts once).
+  const timeline: TimelineItem[] = [
+    esperienze,
+    formazione,
+    progetti,
+    viaggi,
+    ...["sport", "lingue"].map(section),
+  ]
     .flatMap((s) => (s ? entriesOf(s).map((entry) => ({ section: s, entry })) : []))
-    .sort((a, b) => byNewest(a.entry, b.entry))
-    .slice(0, 4);
+    .filter(({ entry }) => entry.period_start)
+    .sort((a, b) => (a.entry.period_start ?? "").localeCompare(b.entry.period_start ?? ""))
+    .filter(({ entry }, i, all) => all.findIndex((o) => o.entry.title === entry.title) === i)
+    .map(({ section: s, entry }) => ({
+      id: entry.id,
+      year: new Date(entry.period_start!).getFullYear(),
+      period: formatPeriod(entry.period_start, entry.period_end, texts["date.ongoing"]),
+      title: entry.title,
+      meta: [s.title, entry.location].filter(Boolean).join(" · "),
+      href: `/${s.slug}/${entry.slug}`,
+    }));
+
+  const doors = [
+    { href: "#progetti", title: "home.doors.build", text: "home.doors.buildText", image: progetti?.background_image_path },
+    { href: "#viaggi", title: "home.doors.travel", text: "home.doors.travelText", image: viaggi?.background_image_path },
+    { href: "#oltre", title: "home.doors.beyond", text: "home.doors.beyondText", image: beyond[0]?.background_image_path },
+  ];
 
   const countries = new Set(pins.map((p) => p.country).filter(Boolean)).size;
   const recentTrips = [...entriesOf(viaggi)].sort(byNewest).slice(0, 3);
@@ -194,6 +219,68 @@ export default async function Home() {
 
       <WordMarquee words={wordsFromTagline(settings.tagline)} />
 
+      <div className="relative isolate">
+      <FlightPath />
+
+      {/* Il racconto */}
+      <HomeSection id="storia">
+        <div className="mx-auto max-w-3xl">
+          <SectionHeader label={<T k="home.story.label" />} title={<T k="home.story.title" />} />
+          <T
+            as="div"
+            className="reveal mt-10 text-xl leading-relaxed whitespace-pre-line text-foreground/90"
+            k="home.story.body"
+          />
+          <p className="reveal mt-10 flex items-center gap-3 font-serif text-lg text-primary italic">
+            <span aria-hidden className="animate-bounce not-italic">↓</span>
+            <T k="home.story.hook" />
+          </p>
+        </div>
+      </HomeSection>
+
+      {/* Da dove vuoi iniziare */}
+      <HomeSection id="inizia">
+        <h2 className="reveal text-center font-serif text-4xl sm:text-5xl">
+          <T k="home.doors.title" />
+        </h2>
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
+          {doors.map((door, i) => (
+            <a
+              key={door.href}
+              href={door.href}
+              className="group reveal relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-[2rem] border border-line bg-surface p-6 transition-transform duration-500 hover:-translate-y-1.5"
+            >
+              {door.image && (
+                <Image
+                  src={getMediaUrl(door.image)}
+                  alt=""
+                  fill
+                  sizes="(min-width: 768px) 33vw, 100vw"
+                  className="object-cover opacity-60 transition-all duration-700 group-hover:scale-105 group-hover:opacity-80"
+                />
+              )}
+              <span className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+              <span className="relative font-serif text-2xl text-primary italic">{ROMAN[i]}.</span>
+              <span className="relative mt-2 font-serif text-3xl">
+                <T k={door.title} />
+              </span>
+              <span className="relative mt-1 text-sm text-muted">
+                <T k={door.text} />
+              </span>
+              <span
+                aria-hidden
+                className="relative mt-5 inline-flex h-10 w-10 items-center justify-center rounded-full border border-line transition-colors group-hover:border-primary group-hover:bg-primary group-hover:text-black"
+              >
+                ↓
+              </span>
+            </a>
+          ))}
+        </div>
+        <p className="reveal mt-8 text-center font-serif text-lg text-muted italic">
+          — <T k="home.doors.hint" />
+        </p>
+      </HomeSection>
+
       {/* Vision & valori */}
       {(settings.vision_text || valori) && (
         <HomeSection id="vision">
@@ -251,6 +338,7 @@ export default async function Home() {
               </>
             }
             subtitle={<SectionDescription section={progetti} />}
+            note={<T k="home.note.projects" />}
             more={<MoreLink href={`/${progetti.slug}`}><T k="home.projects.more" /></MoreLink>}
           />
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -287,7 +375,7 @@ export default async function Home() {
       )}
 
       {/* Percorso */}
-      {percorso.length > 0 && (
+      {timeline.length > 0 && (
         <HomeSection id="percorso">
           <SectionHeader
             label={<T k="home.path.label" />}
@@ -297,6 +385,7 @@ export default async function Home() {
               </>
             }
             subtitle={<T k="home.path.subtitle" />}
+            note={<T k="home.note.path" />}
             more={
               <div className="flex flex-wrap gap-2">
                 {esperienze && <MoreLink href={`/${esperienze.slug}`}><T k="home.path.experience" /></MoreLink>}
@@ -304,27 +393,7 @@ export default async function Home() {
               </div>
             }
           />
-          <ol className="relative mt-14 ml-2 border-l border-line">
-            {percorso.map(({ section: s, entry }) => (
-              <li key={entry.id} className="reveal relative pb-10 pl-8 last:pb-0">
-                <span
-                  aria-hidden
-                  className="absolute top-1.5 -left-[7px] h-3.5 w-3.5 rounded-full border-2 border-background bg-primary shadow-[0_0_0_4px_color-mix(in_srgb,var(--primary)_25%,transparent)]"
-                />
-                <Link href={`/${s.slug}/${entry.slug}`} className="group block max-w-2xl">
-                  <span className="text-xs font-medium tracking-[0.14em] text-muted uppercase tabular-nums">
-                    {formatPeriod(entry.period_start, entry.period_end, texts["date.ongoing"])}
-                  </span>
-                  <span className="mt-1 block text-xl font-semibold tracking-tight transition-colors group-hover:text-primary">
-                    {entry.title}
-                  </span>
-                  <span className="mt-1 block text-sm text-muted">
-                    {[s.title, entry.location].filter(Boolean).join(" · ")}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ol>
+          <StoryTimeline items={timeline} />
         </HomeSection>
       )}
 
@@ -351,6 +420,9 @@ export default async function Home() {
                 <div className="mt-4 text-muted">
                   <SectionDescription section={viaggi} />
                 </div>
+                <MarginNote>
+                  <T k="home.note.travel" />
+                </MarginNote>
                 <dl className="mt-8 flex gap-10">
                   <div>
                     <dt className="text-xs font-medium tracking-[0.14em] text-muted uppercase"><T k="home.travel.countries" /></dt>
@@ -399,6 +471,7 @@ export default async function Home() {
         <HomeSection id="oltre">
           <SectionHeader
             label={<T k="home.beyond.label" />}
+            note={<T k="home.note.beyond" />}
             title={
               <>
                 <T k="home.beyond.title" />
@@ -495,13 +568,23 @@ export default async function Home() {
           />
           <div className="relative">
             <div className="flex justify-center">
-              <Eyebrow><T k="home.contact.label" /></Eyebrow>
+              <Eyebrow><T k="home.end.label" /></Eyebrow>
             </div>
             <h2 className="mx-auto mt-5 max-w-2xl font-serif text-4xl leading-[1.1] sm:text-6xl">
               <T k="home.contact.title" />
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-lg text-muted">
               <T k="home.contact.text" />
+            </p>
+            <p className="mx-auto mt-6 max-w-xl font-serif text-xl italic">
+              <T
+                k="home.end.stats"
+                vars={{
+                  projects: entriesOf(progetti).length,
+                  countries,
+                  moments: photos.length,
+                }}
+              />
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               {settings.contact_email && (
@@ -528,6 +611,7 @@ export default async function Home() {
           </div>
         </div>
       </HomeSection>
+      </div>
     </>
   );
 }

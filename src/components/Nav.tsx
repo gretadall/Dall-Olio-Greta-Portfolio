@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { gmailComposeUrl } from "@/lib/contact";
 import { T } from "@/components/UiTexts";
+import { ScrollProgress } from "@/components/ScrollProgress";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -144,6 +145,7 @@ export function Nav({
           </ul>
         </nav>
       )}
+      <ScrollProgress />
     </header>
   );
 }
