@@ -17,7 +17,8 @@ import type { Database } from "@/lib/supabase/types";
 import { EditableText } from "@/components/edit/EditableText";
 import { Eyebrow, HomeSection, MoreLink, SectionHeader } from "@/components/home/SectionHeader";
 import { MiniGlobe } from "@/components/home/MiniGlobe";
-import { PhotoMarquee, WordMarquee } from "@/components/home/Marquees";
+import { WordMarquee } from "@/components/home/Marquees";
+import { PhotoCarousel } from "@/components/home/PhotoCarousel";
 import { EntryCard } from "@/components/EntryCard";
 
 type Section = Database["public"]["Tables"]["sections"]["Row"];
@@ -275,10 +276,10 @@ export default async function Home() {
                   Qualche <em className="text-primary">momento</em>.
                 </>
               }
-              subtitle="Passaci sopra per fermarle, cliccane una per leggere la storia."
+              subtitle="Trascinale per sfogliarle, cliccane una per leggere la storia."
             />
           </div>
-          <PhotoMarquee photos={photos} />
+          <PhotoCarousel photos={photos} />
         </section>
       )}
 
