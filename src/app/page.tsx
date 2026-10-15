@@ -205,7 +205,7 @@ export default async function Home() {
           <div className="mt-14 grid gap-12 md:grid-cols-[1fr_1.1fr]">
             {settings.vision_text && (
               <div
-                className="rich-content reveal font-serif text-2xl leading-snug [&_p:first-child]:mt-0"
+                className="rich-content reveal text-lg leading-relaxed [&_p:first-child]:mt-0"
                 dangerouslySetInnerHTML={{ __html: sanitizeEntryBody(settings.vision_text) }}
               />
             )}
