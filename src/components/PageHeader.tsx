@@ -13,7 +13,7 @@ export function PageHeader({
   imagePath,
   children,
 }: {
-  back?: { href: string; label: string };
+  back?: { href: string; label: React.ReactNode };
   label: React.ReactNode;
   title: React.ReactNode;
   intro?: React.ReactNode;

@@ -39,7 +39,7 @@ export function SectionHeader({
   subtitle,
   more,
 }: {
-  label: string;
+  label: React.ReactNode;
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   more?: React.ReactNode;

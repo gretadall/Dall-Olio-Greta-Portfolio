@@ -7,6 +7,7 @@ import {
 } from "@/lib/queries";
 import { getMediaUrl } from "@/lib/supabase/media";
 import { PageBody, PageHeader } from "@/components/PageHeader";
+import { T } from "@/components/UiTexts";
 
 // The hub of the site: every section at a glance, each one a door to its page.
 export default async function ChiSonoPage() {
@@ -16,10 +17,10 @@ export default async function ChiSonoPage() {
   return (
     <>
       <PageHeader
-        label="chi sono"
+        label={<T k="about.label" />}
         title={
           <>
-            Tutto quello che <em className="text-primary">mi rende me</em>.
+            <T k="about.title" />
           </>
         }
         intro={settings.tagline}
@@ -28,7 +29,7 @@ export default async function ChiSonoPage() {
 
       <PageBody>
         {sections.length === 0 ? (
-          <p className="text-muted">Nessuna sezione pubblicata ancora.</p>
+          <T as="p" className="text-muted" k="about.empty" />
         ) : (
           <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {sections.map((section) => {
@@ -76,7 +77,7 @@ export default async function ChiSonoPage() {
                             </span>
                           ))}
                           {own.length > 3 && (
-                            <span className="px-1 py-1 text-xs text-muted">+{own.length - 3}</span>
+                            <span className="px-1 py-1 text-xs text-muted"><T k="about.more" vars={{ n: own.length - 3 }} /></span>
                           )}
                         </span>
                       )}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { EditableText } from "@/components/edit/EditableText";
 import { gmailComposeUrl } from "@/lib/contact";
+import { T } from "@/components/UiTexts";
 
 export function Footer({
   text,
@@ -21,12 +22,12 @@ export function Footer({
         <ul className="flex flex-wrap gap-x-6 gap-y-2">
           <li>
             <Link href="/chi-sono" className="transition-colors hover:text-foreground">
-              Chi sono
+              <T k="footer.about" />
             </Link>
           </li>
           <li>
             <Link href="/blog" className="transition-colors hover:text-foreground">
-              Blog
+              <T k="footer.blog" />
             </Link>
           </li>
           {linkedinUrl && (
@@ -37,7 +38,7 @@ export function Footer({
                 rel="noopener noreferrer"
                 className="transition-colors hover:text-foreground"
               >
-                LinkedIn ↗
+                <T k="footer.linkedin" />
               </a>
             </li>
           )}
@@ -49,7 +50,7 @@ export function Footer({
                 rel="noopener noreferrer"
                 className="transition-colors hover:text-foreground"
               >
-                Email ↗
+                <T k="footer.email" />
               </a>
             </li>
           )}

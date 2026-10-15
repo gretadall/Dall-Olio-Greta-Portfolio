@@ -7,6 +7,7 @@ import {
   getPublishedTravelPins,
   getPublishedBlogPostsPage,
   getPersonalPhotos,
+  getUiTexts,
   type PersonalPhoto,
 } from "@/lib/queries";
 import { getMediaUrl } from "@/lib/supabase/media";
@@ -20,6 +21,7 @@ import { MiniGlobe } from "@/components/home/MiniGlobe";
 import { WordMarquee } from "@/components/home/Marquees";
 import { PhotoCarousel } from "@/components/home/PhotoCarousel";
 import { EntryCard } from "@/components/EntryCard";
+import { T } from "@/components/UiTexts";
 
 type Section = Database["public"]["Tables"]["sections"]["Row"];
 type Entry = Database["public"]["Tables"]["entries"]["Row"];
@@ -77,12 +79,13 @@ function Polaroid({
 }
 
 export default async function Home() {
-  const [settings, sections, pins, blog, photos] = await Promise.all([
+  const [settings, sections, pins, blog, photos, texts] = await Promise.all([
     getSiteSettings(),
     getPublishedSections(),
     getPublishedTravelPins(),
     getPublishedBlogPostsPage({ page: 1, pageSize: 3 }),
     getPersonalPhotos(),
+    getUiTexts(),
   ]);
 
   const entries = await getPublishedEntriesForSections(sections.map((s) => s.id));
@@ -123,13 +126,13 @@ export default async function Home() {
         <div className="relative mx-auto grid max-w-6xl gap-16 px-5 pt-14 pb-20 sm:px-8 sm:pt-20 sm:pb-24 md:grid-cols-[1.2fr_1fr] md:items-center">
           <div>
             <div className="enter">
-              <Eyebrow>oltre il CV</Eyebrow>
+              <Eyebrow><T k="home.hero.eyebrow" /></Eyebrow>
             </div>
             <h1
               className="enter mt-6 text-5xl leading-[1.02] font-semibold tracking-tight sm:text-7xl"
               style={{ ["--delay" as string]: "80ms" }}
             >
-              Ciao, sono
+              <T k="home.hero.greeting" />
               <br />
               <span className="font-serif font-normal text-primary italic">
                 <EditableText
@@ -155,13 +158,13 @@ export default async function Home() {
                 href="#progetti"
                 className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition-transform hover:scale-[1.03]"
               >
-                Scopri cosa ho costruito
+                <T k="home.hero.cta" />
               </a>
               <Link
                 href="/chi-sono"
                 className="rounded-full border border-line px-6 py-3 text-sm font-medium transition-colors hover:border-primary hover:text-primary"
               >
-                Chi sono
+                <T k="home.hero.secondary" />
               </Link>
             </div>
           </div>
@@ -195,13 +198,13 @@ export default async function Home() {
       {(settings.vision_text || valori) && (
         <HomeSection id="vision">
           <SectionHeader
-            label="vision e valori"
+            label={<T k="home.vision.label" />}
             title={
               <>
-                Ciò in cui <em className="text-primary">credo</em>.
+                <T k="home.vision.title" />
               </>
             }
-            more={valori && <MoreLink href={`/${valori.slug}`}>I miei valori</MoreLink>}
+            more={valori && <MoreLink href={`/${valori.slug}`}><T k="home.vision.more" /></MoreLink>}
           />
           <div className="mt-14 grid gap-12 md:grid-cols-[1fr_1.1fr]">
             {settings.vision_text && (
@@ -244,11 +247,11 @@ export default async function Home() {
             label={progetti.title.toLowerCase()}
             title={
               <>
-                Cose che ho <em className="text-primary">costruito</em>.
+                <T k="home.projects.title" />
               </>
             }
             subtitle={<SectionDescription section={progetti} />}
-            more={<MoreLink href={`/${progetti.slug}`}>Tutti i progetti</MoreLink>}
+            more={<MoreLink href={`/${progetti.slug}`}><T k="home.projects.more" /></MoreLink>}
           />
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {entriesOf(progetti)
@@ -270,13 +273,13 @@ export default async function Home() {
         <section>
           <div className="mx-auto max-w-6xl px-5 pt-8 sm:px-8">
             <SectionHeader
-              label="dal vivo"
+              label={<T k="home.photos.label" />}
               title={
                 <>
-                  Qualche <em className="text-primary">momento</em>.
+                  <T k="home.photos.title" />
                 </>
               }
-              subtitle="Trascinale per sfogliarle, cliccane una per leggere la storia."
+              subtitle={<T k="home.photos.hint" />}
             />
           </div>
           <PhotoCarousel photos={photos} />
@@ -287,17 +290,17 @@ export default async function Home() {
       {percorso.length > 0 && (
         <HomeSection id="percorso">
           <SectionHeader
-            label="percorso"
+            label={<T k="home.path.label" />}
             title={
               <>
-                La strada <em className="text-primary">fin qui</em>.
+                <T k="home.path.title" />
               </>
             }
-            subtitle="Esperienze e formazione, dalla più recente."
+            subtitle={<T k="home.path.subtitle" />}
             more={
               <div className="flex flex-wrap gap-2">
-                {esperienze && <MoreLink href={`/${esperienze.slug}`}>Esperienze</MoreLink>}
-                {formazione && <MoreLink href={`/${formazione.slug}`}>Formazione</MoreLink>}
+                {esperienze && <MoreLink href={`/${esperienze.slug}`}><T k="home.path.experience" /></MoreLink>}
+                {formazione && <MoreLink href={`/${formazione.slug}`}><T k="home.path.education" /></MoreLink>}
               </div>
             }
           />
@@ -310,7 +313,7 @@ export default async function Home() {
                 />
                 <Link href={`/${s.slug}/${entry.slug}`} className="group block max-w-2xl">
                   <span className="text-xs font-medium tracking-[0.14em] text-muted uppercase tabular-nums">
-                    {formatPeriod(entry.period_start, entry.period_end)}
+                    {formatPeriod(entry.period_start, entry.period_end, texts["date.ongoing"])}
                   </span>
                   <span className="mt-1 block text-xl font-semibold tracking-tight transition-colors group-hover:text-primary">
                     {entry.title}
@@ -343,18 +346,18 @@ export default async function Home() {
               <div>
                 <Eyebrow>{viaggi.title.toLowerCase()}</Eyebrow>
                 <h2 className="mt-4 font-serif text-4xl leading-[1.1] sm:text-5xl">
-                  Il mondo, <em className="text-primary">un posto alla volta</em>.
+                  <T k="home.travel.title" />
                 </h2>
                 <div className="mt-4 text-muted">
                   <SectionDescription section={viaggi} />
                 </div>
                 <dl className="mt-8 flex gap-10">
                   <div>
-                    <dt className="text-xs font-medium tracking-[0.14em] text-muted uppercase">Paesi</dt>
+                    <dt className="text-xs font-medium tracking-[0.14em] text-muted uppercase"><T k="home.travel.countries" /></dt>
                     <dd className="mt-1 font-serif text-5xl">{countries}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-medium tracking-[0.14em] text-muted uppercase">Tappe</dt>
+                    <dt className="text-xs font-medium tracking-[0.14em] text-muted uppercase"><T k="home.travel.stops" /></dt>
                     <dd className="mt-1 font-serif text-5xl">{pins.length}</dd>
                   </div>
                 </dl>
@@ -376,7 +379,7 @@ export default async function Home() {
                   href={`/${viaggi.slug}`}
                   className="mt-8 inline-flex rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition-transform hover:scale-[1.03]"
                 >
-                  Gira il globo ↗
+                  <T k="home.travel.cta" />
                 </Link>
               </div>
               <Link
@@ -395,10 +398,10 @@ export default async function Home() {
       {beyond.length > 0 && (
         <HomeSection id="oltre">
           <SectionHeader
-            label="fuori dal lavoro"
+            label={<T k="home.beyond.label" />}
             title={
               <>
-                Quello che mi forma, <em className="text-primary">ogni giorno</em>.
+                <T k="home.beyond.title" />
               </>
             }
           />
@@ -453,13 +456,13 @@ export default async function Home() {
       {blog.posts.length > 0 && (
         <HomeSection id="blog">
           <SectionHeader
-            label="blog"
+            label={<T k="home.blog.label" />}
             title={
               <>
-                Pensieri messi <em className="text-primary">per iscritto</em>.
+                <T k="home.blog.title" />
               </>
             }
-            more={<MoreLink href="/blog">Tutti gli articoli</MoreLink>}
+            more={<MoreLink href="/blog"><T k="home.blog.more" /></MoreLink>}
           />
           <ul className="mt-14 divide-y divide-line border-y border-line">
             {blog.posts.map((post) => (
@@ -492,13 +495,13 @@ export default async function Home() {
           />
           <div className="relative">
             <div className="flex justify-center">
-              <Eyebrow>contatti</Eyebrow>
+              <Eyebrow><T k="home.contact.label" /></Eyebrow>
             </div>
             <h2 className="mx-auto mt-5 max-w-2xl font-serif text-4xl leading-[1.1] sm:text-6xl">
-              Hai un&apos;idea? <em className="text-primary">Parliamone</em>.
+              <T k="home.contact.title" />
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-lg text-muted">
-              Un progetto da costruire, una collaborazione o anche solo una curiosità: scrivimi.
+              <T k="home.contact.text" />
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               {settings.contact_email && (
@@ -508,7 +511,7 @@ export default async function Home() {
                   rel="noopener noreferrer"
                   className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition-transform hover:scale-[1.03]"
                 >
-                  Scrivimi ↗
+                  <T k="home.contact.email" />
                 </a>
               )}
               {settings.linkedin_url && (
@@ -518,7 +521,7 @@ export default async function Home() {
                   rel="noopener noreferrer"
                   className="rounded-full border border-line bg-background/40 px-6 py-3 text-sm font-medium transition-colors hover:border-primary hover:text-primary"
                 >
-                  LinkedIn ↗
+                  <T k="home.contact.linkedin" />
                 </a>
               )}
             </div>

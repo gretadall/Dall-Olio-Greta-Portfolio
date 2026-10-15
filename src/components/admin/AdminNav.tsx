@@ -13,6 +13,7 @@ const LINKS = [
   { href: "/admin/blog/categories", label: "Categorie blog" },
   { href: "/admin/comments", label: "Commenti" },
   { href: "/admin/subscribers", label: "Iscritti" },
+  { href: "/admin/texts", label: "Testi" },
   { href: "/admin/settings", label: "Impostazioni" },
 ];
 

@@ -11,6 +11,7 @@ import { TravelGlobe } from "@/components/TravelGlobe";
 import { EditableText } from "@/components/edit/EditableText";
 import { Eyebrow } from "@/components/home/SectionHeader";
 import { buildGlobePins } from "@/lib/travel-pins";
+import { T } from "@/components/UiTexts";
 import { getVisitedCountryShapes } from "@/lib/globe-countries";
 
 export default async function SectionPage({
@@ -35,11 +36,11 @@ export default async function SectionPage({
   return (
     <>
       <PageHeader
-        back={{ href: "/chi-sono", label: "Chi sono" }}
+        back={{ href: "/chi-sono", label: <T k="section.back" /> }}
         imagePath={section.background_image_path}
         label={
           <>
-            {entries.length} {entries.length === 1 ? "elemento" : "elementi"}
+            <T k={entries.length === 1 ? "section.count.one" : "section.count.many"} vars={{ n: entries.length }} />
             {section.icon && <span aria-hidden className="not-italic">{section.icon}</span>}
           </>
         }
@@ -70,8 +71,7 @@ export default async function SectionPage({
             />
           </div>
           <p className="mt-4 text-center text-sm text-muted">
-            Ogni puntina è un luogo in cui sono stata: cliccala per scoprirlo. Quelle rosa hanno
-            anche un racconto da leggere.
+            <T k="section.globeNote" />
           </p>
         </PageBody>
       )}
@@ -79,11 +79,11 @@ export default async function SectionPage({
       <PageBody>
         {isTravel && (
           <div className="mb-10">
-            <Eyebrow>Storie</Eyebrow>
+            <Eyebrow><T k="section.stories" /></Eyebrow>
           </div>
         )}
         {entries.length === 0 ? (
-          <p className="text-muted">Nessun contenuto pubblicato ancora in questa sezione.</p>
+          <T as="p" className="text-muted" k="section.empty" />
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {entries.map((entry) => (

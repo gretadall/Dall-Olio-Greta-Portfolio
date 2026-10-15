@@ -297,6 +297,7 @@ export type Database = {
           nav_chi_sono_label: string;
           nav_blog_label: string;
           home_layout: HomeLayout;
+          ui_texts: Record<string, unknown>;
           logo_glow_intensity: number;
           rete_title: string | null;
           rete_intro: string | null;

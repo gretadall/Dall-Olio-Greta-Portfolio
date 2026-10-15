@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Eyebrow } from "@/components/home/SectionHeader";
+import { T } from "@/components/UiTexts";
 
 type Connection = {
   id: string;
@@ -42,7 +43,7 @@ export function ConnectionsList({
 
   return (
     <div className="mt-16 max-w-2xl">
-      <Eyebrow>Collegato a</Eyebrow>
+      <Eyebrow><T k="entry.linked" /></Eyebrow>
       <ul className="mt-6 divide-y divide-line border-y border-line">
         {items.map(({ id, label, entry }) => (
           <li key={id}>

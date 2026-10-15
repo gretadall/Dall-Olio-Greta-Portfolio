@@ -7,6 +7,7 @@ import {
   updateSectionField,
   updateEntryField,
   updateBrainAreaField,
+  updateUiText,
   type SiteSettingsTextField,
   type SiteSettingsColorField,
   type SectionField,
@@ -18,9 +19,10 @@ type Target =
   | { table: "site_settings"; field: SiteSettingsTextField | SiteSettingsColorField }
   | { table: "sections"; id: string; field: SectionField }
   | { table: "entries"; id: string; field: EntryField }
-  | { table: "brain_areas"; id: string; field: BrainAreaField };
+  | { table: "brain_areas"; id: string; field: BrainAreaField }
+  | { table: "ui_texts"; key: string };
 
-type Tag = "span" | "div" | "p" | "h1" | "h3";
+type Tag = "span" | "div" | "p" | "h1" | "h2" | "h3";
 
 export function EditableText({
   value,
@@ -29,6 +31,7 @@ export function EditableText({
   className,
   style,
   multiline = false,
+  render,
 }: {
   value: string;
   target: Target;
@@ -36,6 +39,8 @@ export function EditableText({
   className?: string;
   style?: React.CSSProperties;
   multiline?: boolean;
+  /** How to show the value outside edit mode (edit mode always shows it raw). */
+  render?: (value: string) => React.ReactNode;
 }) {
   const { editMode } = useEditMode();
   const [text, setText] = useState(value);
@@ -54,7 +59,7 @@ export function EditableText({
     if (!value) return null;
     return (
       <Element className={className} style={style}>
-        {value}
+        {render ? render(value) : value}
       </Element>
     );
   }
@@ -75,6 +80,8 @@ export function EditableText({
         await updateSectionField(target.id, target.field, next);
       } else if (target.table === "entries") {
         await updateEntryField(target.id, target.field, next);
+      } else if (target.table === "ui_texts") {
+        await updateUiText(target.key, next);
       } else {
         await updateBrainAreaField(target.id, target.field, next);
       }
@@ -96,7 +103,11 @@ export function EditableText({
       style={style}
       contentEditable
       suppressContentEditableWarning
-      onClick={(e) => e.stopPropagation()}
+      // Inside a link or button: edit the text instead of following it.
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
       onBlur={commit}
       onKeyDown={(e) => {
         if (!multiline && e.key === "Enter") {

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import type { GlobeMethods } from "react-globe.gl";
 import type { CountryShape } from "@/lib/globe-countries";
 import { MiniGlobe } from "@/components/home/MiniGlobe";
+import { T, useUiText } from "@/components/UiTexts";
 
 const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
 
@@ -72,7 +73,7 @@ function PinVignette({ pin, onClose }: { pin: GlobePin; onClose: () => void }) {
           </p>
           {pin.href && (
             <Link href={pin.href} className="mt-2 inline-block text-xs font-semibold text-primary">
-              Leggi il racconto →
+              <T k="globe.story" />
             </Link>
           )}
         </div>
@@ -206,6 +207,7 @@ export function TravelGlobe({
 
   const onPointClick = useCallback((d: object) => setActivePin(d as GlobePin), []);
 
+  const closeLabel = useUiText("globe.close");
   const countriesVisited = new Set(pins.map((p) => p.country).filter(Boolean)).size;
 
   return (
@@ -220,14 +222,15 @@ export function TravelGlobe({
 
       <div className="mb-3 flex flex-col items-center gap-1.5 text-center">
         <p className="text-[11px] tracking-wide text-muted">
-          Trascina per ruotare · clicca una puntina{expanded ? " · scorri per zoomare" : ""}
+          <T k="globe.hint" />
+          {expanded && <T k="globe.hintZoom" />}
         </p>
         <div className="flex items-center gap-4 text-xs text-muted">
           <span>
-            <strong className="text-foreground">{countriesVisited}</strong> Paesi
+            <strong className="text-foreground">{countriesVisited}</strong> <T k="globe.countries" />
           </span>
           <span>
-            <strong className="text-foreground">{pins.length}</strong> Tappe
+            <strong className="text-foreground">{pins.length}</strong> <T k="globe.stops" />
           </span>
         </div>
       </div>
@@ -290,7 +293,7 @@ export function TravelGlobe({
             : "absolute right-1 bottom-1 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur transition-colors hover:bg-black/70"
         }
       >
-        {expanded ? "Chiudi" : <ExpandIcon />}
+        {expanded ? closeLabel : <ExpandIcon />}
       </button>
     </div>
   );

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { gmailComposeUrl } from "@/lib/contact";
+import { T } from "@/components/UiTexts";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -66,7 +67,7 @@ export function Nav({
                       active ? "text-foreground" : "text-muted hover:text-foreground"
                     }`}
                   >
-                    {link.label}
+                    <T k={link.label} />
                     {active && (
                       <span className="absolute inset-x-0 -bottom-[21px] h-px bg-primary" />
                     )}
@@ -85,7 +86,7 @@ export function Nav({
               rel="noopener noreferrer"
               className="hidden rounded-full border border-line px-4 py-1.5 text-sm transition-colors hover:border-primary hover:text-primary sm:inline-block"
             >
-              Scrivimi
+              <T k="nav.contact" />
             </a>
           )}
           <button
@@ -121,7 +122,7 @@ export function Nav({
                       active ? "text-primary" : "text-foreground"
                     }`}
                   >
-                    {link.label}
+                    <T k={link.label} />
                     <span aria-hidden className="text-muted">→</span>
                   </Link>
                 </li>
@@ -135,7 +136,7 @@ export function Nav({
                   rel="noopener noreferrer"
                   className="flex items-center justify-between py-3 text-base"
                 >
-                  Scrivimi
+                  <T k="nav.contact" />
                   <span aria-hidden className="text-muted">↗</span>
                 </a>
               </li>

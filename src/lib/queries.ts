@@ -1,6 +1,9 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { mergeUiTexts } from "@/lib/ui-texts";
 
-export async function getSiteSettings() {
+// Cached per request: the layout, the page and the interface texts all need it.
+export const getSiteSettings = cache(async () => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("site_settings")
@@ -10,6 +13,12 @@ export async function getSiteSettings() {
 
   if (error) throw error;
   return data;
+});
+
+/** Every interface text, with the owner's edits applied. */
+export async function getUiTexts() {
+  const settings = await getSiteSettings();
+  return mergeUiTexts(settings.ui_texts);
 }
 
 export async function getPublishedSections() {

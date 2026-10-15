@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Database } from "@/lib/supabase/types";
+import { T } from "@/components/UiTexts";
 
 type BlogCategory = Database["public"]["Tables"]["blog_categories"]["Row"];
 
@@ -22,7 +23,7 @@ export function BlogCategoryFilter({
   return (
     <nav aria-label="Categorie" className="flex gap-2 overflow-x-auto pb-1">
       <Link href="/blog" className={pillClass(!activeSlug)} aria-current={!activeSlug ? "page" : undefined}>
-        Tutti
+        <T k="blog.all" />
       </Link>
       {categories.map((category) => {
         const active = activeSlug === category.slug;

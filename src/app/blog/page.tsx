@@ -4,6 +4,7 @@ import { BlogPostCard } from "@/components/blog/BlogPostCard";
 import { BlogPagination } from "@/components/blog/BlogPagination";
 import { EditableText } from "@/components/edit/EditableText";
 import { PageBody, PageHeader } from "@/components/PageHeader";
+import { T } from "@/components/UiTexts";
 
 const PAGE_SIZE = 8;
 
@@ -26,7 +27,13 @@ export default async function BlogPage({
   return (
     <>
       <PageHeader
-        label={total === 0 ? "In arrivo" : `${total} ${total === 1 ? "articolo" : "articoli"}`}
+        label={
+          total === 0 ? (
+            <T k="blog.soon" />
+          ) : (
+            <T k={total === 1 ? "blog.count.one" : "blog.count.many"} vars={{ n: total }} />
+          )
+        }
         title={
           <EditableText
             value={settings.blog_title ?? "Blog"}

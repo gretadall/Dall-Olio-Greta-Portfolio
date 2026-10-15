@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getIsAdmin } from "@/lib/supabase/auth";
 import { isBrainAreaSlug, type BrainAreaSlug } from "@/lib/brain-areas";
+import { isUiTextKey } from "@/lib/ui-texts";
 
 const SITE_SETTINGS_TEXT_FIELDS = [
   "site_title",
@@ -211,6 +212,34 @@ export async function resetEntryGraphPosition(id: string) {
     .eq("id", id);
 
   if (error) throw new Error("Errore durante il ripristino della posizione.");
+
+  revalidatePath("/", "layout");
+}
+
+// Interface texts: one override per key, merged into site_settings.ui_texts.
+// An empty value removes the override, bringing back the default wording.
+export async function updateUiText(key: string, value: string) {
+  await requireAdmin();
+  if (!isUiTextKey(key)) throw new Error("Testo non modificabile.");
+
+  const supabase = await createClient();
+  const { data, error: readError } = await supabase
+    .from("site_settings")
+    .select("ui_texts")
+    .eq("id", true)
+    .single();
+  if (readError) throw new Error("Errore durante il caricamento dei testi.");
+
+  const next = { ...((data?.ui_texts ?? {}) as Record<string, unknown>) };
+  const trimmed = value.trim();
+  if (trimmed) next[key] = trimmed;
+  else delete next[key];
+
+  const { error } = await supabase
+    .from("site_settings")
+    .update({ ui_texts: next, updated_at: new Date().toISOString() } as never)
+    .eq("id", true);
+  if (error) throw new Error("Errore durante il salvataggio.");
 
   revalidatePath("/", "layout");
 }

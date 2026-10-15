@@ -4,6 +4,7 @@ import { getBlogPostBySlug } from "@/lib/queries";
 import { getMediaUrl } from "@/lib/supabase/media";
 import { formatItalianDate } from "@/lib/format-date";
 import { PageBody, PageHeader } from "@/components/PageHeader";
+import { T } from "@/components/UiTexts";
 
 export default async function BlogPostPage({
   params,
@@ -22,8 +23,8 @@ export default async function BlogPostPage({
   return (
     <>
       <PageHeader
-        back={{ href: "/blog", label: "Blog" }}
-        label={label || "Blog"}
+        back={{ href: "/blog", label: <T k="blog.back" /> }}
+        label={label || <T k="blog.back" />}
         title={post.title}
         intro={post.excerpt}
       />

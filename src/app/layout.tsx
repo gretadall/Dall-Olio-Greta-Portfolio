@@ -6,6 +6,8 @@ import { EditModeProvider } from "@/components/edit/EditModeProvider";
 import { EditToolbar } from "@/components/edit/EditToolbar";
 import { ColorPanel } from "@/components/edit/ColorPanel";
 import { getSiteSettings } from "@/lib/queries";
+import { mergeUiTexts } from "@/lib/ui-texts";
+import { UiTextsProvider } from "@/components/UiTexts";
 import { getIsAdmin } from "@/lib/supabase/auth";
 import "./globals.css";
 
@@ -55,6 +57,7 @@ export default async function RootLayout({
         `}</style>
       </head>
       <body className="flex min-h-full flex-col">
+        <UiTextsProvider texts={mergeUiTexts(settings.ui_texts)}>
         <EditModeProvider isAdmin={isAdmin}>
           <Nav
             siteTitle={settings.site_title}
@@ -79,6 +82,7 @@ export default async function RootLayout({
             </>
           )}
         </EditModeProvider>
+        </UiTextsProvider>
       </body>
     </html>
   );
