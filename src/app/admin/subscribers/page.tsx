@@ -13,10 +13,10 @@ export default async function AdminSubscribersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Iscritti</h1>
+      <h1 className="font-serif text-4xl">Iscritti</h1>
 
       {followers.length === 0 ? (
-        <p className="mt-8 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-8 text-sm text-muted">
           Nessun iscritto ancora.
         </p>
       ) : (
@@ -24,17 +24,17 @@ export default async function AdminSubscribersPage() {
           {followers.map((follow) => (
             <li
               key={follow.user_id}
-              className="flex items-center justify-between gap-4 rounded-lg border border-black/[.08] p-4 dark:border-white/[.145]"
+              className="flex items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-4"
             >
               <div>
                 <div className="text-sm font-medium">
                   {follow.profiles?.display_name ?? follow.profiles?.email}
                 </div>
-                <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                <div className="text-xs text-muted">
                   {follow.profiles?.email}
                 </div>
               </div>
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              <span className="text-xs text-muted">
                 iscritto il {formatDate(follow.created_at)}
               </span>
             </li>

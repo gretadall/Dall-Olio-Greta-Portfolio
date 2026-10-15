@@ -10,10 +10,10 @@ export default async function AdminTravelPinsPage() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-serif text-4xl">
             Luoghi visitati
           </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-muted">
             Le bandierine sul globo nella sezione Viaggi. Collega un luogo a
             un contenuto per renderlo cliccabile, oppure lascialo come
             semplice punto sulla mappa.
@@ -21,20 +21,20 @@ export default async function AdminTravelPinsPage() {
         </div>
         <Link
           href="/admin/travel-pins/new"
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium whitespace-nowrap text-white"
+          className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-black transition-transform hover:scale-[1.03]"
         >
           Nuovo luogo
         </Link>
       </div>
 
       {pins.length === 0 ? (
-        <p className="mt-8 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-8 text-sm text-muted">
           Nessun luogo ancora. Aggiungi il primo per farlo comparire sul
           globo.
         </p>
       ) : (
         <div className="mt-6">
-          <p className="mb-3 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mb-3 text-sm text-muted">
             Trascina l&apos;icona ⠿ per riordinare i luoghi.
           </p>
           <TravelPinsAdminList

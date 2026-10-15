@@ -15,10 +15,10 @@ export default async function AdminCommentsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Commenti</h1>
+      <h1 className="font-serif text-4xl">Commenti</h1>
 
       {comments.length === 0 ? (
-        <p className="mt-8 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-8 text-sm text-muted">
           Nessun commento ancora.
         </p>
       ) : (
@@ -31,13 +31,13 @@ export default async function AdminCommentsPage() {
             return (
               <li
                 key={comment.id}
-                className="rounded-lg border border-black/[.08] p-4 dark:border-white/[.145]"
+                className="rounded-2xl border border-line bg-surface p-4"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <span className="text-sm font-medium">
                     {comment.profiles?.display_name ?? comment.profiles?.email}
                   </span>
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <span className="text-xs text-muted">
                     {formatDate(comment.created_at)}
                   </span>
                 </div>
@@ -45,13 +45,13 @@ export default async function AdminCommentsPage() {
                 {entryHref && (
                   <Link
                     href={entryHref}
-                    className="text-xs text-zinc-500 underline dark:text-zinc-400"
+                    className="text-xs text-muted underline"
                   >
                     {comment.entries?.title}
                   </Link>
                 )}
 
-                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <p className="mt-2 text-sm text-muted">
                   {comment.body}
                 </p>
 
@@ -65,7 +65,7 @@ export default async function AdminCommentsPage() {
                   >
                     <button
                       type="submit"
-                      className="rounded border border-black/[.12] px-3 py-1 text-xs dark:border-white/[.16]"
+                      className="rounded-full border border-line px-3 py-1 text-xs transition-colors hover:border-primary hover:text-primary"
                     >
                       {comment.is_hidden ? "Mostra" : "Nascondi"}
                     </button>
@@ -73,7 +73,7 @@ export default async function AdminCommentsPage() {
                   <form action={deleteComment.bind(null, comment.id)}>
                     <button
                       type="submit"
-                      className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
+                      className="rounded-full border border-red-500/40 px-3 py-1 text-xs text-red-400 transition-colors hover:bg-red-500/10"
                     >
                       Elimina
                     </button>

@@ -7,7 +7,7 @@ export default async function NewBlogPostPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Nuovo articolo</h1>
+      <h1 className="font-serif text-4xl">Nuovo articolo</h1>
       <BlogPostForm
         categories={categories}
         action={createPost}

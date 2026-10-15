@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminNav } from "@/components/admin/AdminNav";
@@ -23,9 +24,15 @@ export default async function AdminLayout({
   if (!profile?.is_admin) redirect("/");
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-6 py-12">
+    <div className="mx-auto w-full max-w-5xl px-5 py-10 sm:px-8 sm:py-14">
+      <div className="mb-6 flex flex-wrap items-baseline justify-between gap-2">
+        <p className="font-serif text-lg text-primary italic">✦ pannello admin</p>
+        <Link href="/" className="text-sm text-muted transition-colors hover:text-foreground">
+          Torna al sito ↗
+        </Link>
+      </div>
       <AdminNav />
-      <div className="mt-8">{children}</div>
+      <div className="mt-10">{children}</div>
     </div>
   );
 }

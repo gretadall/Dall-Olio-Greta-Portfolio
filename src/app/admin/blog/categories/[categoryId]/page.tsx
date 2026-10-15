@@ -20,12 +20,12 @@ export default async function EditBlogCategoryPage({
     <div>
       <Link
         href="/admin/blog/categories"
-        className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+        className="text-sm text-muted transition-colors hover:text-foreground"
       >
         ← Categorie blog
       </Link>
 
-      <h1 className="mt-4 text-2xl font-semibold tracking-tight">
+      <h1 className="mt-4 font-serif text-4xl">
         {category.name}
       </h1>
 

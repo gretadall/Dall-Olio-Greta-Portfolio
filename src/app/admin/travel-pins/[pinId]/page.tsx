@@ -32,12 +32,12 @@ export default async function EditTravelPinPage({
     <div>
       <Link
         href="/admin/travel-pins"
-        className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+        className="text-sm text-muted transition-colors hover:text-foreground"
       >
         ← Luoghi visitati
       </Link>
 
-      <h1 className="mt-4 text-2xl font-semibold tracking-tight">
+      <h1 className="mt-4 font-serif text-4xl">
         {pin.label}
       </h1>
 
@@ -48,11 +48,11 @@ export default async function EditTravelPinPage({
         submitLabel="Salva luogo"
       />
 
-      <div className="mt-12 max-w-md border-t border-black/[.08] pt-8 dark:border-white/[.145]">
-        <h2 className="text-lg font-semibold tracking-tight">
+      <div className="mt-8 max-w-md rounded-2xl border border-line bg-surface p-6">
+        <h2 className="font-serif text-2xl">
           Foto del luogo
         </h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           Compare nella vignetta quando qualcuno clicca su questa bandierina
           sul globo.
         </p>
@@ -68,7 +68,7 @@ export default async function EditTravelPinPage({
             <form action={boundRemovePhoto} className="mt-3">
               <button
                 type="submit"
-                className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
+                className="rounded-full border border-red-500/40 px-3 py-1 text-xs text-red-400 transition-colors hover:bg-red-500/10"
               >
                 Rimuovi foto
               </button>

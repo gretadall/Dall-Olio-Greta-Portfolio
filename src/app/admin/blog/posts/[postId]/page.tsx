@@ -28,12 +28,12 @@ export default async function EditBlogPostPage({
     <div>
       <Link
         href="/admin/blog/posts"
-        className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+        className="text-sm text-muted transition-colors hover:text-foreground"
       >
         ← Blog
       </Link>
 
-      <h1 className="mt-4 text-2xl font-semibold tracking-tight">
+      <h1 className="mt-4 font-serif text-4xl">
         {post.title}
       </h1>
 
@@ -44,8 +44,8 @@ export default async function EditBlogPostPage({
         submitLabel="Salva articolo"
       />
 
-      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
-        <h2 className="text-lg font-semibold tracking-tight">Copertina</h2>
+      <div className="mt-8 rounded-2xl border border-line bg-surface p-6">
+        <h2 className="font-serif text-2xl">Copertina</h2>
         {post.cover_image_path && (
           <>
             <Image
@@ -58,7 +58,7 @@ export default async function EditBlogPostPage({
             <form action={boundRemoveCover} className="mt-3">
               <button
                 type="submit"
-                className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
+                className="rounded-full border border-red-500/40 px-3 py-1 text-xs text-red-400 transition-colors hover:bg-red-500/10"
               >
                 Rimuovi copertina
               </button>

@@ -82,11 +82,11 @@ export function PhotoUploadForm({
         onChange={handleFileChange}
         className="text-sm"
       />
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
       <button
         type="submit"
         disabled={busy}
-        className="self-start rounded-lg border border-black/[.12] px-4 py-2 text-sm font-medium disabled:opacity-60 dark:border-white/[.16]"
+        className="self-start rounded-full border border-line px-5 py-2.5 text-sm font-medium transition-colors hover:border-primary hover:text-primary disabled:opacity-60"
       >
         {busy
           ? processing

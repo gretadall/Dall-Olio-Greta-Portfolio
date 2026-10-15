@@ -8,13 +8,13 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-24">
-      <h1 className="text-2xl font-semibold tracking-tight">Accedi</h1>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+      <h1 className="font-serif text-4xl">Accedi</h1>
+      <p className="mt-2 text-sm text-muted">
         Ricevi un link di accesso via email, senza password.
       </p>
 
       {state?.success ? (
-        <p className="mt-8 text-sm text-zinc-700 dark:text-zinc-300">
+        <p className="mt-8 text-sm text-foreground">
           Controlla la tua casella email: ti abbiamo inviato un link per
           accedere.
         </p>
@@ -25,15 +25,15 @@ export default function LoginPage() {
             name="email"
             required
             placeholder="tuemail@esempio.com"
-            className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+            className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
           />
           {state?.error && (
-            <p className="text-sm text-red-600">{state.error}</p>
+            <p className="text-sm text-red-400">{state.error}</p>
           )}
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+            className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-black transition-transform hover:scale-[1.03] disabled:opacity-60"
           >
             {pending ? "Invio…" : "Invia il link di accesso"}
           </button>

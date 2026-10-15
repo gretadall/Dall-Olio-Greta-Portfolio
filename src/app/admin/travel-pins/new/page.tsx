@@ -7,7 +7,7 @@ export default async function NewTravelPinPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Nuovo luogo</h1>
+      <h1 className="font-serif text-4xl">Nuovo luogo</h1>
       <TravelPinForm
         entries={entries.map((e) => ({ id: e.id, title: e.title }))}
         action={createTravelPin}

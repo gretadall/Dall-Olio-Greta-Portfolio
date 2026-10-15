@@ -25,11 +25,11 @@ export function BlogPostsAdminList({
       items={posts}
       onReorder={onReorder}
       renderItem={(post, dragHandle) => (
-        <div className="flex items-center justify-between gap-4 rounded-lg border border-black/[.08] p-4 dark:border-white/[.145]">
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-4">
           <div className="flex min-w-0 items-center gap-3">
             <span
               onPointerDown={dragHandle.onPointerDown}
-              className="touch-none cursor-grab select-none px-1 text-lg text-zinc-400 active:cursor-grabbing"
+              className="touch-none cursor-grab select-none px-1 text-lg text-muted active:cursor-grabbing"
               aria-label="Trascina per riordinare"
             >
               ⠿
@@ -38,7 +38,7 @@ export function BlogPostsAdminList({
               <div className="flex items-center gap-2">
                 <span className="font-medium">{post.title}</span>
                 {!post.is_published && (
-                  <span className="rounded bg-yellow-500/15 px-2 py-0.5 text-xs text-yellow-700 dark:text-yellow-400">
+                  <span className="rounded bg-yellow-500/15 px-2 py-0.5 text-xs text-yellow-400">
                     Bozza
                   </span>
                 )}
@@ -51,7 +51,7 @@ export function BlogPostsAdminList({
                   </span>
                 )}
               </div>
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              <span className="text-xs text-muted">
                 /blog/{post.slug}
               </span>
             </div>
@@ -60,14 +60,14 @@ export function BlogPostsAdminList({
           <div className="flex shrink-0 items-center gap-2">
             <Link
               href={`/admin/blog/posts/${post.id}`}
-              className="rounded border border-black/[.12] px-3 py-1 text-xs dark:border-white/[.16]"
+              className="rounded-full border border-line px-3 py-1 text-xs transition-colors hover:border-primary hover:text-primary"
             >
               Modifica
             </Link>
             <button
               type="button"
               onClick={() => onDelete(post.id)}
-              className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
+              className="rounded-full border border-red-500/40 px-3 py-1 text-xs text-red-400 transition-colors hover:bg-red-500/10"
             >
               Elimina
             </button>

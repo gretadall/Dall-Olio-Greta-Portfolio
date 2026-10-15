@@ -9,24 +9,24 @@ export default async function AdminBlogCategoriesPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="font-serif text-4xl">
           Categorie blog
         </h1>
         <Link
           href="/admin/blog/categories/new"
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white"
+          className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-black transition-transform hover:scale-[1.03]"
         >
           Nuova categoria
         </Link>
       </div>
 
       {categories.length === 0 ? (
-        <p className="mt-8 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-8 text-sm text-muted">
           Nessuna categoria ancora.
         </p>
       ) : (
         <div className="mt-6">
-          <p className="mb-3 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mb-3 text-sm text-muted">
             Trascina l&apos;icona ⠿ per riordinare le categorie.
           </p>
           <BlogCategoriesAdminList

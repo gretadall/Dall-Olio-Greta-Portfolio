@@ -27,10 +27,10 @@ function ToolbarButton({
       aria-label={label}
       title={label}
       onClick={onClick}
-      className={`rounded px-2 py-1 text-sm ${
+      className={`rounded-md px-2 py-1 text-sm ${
         active
-          ? "bg-primary text-white"
-          : "text-zinc-600 hover:bg-black/[.06] dark:text-zinc-300 dark:hover:bg-white/[.1]"
+          ? "bg-primary text-black"
+          : "text-muted hover:bg-foreground/10 hover:text-foreground"
       }`}
     >
       {children}
@@ -72,7 +72,7 @@ export function RichBodyEditor({
     editorProps: {
       attributes: {
         class:
-          "rich-content min-h-[200px] rounded-b-lg border border-t-0 border-black/[.12] px-4 py-3 text-sm outline-none dark:border-white/[.16]",
+          "rich-content min-h-[200px] rounded-b-xl border border-t-0 border-line bg-surface px-4 py-3 text-sm outline-none",
       },
     },
     onUpdate: ({ editor }: { editor: Editor }) => {
@@ -154,7 +154,7 @@ export function RichBodyEditor({
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-1 rounded-t-lg border border-black/[.12] bg-zinc-50 p-2 dark:border-white/[.16] dark:bg-zinc-900">
+      <div className="flex flex-wrap items-center gap-1 rounded-t-xl border border-line bg-surface p-2">
         <ToolbarButton
           label="Grassetto"
           active={editor.isActive("bold")}
@@ -209,7 +209,7 @@ export function RichBodyEditor({
           🔗
         </ToolbarButton>
 
-        <label className="cursor-pointer rounded px-2 py-1 text-sm text-zinc-600 hover:bg-black/[.06] dark:text-zinc-300 dark:hover:bg-white/[.1]">
+        <label className="cursor-pointer rounded-md px-2 py-1 text-sm text-muted hover:bg-foreground/10 hover:text-foreground">
           🖼 Immagine
           <input
             type="file"
@@ -222,35 +222,35 @@ export function RichBodyEditor({
         <button
           type="button"
           onClick={() => setVideoPromptOpen((v) => !v)}
-          className="rounded px-2 py-1 text-sm text-zinc-600 hover:bg-black/[.06] dark:text-zinc-300 dark:hover:bg-white/[.1]"
+          className="rounded-md px-2 py-1 text-sm text-muted hover:bg-foreground/10 hover:text-foreground"
         >
           🎬 Video
         </button>
 
         {uploading && (
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+          <span className="text-xs text-muted">
             Caricamento…
           </span>
         )}
       </div>
 
       {videoPromptOpen && (
-        <div className="flex flex-wrap items-center gap-2 border-x border-black/[.12] bg-zinc-50 p-2 text-sm dark:border-white/[.16] dark:bg-zinc-900">
+        <div className="flex flex-wrap items-center gap-2 border-x border-line bg-surface p-2 text-sm">
           <input
             value={videoUrl}
             onChange={(e) => setVideoUrl(e.target.value)}
             placeholder="Incolla link YouTube o Vimeo"
-            className="flex-1 rounded border border-black/[.12] bg-transparent px-2 py-1 text-sm outline-none dark:border-white/[.16]"
+            className="flex-1 rounded-lg border border-line bg-surface px-2 py-1 text-sm outline-none focus:border-primary"
           />
           <button
             type="button"
             onClick={handleVideoUrlSubmit}
-            className="rounded border border-black/[.12] px-3 py-1 dark:border-white/[.16]"
+            className="rounded-full border border-line px-3 py-1"
           >
             Inserisci link
           </button>
-          <span className="text-zinc-500 dark:text-zinc-400">oppure</span>
-          <label className="cursor-pointer rounded border border-black/[.12] px-3 py-1 dark:border-white/[.16]">
+          <span className="text-muted">oppure</span>
+          <label className="cursor-pointer rounded-full border border-line px-3 py-1">
             Carica file
             <input
               type="file"
@@ -259,7 +259,7 @@ export function RichBodyEditor({
               onChange={handleVideoFilePick}
             />
           </label>
-          {videoError && <p className="w-full text-xs text-red-600">{videoError}</p>}
+          {videoError && <p className="w-full text-xs text-red-400">{videoError}</p>}
         </div>
       )}
 

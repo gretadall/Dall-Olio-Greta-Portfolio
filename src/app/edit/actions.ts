@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getIsAdmin } from "@/lib/supabase/auth";
-import type { HomeLayout } from "@/lib/supabase/types";
 import { isBrainAreaSlug, type BrainAreaSlug } from "@/lib/brain-areas";
 
 const SITE_SETTINGS_TEXT_FIELDS = [
@@ -39,19 +38,9 @@ const SITE_SETTINGS_REQUIRED_TEXT_FIELDS = new Set<SiteSettingsTextField>([
   "blog_title",
 ]);
 
-const SITE_SETTINGS_COLOR_FIELDS = [
-  "primary_color",
-  "accent_color",
-  "background_color",
-  "font_color",
-  "muted_color",
-  "nav_title_color",
-] as const;
+const SITE_SETTINGS_COLOR_FIELDS = ["primary_color", "background_color", "font_color"] as const;
 
-const SITE_SETTINGS_REQUIRED_COLOR_FIELDS = new Set<SiteSettingsColorField>([
-  "primary_color",
-  "accent_color",
-]);
+const SITE_SETTINGS_REQUIRED_COLOR_FIELDS = new Set<SiteSettingsColorField>(["primary_color"]);
 
 export type SiteSettingsTextField = (typeof SITE_SETTINGS_TEXT_FIELDS)[number];
 export type SiteSettingsColorField = (typeof SITE_SETTINGS_COLOR_FIELDS)[number];
@@ -222,135 +211,6 @@ export async function resetEntryGraphPosition(id: string) {
     .eq("id", id);
 
   if (error) throw new Error("Errore durante il ripristino della posizione.");
-
-  revalidatePath("/", "layout");
-}
-
-const HOME_LAYOUT_SLOTS = [
-  "intro.photo",
-  "intro.text",
-  "vision.heading",
-  "vision.body",
-  "title",
-  "teaser",
-  "square.vision",
-  "square.valori",
-  "square.hobby",
-  "square.formazione",
-  "nav.brand",
-  "nav.buttons",
-] as const;
-
-const HOME_LAYOUT_LIMIT = 150;
-
-export type HomeLayoutTarget =
-  | { table: "site_settings" }
-  | { table: "sections"; id: string };
-
-async function loadHomeLayout(target: HomeLayoutTarget) {
-  const supabase = await createClient();
-  const query =
-    target.table === "site_settings"
-      ? supabase.from("site_settings").select("home_layout").eq("id", true)
-      : supabase.from("sections").select("home_layout").eq("id", target.id);
-
-  const { data, error } = await query.single();
-  if (error) throw new Error("Errore durante il caricamento della posizione.");
-  return { supabase, current: (data?.home_layout ?? {}) as HomeLayout };
-}
-
-async function saveHomeLayout(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  target: HomeLayoutTarget,
-  layout: HomeLayout
-) {
-  const query =
-    target.table === "site_settings"
-      ? supabase
-          .from("site_settings")
-          .update({ home_layout: layout, updated_at: new Date().toISOString() } as never)
-          .eq("id", true)
-      : supabase
-          .from("sections")
-          .update({ home_layout: layout, updated_at: new Date().toISOString() } as never)
-          .eq("id", target.id);
-
-  const { error } = await query;
-  if (error) throw new Error("Errore durante il salvataggio della posizione.");
-}
-
-export async function updateHomeLayoutPosition(
-  target: HomeLayoutTarget,
-  slotKey: string,
-  x: number,
-  y: number
-) {
-  await requireAdmin();
-  if (!(HOME_LAYOUT_SLOTS as readonly string[]).includes(slotKey)) {
-    throw new Error("Elemento non spostabile.");
-  }
-
-  const clamp = (n: number) =>
-    Math.max(-HOME_LAYOUT_LIMIT, Math.min(HOME_LAYOUT_LIMIT, Math.round(n)));
-
-  const { supabase, current } = await loadHomeLayout(target);
-  const next = { ...current, [slotKey]: { x: clamp(x), y: clamp(y) } };
-  await saveHomeLayout(supabase, target, next);
-
-  revalidatePath("/", "layout");
-}
-
-export async function resetHomeLayoutPosition(
-  target: HomeLayoutTarget,
-  slotKey: string
-) {
-  await requireAdmin();
-
-  const { supabase, current } = await loadHomeLayout(target);
-  const next = { ...current };
-  delete next[slotKey];
-  await saveHomeLayout(supabase, target, next);
-
-  revalidatePath("/", "layout");
-}
-
-export async function resetAllHomeLayouts() {
-  await requireAdmin();
-
-  const supabase = await createClient();
-  const [settingsResult, sectionsResult] = await Promise.all([
-    supabase
-      .from("site_settings")
-      .update({ home_layout: {}, updated_at: new Date().toISOString() } as never)
-      .eq("id", true),
-    supabase
-      .from("sections")
-      .update({ home_layout: {}, updated_at: new Date().toISOString() } as never)
-      .neq("id", "00000000-0000-0000-0000-000000000000"),
-  ]);
-
-  if (settingsResult.error || sectionsResult.error) {
-    throw new Error("Errore durante l'azzeramento delle posizioni.");
-  }
-
-  revalidatePath("/", "layout");
-}
-
-export async function updateLogoGlowIntensity(value: number) {
-  await requireAdmin();
-
-  const clamped = Math.max(0, Math.min(100, Math.round(value)));
-
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("site_settings")
-    .update({
-      logo_glow_intensity: clamped,
-      updated_at: new Date().toISOString(),
-    } as never)
-    .eq("id", true);
-
-  if (error) throw new Error("Errore durante il salvataggio.");
 
   revalidatePath("/", "layout");
 }

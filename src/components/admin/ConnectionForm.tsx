@@ -39,7 +39,7 @@ export function ConnectionForm({
           name="to_entry_id"
           required
           defaultValue=""
-          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         >
           <option value="" disabled>
             Scegli un contenuto…
@@ -61,7 +61,7 @@ export function ConnectionForm({
         <input
           name="label"
           placeholder="ha rafforzato"
-          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         />
       </label>
 
@@ -70,12 +70,12 @@ export function ConnectionForm({
         Collegamento bidirezionale (vale in entrambe le direzioni)
       </label>
 
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
 
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+        className="self-start rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-black transition-transform hover:scale-[1.03] disabled:opacity-60"
       >
         {pending ? "Collegamento…" : "Aggiungi collegamento"}
       </button>

@@ -17,8 +17,8 @@ export default async function AdminRetePage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Rete</h1>
-      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+      <h1 className="font-serif text-4xl">Rete</h1>
+      <p className="mt-1 text-sm text-muted">
         Anteprima della rete 3D. Attiva la modalità modifica per trascinare i
         punti sulla superficie del cervello (trascinarlo in una zona diversa
         ne aggiorna anche l&apos;area cerebrale) o modificare il testo delle
@@ -26,7 +26,7 @@ export default async function AdminRetePage() {
       </p>
 
       {nodes.length === 0 ? (
-        <p className="mt-8 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-8 text-sm text-muted">
           Nessun contenuto ancora.
         </p>
       ) : (

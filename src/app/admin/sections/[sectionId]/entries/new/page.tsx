@@ -17,7 +17,7 @@ export default async function NewEntryPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">
+      <h1 className="font-serif text-4xl">
         Nuovo contenuto — {section.title}
       </h1>
       <EntryForm action={boundCreate} submitLabel="Crea contenuto" />

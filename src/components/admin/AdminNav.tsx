@@ -1,35 +1,43 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+// The Rete (3D graph) admin page still exists at /admin/rete but is left out
+// of the menu while the graph is hidden from the public site.
+const LINKS = [
+  { href: "/admin", label: "Panoramica", exact: true },
+  { href: "/admin/sections", label: "Sezioni" },
+  { href: "/admin/travel-pins", label: "Luoghi" },
+  { href: "/admin/blog/posts", label: "Blog" },
+  { href: "/admin/blog/categories", label: "Categorie blog" },
+  { href: "/admin/comments", label: "Commenti" },
+  { href: "/admin/subscribers", label: "Iscritti" },
+  { href: "/admin/settings", label: "Impostazioni" },
+];
 
 export function AdminNav() {
+  const pathname = usePathname();
+
   return (
-    <nav className="flex flex-wrap gap-4 border-b border-black/[.08] pb-4 text-sm dark:border-white/[.145]">
-      <Link href="/admin" className="hover:underline">
-        Dashboard
-      </Link>
-      <Link href="/admin/sections" className="hover:underline">
-        Sezioni
-      </Link>
-      <Link href="/admin/blog/posts" className="hover:underline">
-        Blog
-      </Link>
-      <Link href="/admin/blog/categories" className="hover:underline">
-        Categorie blog
-      </Link>
-      <Link href="/admin/rete" className="hover:underline">
-        Rete
-      </Link>
-      <Link href="/admin/travel-pins" className="hover:underline">
-        Luoghi
-      </Link>
-      <Link href="/admin/comments" className="hover:underline">
-        Commenti
-      </Link>
-      <Link href="/admin/subscribers" className="hover:underline">
-        Iscritti
-      </Link>
-      <Link href="/admin/settings" className="hover:underline">
-        Impostazioni
-      </Link>
+    <nav aria-label="Admin" className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+      {LINKS.map(({ href, label, exact }) => {
+        const active = exact ? pathname === href : pathname.startsWith(href);
+        return (
+          <Link
+            key={href}
+            href={href}
+            aria-current={active ? "page" : undefined}
+            className={`shrink-0 rounded-full border px-4 py-1.5 text-sm transition-colors ${
+              active
+                ? "border-primary bg-primary/15 text-primary"
+                : "border-line text-muted hover:border-foreground/40 hover:text-foreground"
+            }`}
+          >
+            {label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }

@@ -31,7 +31,7 @@ export function EntryForm({
           name="title"
           required
           defaultValue={entry?.title}
-          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         />
       </label>
 
@@ -40,7 +40,7 @@ export function EntryForm({
         <input
           name="slug"
           defaultValue={entry?.slug}
-          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         />
       </label>
 
@@ -51,7 +51,7 @@ export function EntryForm({
             type="date"
             name="period_start"
             defaultValue={entry?.period_start ?? ""}
-            className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+            className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
           />
         </label>
         <label className="flex flex-1 flex-col gap-1 text-sm">
@@ -60,7 +60,7 @@ export function EntryForm({
             type="date"
             name="period_end"
             defaultValue={entry?.period_end ?? ""}
-            className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+            className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
           />
         </label>
       </div>
@@ -70,7 +70,7 @@ export function EntryForm({
         <input
           name="location"
           defaultValue={entry?.location ?? ""}
-          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         />
       </label>
 
@@ -80,7 +80,7 @@ export function EntryForm({
           name="description"
           rows={2}
           defaultValue={entry?.description ?? ""}
-          className="resize-none rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="resize-none rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         />
       </label>
 
@@ -93,9 +93,9 @@ export function EntryForm({
             <textarea
               name="body"
               rows={6}
-              className="resize-none rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+              className="resize-none rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
             />
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="text-xs text-muted">
               Dopo aver creato il contenuto potrai formattarlo con l&apos;editor
               completo e aggiungere foto/video direttamente nel testo.
             </span>
@@ -108,7 +108,7 @@ export function EntryForm({
         <select
           name="brain_area"
           defaultValue={entry?.brain_area ?? ""}
-          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         >
           <option value="">— Automatica —</option>
           {BRAIN_AREAS.map((area) => (
@@ -128,12 +128,12 @@ export function EntryForm({
         Pubblicato
       </label>
 
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
 
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+        className="self-start rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-black transition-transform hover:scale-[1.03] disabled:opacity-60"
       >
         {pending ? "Salvataggio…" : submitLabel}
       </button>

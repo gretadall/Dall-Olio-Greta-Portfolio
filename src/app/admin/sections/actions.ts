@@ -14,70 +14,29 @@ function readSectionForm(formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();
   const icon = String(formData.get("icon") ?? "").trim();
   const ctaLabel = String(formData.get("cta_label") ?? "").trim();
-  const color = String(formData.get("color") ?? "").trim();
   const isPublished = formData.get("is_published") === "on";
-  const backgroundOpacity = Number(formData.get("background_opacity") ?? 100);
-  const homeOverlayDarkness = Number(formData.get("home_overlay_darkness") ?? 55);
-  const pagePlacementInput = String(formData.get("page_placement") ?? "standalone").trim();
   const slug = slugify(slugInput || title);
 
-  return {
-    title,
-    slug,
-    description,
-    icon,
-    ctaLabel,
-    color,
-    isPublished,
-    backgroundOpacity,
-    homeOverlayDarkness,
-    pagePlacementInput,
-  };
+  return { title, slug, description, icon, ctaLabel, isPublished };
 }
 
-const PAGE_PLACEMENTS = ["standalone", "chi_sono"] as const;
-type PagePlacement = (typeof PAGE_PLACEMENTS)[number];
-
-function isPagePlacement(value: string): value is PagePlacement {
-  return (PAGE_PLACEMENTS as readonly string[]).includes(value);
-}
-
-export async function createSection(
-  _prevState: FormState,
-  formData: FormData
-): Promise<FormState> {
-  const {
-    title,
-    slug,
-    description,
-    icon,
-    ctaLabel,
-    color,
-    isPublished,
-    backgroundOpacity,
-    homeOverlayDarkness,
-    pagePlacementInput,
-  } = readSectionForm(formData);
-
+function validate(title: string, slug: string): FormState {
   if (!title) return { error: "Il titolo è obbligatorio." };
   if (!slug) return { error: "Slug non valido." };
   if (RESERVED_SLUGS.includes(slug)) {
     return { error: `Lo slug "${slug}" è riservato, scegline un altro.` };
   }
-  if (!Number.isFinite(backgroundOpacity) || backgroundOpacity < 0 || backgroundOpacity > 100) {
-    return { error: "Opacità sfondo non valida." };
-  }
-  if (
-    !Number.isFinite(homeOverlayDarkness) ||
-    homeOverlayDarkness < 0 ||
-    homeOverlayDarkness > 100
-  ) {
-    return { error: "Scurità sfondo in home non valida." };
-  }
-  if (!isPagePlacement(pagePlacementInput)) {
-    return { error: "Valore non valido per \"Dove appare\"." };
-  }
-  const pagePlacement = pagePlacementInput;
+}
+
+// Only the fields the site still uses: older columns (graph color, background
+// opacity, placement) keep their stored values.
+export async function createSection(
+  _prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const { title, slug, description, icon, ctaLabel, isPublished } = readSectionForm(formData);
+  const invalid = validate(title, slug);
+  if (invalid) return invalid;
 
   const supabase = await createClient();
   const { error } = await supabase.from("sections").insert({
@@ -86,11 +45,7 @@ export async function createSection(
     description: description || null,
     icon: icon || null,
     cta_label: ctaLabel || "Scopri tutto",
-    color: color || null,
     is_published: isPublished,
-    background_opacity: backgroundOpacity,
-    home_overlay_darkness: homeOverlayDarkness,
-    page_placement: pagePlacement,
   });
 
   if (error) {
@@ -112,38 +67,9 @@ export async function updateSection(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const {
-    title,
-    slug,
-    description,
-    icon,
-    ctaLabel,
-    color,
-    isPublished,
-    backgroundOpacity,
-    homeOverlayDarkness,
-    pagePlacementInput,
-  } = readSectionForm(formData);
-
-  if (!title) return { error: "Il titolo è obbligatorio." };
-  if (!slug) return { error: "Slug non valido." };
-  if (RESERVED_SLUGS.includes(slug)) {
-    return { error: `Lo slug "${slug}" è riservato, scegline un altro.` };
-  }
-  if (!Number.isFinite(backgroundOpacity) || backgroundOpacity < 0 || backgroundOpacity > 100) {
-    return { error: "Opacità sfondo non valida." };
-  }
-  if (
-    !Number.isFinite(homeOverlayDarkness) ||
-    homeOverlayDarkness < 0 ||
-    homeOverlayDarkness > 100
-  ) {
-    return { error: "Scurità sfondo in home non valida." };
-  }
-  if (!isPagePlacement(pagePlacementInput)) {
-    return { error: "Valore non valido per \"Dove appare\"." };
-  }
-  const pagePlacement = pagePlacementInput;
+  const { title, slug, description, icon, ctaLabel, isPublished } = readSectionForm(formData);
+  const invalid = validate(title, slug);
+  if (invalid) return invalid;
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -154,11 +80,7 @@ export async function updateSection(
       description: description || null,
       icon: icon || null,
       cta_label: ctaLabel || "Scopri tutto",
-      color: color || null,
       is_published: isPublished,
-      background_opacity: backgroundOpacity,
-      home_overlay_darkness: homeOverlayDarkness,
-      page_placement: pagePlacement,
       updated_at: new Date().toISOString(),
     })
     .eq("id", sectionId);

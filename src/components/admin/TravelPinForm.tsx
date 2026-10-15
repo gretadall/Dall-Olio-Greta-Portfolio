@@ -32,7 +32,7 @@ export function TravelPinForm({
           required
           defaultValue={pin?.label}
           placeholder="es. Reykjavík"
-          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         />
       </label>
 
@@ -42,7 +42,7 @@ export function TravelPinForm({
           name="country"
           defaultValue={pin?.country ?? ""}
           placeholder="es. Islanda"
-          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         />
       </label>
 
@@ -56,7 +56,7 @@ export function TravelPinForm({
             required
             defaultValue={pin?.lat}
             placeholder="64.1466"
-            className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+            className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
           />
         </label>
         <label className="flex flex-1 flex-col gap-1 text-sm">
@@ -68,11 +68,11 @@ export function TravelPinForm({
             required
             defaultValue={pin?.lng}
             placeholder="-21.9426"
-            className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+            className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
           />
         </label>
       </div>
-      <p className="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="-mt-2 text-xs text-muted">
         Trova le coordinate cercando il nome del luogo su Google Maps: tasto
         destro sul punto → sono i due numeri in cima al menu.
       </p>
@@ -82,7 +82,7 @@ export function TravelPinForm({
         <select
           name="entry_id"
           defaultValue={pin?.entry_id ?? ""}
-          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         >
           <option value="">Nessuno — solo un punto sul globo</option>
           {entries.map((entry) => (
@@ -91,7 +91,7 @@ export function TravelPinForm({
             </option>
           ))}
         </select>
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+        <span className="text-xs text-muted">
           Se lo colleghi, la bandierina sul globo aprirà quel racconto.
         </span>
       </label>
@@ -105,12 +105,12 @@ export function TravelPinForm({
         Pubblicato
       </label>
 
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
 
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+        className="self-start rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-black transition-transform hover:scale-[1.03] disabled:opacity-60"
       >
         {pending ? "Salvataggio…" : submitLabel}
       </button>

@@ -4,168 +4,47 @@ import { getMediaUrl } from "@/lib/supabase/media";
 import { SettingsForm } from "@/components/admin/SettingsForm";
 import { HomeContentForm } from "@/components/admin/HomeContentForm";
 import { PhotoUploadForm } from "@/components/admin/PhotoUploadForm";
-import {
-  uploadHeroPhoto,
-  uploadHeroBackground,
-  removeHeroBackground,
-  uploadBackgroundImage,
-  removeBackgroundImage,
-  uploadSplashImage,
-  removeSplashImage,
-} from "./actions";
+import { cardClass } from "@/components/admin/ui";
+import { uploadHeroPhoto } from "./actions";
 
 export default async function AdminSettingsPage() {
   const settings = await getSiteSettings();
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Impostazioni</h1>
-      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-        Personalizza titolo, colori e font del sito.
-      </p>
-      <SettingsForm settings={settings} />
-
-      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
-        <h2 className="text-lg font-semibold tracking-tight">
-          Contenuti home (Vision, Valori, Formazione)
-        </h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          I testi mostrati nei quadrati della home. Valori e Formazione hanno
-          un&apos;anteprima sempre visibile e un testo esteso dietro la
-          freccina.
-        </p>
-        <HomeContentForm settings={settings} />
+    <div className="flex flex-col gap-8">
+      <div>
+        <h1 className="font-serif text-4xl">Impostazioni</h1>
+        <p className="mt-2 text-sm text-muted">Testi, colori e contatti del sito.</p>
       </div>
 
-      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
-        <h2 className="text-lg font-semibold tracking-tight">Foto profilo</h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Grandezza e forma si regolano qui sopra, tra i colori.
-        </p>
-        {settings.hero_photo_path && (
-          <Image
-            src={getMediaUrl(settings.hero_photo_path)}
-            alt="Foto profilo"
-            width={settings.hero_photo_size ?? 96}
-            height={settings.hero_photo_size ?? 96}
-            style={{
-              width: settings.hero_photo_size ?? 96,
-              height: settings.hero_photo_size ?? 96,
-              borderRadius: `${settings.hero_photo_radius ?? 50}%`,
-            }}
-            className="mt-4 object-cover"
-          />
-        )}
-        <div className="mt-4">
-          <PhotoUploadForm action={uploadHeroPhoto} submitLabel="Carica foto" />
-        </div>
-      </div>
+      <section className={cardClass}>
+        <h2 className="mb-5 font-serif text-2xl">Generali</h2>
+        <SettingsForm settings={settings} />
+      </section>
 
-      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
-        <h2 className="text-lg font-semibold tracking-tight">
-          Sfondo blocco &quot;Chi sono&quot;
-        </h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Una foto dietro al primo blocco della home (nome e presentazione),
-          con lo stesso alone scuro delle altre sezioni. La scurità si
-          regola qui sopra, tra i colori.
+      <section className={cardClass}>
+        <h2 className="font-serif text-2xl">Foto profilo</h2>
+        <p className="mt-1 text-sm text-muted">
+          La foto grande della home e di &quot;Chi sono&quot;.
         </p>
-        {settings.hero_background_image_path && (
-          <>
+        <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-end">
+          {settings.hero_photo_path && (
             <Image
-              src={getMediaUrl(settings.hero_background_image_path)}
-              alt="Sfondo Chi sono"
-              width={240}
-              height={135}
-              className="mt-4 rounded-lg object-cover"
-            />
-            <form action={removeHeroBackground} className="mt-3">
-              <button
-                type="submit"
-                className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
-              >
-                Rimuovi sfondo
-              </button>
-            </form>
-          </>
-        )}
-        <div className="mt-4">
-          <PhotoUploadForm
-            action={uploadHeroBackground}
-            submitLabel="Carica sfondo"
-          />
-        </div>
-      </div>
-
-      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
-        <h2 className="text-lg font-semibold tracking-tight">
-          Sfondo pagina
-        </h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Un&apos;immagine di sfondo per tutto il sito, al posto del solo
-          colore.
-        </p>
-        {settings.background_image_path && (
-          <>
-            <Image
-              src={getMediaUrl(settings.background_image_path)}
-              alt="Sfondo pagina"
-              width={240}
-              height={135}
-              className="mt-4 rounded-lg object-cover"
-            />
-            <form action={removeBackgroundImage} className="mt-3">
-              <button
-                type="submit"
-                className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
-              >
-                Rimuovi sfondo
-              </button>
-            </form>
-          </>
-        )}
-        <div className="mt-4">
-          <PhotoUploadForm
-            action={uploadBackgroundImage}
-            submitLabel="Carica sfondo"
-          />
-        </div>
-      </div>
-
-      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
-        <h2 className="text-lg font-semibold tracking-tight">
-          Immagine anteprima
-        </h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Mostrata nella pagina di anteprima, sopra titolo e messaggio, se
-          l&apos;anteprima è attiva.
-        </p>
-        {settings.splash_image_path && (
-          <>
-            <Image
-              src={getMediaUrl(settings.splash_image_path)}
-              alt="Immagine anteprima"
+              src={getMediaUrl(settings.hero_photo_path)}
+              alt="Foto profilo"
               width={160}
-              height={160}
-              className="mt-4 rounded-lg object-cover"
+              height={200}
+              className="aspect-[4/5] w-32 rounded-2xl border border-line object-cover"
             />
-            <form action={removeSplashImage} className="mt-3">
-              <button
-                type="submit"
-                className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
-              >
-                Rimuovi immagine
-              </button>
-            </form>
-          </>
-        )}
-        <div className="mt-4">
-          <PhotoUploadForm
-            action={uploadSplashImage}
-            submitLabel="Carica immagine"
-          />
+          )}
+          <PhotoUploadForm action={uploadHeroPhoto} submitLabel="Carica una nuova foto" />
         </div>
-      </div>
+      </section>
+
+      <section className={cardClass}>
+        <h2 className="mb-5 font-serif text-2xl">Vision</h2>
+        <HomeContentForm settings={settings} />
+      </section>
     </div>
   );
 }

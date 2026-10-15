@@ -53,13 +53,13 @@ export default async function EditEntryPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">
+      <h1 className="font-serif text-4xl">
         {entry.title} — {section.title}
       </h1>
       <EntryForm entry={entry} action={boundUpdate} submitLabel="Salva contenuto" />
 
-      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
-        <h2 className="text-lg font-semibold tracking-tight">Foto e file</h2>
+      <div className="mt-8 rounded-2xl border border-line bg-surface p-6">
+        <h2 className="font-serif text-2xl">Foto e file</h2>
 
         {media.length > 0 && (
           <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
@@ -70,7 +70,7 @@ export default async function EditEntryPage({
                     href={getMediaUrl(photo.storage_path)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border border-black/[.12] bg-zinc-50 text-xs text-zinc-600 dark:border-white/[.16] dark:bg-zinc-900 dark:text-zinc-300"
+                    className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-line bg-surface text-xs text-muted"
                   >
                     <span className="text-2xl">📄</span>
                     PDF
@@ -95,7 +95,7 @@ export default async function EditEntryPage({
                 >
                   <button
                     type="submit"
-                    className="w-full rounded border border-red-600/30 px-2 py-1 text-xs text-red-600 dark:text-red-400"
+                    className="w-full rounded-full border border-red-500/40 px-2 py-1 text-xs text-red-400"
                   >
                     Elimina
                   </button>
@@ -114,9 +114,9 @@ export default async function EditEntryPage({
         </div>
       </div>
 
-      <div className="mt-12 border-t border-black/[.08] pt-8 dark:border-white/[.145]">
-        <h2 className="text-lg font-semibold tracking-tight">Connessioni</h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="mt-8 rounded-2xl border border-line bg-surface p-6">
+        <h2 className="font-serif text-2xl">Connessioni</h2>
+        <p className="mt-1 text-sm text-muted">
           Mostra come questo contenuto ha contribuito a formare altri tratti o
           esperienze.
         </p>
@@ -126,7 +126,7 @@ export default async function EditEntryPage({
             {connections.map((connection) => (
               <li
                 key={connection.id}
-                className="flex items-center justify-between gap-4 rounded-lg border border-black/[.08] px-4 py-2 dark:border-white/[.145]"
+                className="flex items-center justify-between gap-4 rounded-2xl border border-line bg-surface px-4 py-2"
               >
                 <span className="text-sm">
                   {connection.bidirectional ? "↔" : "→"}{" "}
@@ -134,7 +134,7 @@ export default async function EditEntryPage({
                     `${connection.label} ${connection.bidirectional ? "↔" : "→"} `}
                   <strong>{connection.to_entry?.title}</strong>
                   {connection.to_entry?.sections?.title && (
-                    <span className="text-zinc-500 dark:text-zinc-400">
+                    <span className="text-muted">
                       {" "}
                       ({connection.to_entry.sections.title})
                     </span>
@@ -150,7 +150,7 @@ export default async function EditEntryPage({
                 >
                   <button
                     type="submit"
-                    className="rounded border border-red-600/30 px-3 py-1 text-xs text-red-600 dark:text-red-400"
+                    className="rounded-full border border-red-500/40 px-3 py-1 text-xs text-red-400 transition-colors hover:bg-red-500/10"
                   >
                     Elimina
                   </button>

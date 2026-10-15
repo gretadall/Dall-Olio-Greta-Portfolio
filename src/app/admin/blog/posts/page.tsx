@@ -9,10 +9,10 @@ export default async function AdminBlogPostsPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Blog</h1>
+        <h1 className="font-serif text-4xl">Blog</h1>
         <Link
           href="/admin/blog/posts/new"
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white"
+          className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-black transition-transform hover:scale-[1.03]"
         >
           Nuovo articolo
         </Link>
@@ -20,18 +20,18 @@ export default async function AdminBlogPostsPage() {
 
       <Link
         href="/admin/blog/categories"
-        className="mt-2 inline-block text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+        className="mt-2 inline-block text-sm text-muted transition-colors hover:text-foreground"
       >
         Gestisci categorie →
       </Link>
 
       {posts.length === 0 ? (
-        <p className="mt-8 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-8 text-sm text-muted">
           Nessun articolo ancora.
         </p>
       ) : (
         <div className="mt-6">
-          <p className="mb-3 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mb-3 text-sm text-muted">
             Trascina l&apos;icona ⠿ per riordinare gli articoli.
           </p>
           <BlogPostsAdminList

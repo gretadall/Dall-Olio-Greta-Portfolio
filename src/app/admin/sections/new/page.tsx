@@ -4,7 +4,7 @@ import { createSection } from "../actions";
 export default function NewSectionPage() {
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Nuova sezione</h1>
+      <h1 className="font-serif text-4xl">Nuova sezione</h1>
       <SectionForm action={createSection} submitLabel="Crea sezione" />
     </div>
   );

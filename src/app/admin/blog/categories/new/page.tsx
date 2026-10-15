@@ -4,7 +4,7 @@ import { createCategory } from "../actions";
 export default function NewBlogCategoryPage() {
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Nuova categoria</h1>
+      <h1 className="font-serif text-4xl">Nuova categoria</h1>
       <BlogCategoryForm action={createCategory} submitLabel="Crea categoria" />
     </div>
   );

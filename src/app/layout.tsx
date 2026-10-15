@@ -49,7 +49,6 @@ export default async function RootLayout({
         <style>{`
           :root {
             --primary: ${settings.primary_color};
-            --accent: ${settings.accent_color};
             ${settings.background_color ? `--background: ${settings.background_color};` : ""}
             ${settings.font_color ? `--foreground: ${settings.font_color};` : ""}
           }
@@ -73,14 +72,9 @@ export default async function RootLayout({
               <ColorPanel
                 colors={{
                   primary_color: settings.primary_color,
-                  accent_color: settings.accent_color,
-                  background_color: settings.background_color ?? "#ffffff",
-                  font_color: settings.font_color ?? "#171717",
-                  muted_color: settings.muted_color ?? "#52525b",
-                  nav_title_color:
-                    settings.nav_title_color ?? settings.primary_color,
+                  background_color: settings.background_color ?? "#000000",
+                  font_color: settings.font_color ?? "#ffffff",
                 }}
-                logoGlowIntensity={settings.logo_glow_intensity ?? 25}
               />
             </>
           )}

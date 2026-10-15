@@ -29,7 +29,7 @@ export function BlogCategoryForm({
           name="name"
           required
           defaultValue={category?.name}
-          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         />
       </label>
 
@@ -38,7 +38,7 @@ export function BlogCategoryForm({
         <input
           name="slug"
           defaultValue={category?.slug}
-          className="rounded-lg border border-black/[.12] bg-transparent px-4 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.16] dark:focus:border-white/[.4]"
+          className="rounded-xl border border-line bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary"
         />
       </label>
 
@@ -48,16 +48,16 @@ export function BlogCategoryForm({
           type="color"
           name="color"
           defaultValue={category?.color ?? "#888888"}
-          className="h-10 w-full rounded-lg border border-black/[.12] bg-transparent dark:border-white/[.16]"
+          className="h-11 w-full cursor-pointer rounded-xl border border-line bg-surface p-1"
         />
       </label>
 
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
 
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+        className="self-start rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-black transition-transform hover:scale-[1.03] disabled:opacity-60"
       >
         {pending ? "Salvataggio…" : submitLabel}
       </button>
