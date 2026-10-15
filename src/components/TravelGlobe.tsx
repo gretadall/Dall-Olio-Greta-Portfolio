@@ -147,6 +147,8 @@ export function TravelGlobe({
       ),
     [pins]
   );
+  const storieCount = pins.length;
+  const paesiCount = visitedCountries.size;
 
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -180,6 +182,28 @@ export function TravelGlobe({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [expanded]);
+
+  // The globe auto-rotates continuously, which means three.js keeps
+  // re-rendering ~240 country meshes every frame for as long as it's
+  // mounted — including while it's scrolled out of view, which was
+  // stealing frames from the page's own scroll and making the sections
+  // above/below it feel sluggish. Pausing the render loop outright while
+  // it's off-screen removes that cost entirely, not just the visible part.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const globe = globeRef.current;
+        if (!globe) return;
+        if (entry.isIntersecting) globe.resumeAnimation();
+        else globe.pauseAnimation();
+      },
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // react-globe.gl re-derives every country's mesh/material whenever one of
   // these accessor props changes identity, not just when the underlying
@@ -247,6 +271,24 @@ export function TravelGlobe({
       style={expanded ? undefined : { maxWidth: inlineMax }}
     >
       {activePin && <PinVignette pin={activePin} onClose={() => setActivePin(null)} />}
+
+      <div className="mb-3 flex flex-col items-center gap-1.5 text-center">
+        <p className={`text-[11px] tracking-wide ${expanded ? "text-white/60" : "text-muted"}`}>
+          Trascina per ruotare · scorri per zoomare · clicca un paese
+        </p>
+        <div
+          className={`flex items-center gap-4 text-xs ${expanded ? "text-white/80" : "text-muted"}`}
+        >
+          <span>
+            <strong className={expanded ? "text-white" : "text-foreground"}>{paesiCount}</strong>{" "}
+            Paesi
+          </span>
+          <span>
+            <strong className={expanded ? "text-white" : "text-foreground"}>{storieCount}</strong>{" "}
+            Storie
+          </span>
+        </div>
+      </div>
 
       <div
         ref={containerRef}

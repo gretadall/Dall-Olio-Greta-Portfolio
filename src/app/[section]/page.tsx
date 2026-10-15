@@ -69,15 +69,26 @@ export default async function SectionPage({
           Nessun contenuto pubblicato ancora in questa sezione.
         </p>
       ) : (
-        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {entries.map((entry) => (
-            <EntryCard
-              key={entry.id}
-              sectionSlug={section.slug}
-              entry={entry}
-              hasBackground={hasBackground}
-            />
-          ))}
+        <div className="mt-12">
+          {isTravel && (
+            <h2
+              className={`mb-4 text-xs font-semibold tracking-[0.2em] uppercase ${
+                hasBackground ? "text-white/75" : "text-muted"
+              }`}
+            >
+              Storie
+            </h2>
+          )}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {entries.map((entry) => (
+              <EntryCard
+                key={entry.id}
+                sectionSlug={section.slug}
+                entry={entry}
+                hasBackground={hasBackground}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>

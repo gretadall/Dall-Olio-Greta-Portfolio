@@ -6,7 +6,6 @@ import Image from "next/image";
 import type { Database } from "@/lib/supabase/types";
 import { getMediaUrl } from "@/lib/supabase/media";
 import { TravelGlobe, type GlobePin } from "@/components/TravelGlobe";
-import { LazyMount } from "@/components/LazyMount";
 import { EditableText } from "@/components/edit/EditableText";
 import { DeleteButton } from "@/components/edit/DeleteButton";
 import { deleteEntry } from "@/app/admin/sections/[sectionId]/entries/actions";
@@ -87,9 +86,7 @@ export function SectionBlock({
             <div className="mt-10">
               {isTravel ? (
                 <div className="flex flex-col items-center gap-6">
-                  <LazyMount label="Mostra la mappa" icon="🌍">
-                    <TravelGlobe pins={travelPins ?? []} compact />
-                  </LazyMount>
+                  <TravelGlobe pins={travelPins ?? []} compact />
                   {preview.length > 0 && (
                     <>
                       <button
@@ -98,7 +95,7 @@ export function SectionBlock({
                         aria-expanded={exploreOpen}
                         className="flex items-center gap-1 text-sm font-medium text-primary transition-opacity hover:opacity-70"
                       >
-                        Esplora
+                        Storie
                         <span
                           aria-hidden
                           className={`inline-block transition-transform ${exploreOpen ? "rotate-180" : ""}`}
