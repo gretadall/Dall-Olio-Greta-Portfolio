@@ -1,150 +1,148 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { HamburgerMenu } from "@/components/HamburgerMenu";
-import { EditableText } from "@/components/edit/EditableText";
-import { Positionable } from "@/components/edit/Positionable";
-import type { HomeLayout } from "@/lib/supabase/types";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { gmailComposeUrl } from "@/lib/contact";
 
-const buttonClass =
-  "rounded-full border border-black/[.12] px-3 py-1 text-xs font-medium text-muted transition-colors hover:border-black/[.24] dark:border-white/[.16] dark:hover:border-white/[.3] sm:px-4 sm:py-1.5 sm:text-sm";
+const LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/chi-sono", label: "Chi sono" },
+  { href: "/progetti-personali", label: "Progetti" },
+  { href: "/viaggi", label: "Viaggi" },
+  { href: "/blog", label: "Blog" },
+];
+
+function isActive(pathname: string, href: string) {
+  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+}
 
 export function Nav({
   siteTitle,
-  navTitleColor,
-  linkedinUrl,
   contactEmail,
-  homeLabel,
-  reteLabel,
-  chiSonoLabel,
-  blogLabel,
-  linkedinLabel,
-  contactLabel,
-  sections,
-  layout,
 }: {
   siteTitle: string;
-  navTitleColor?: string | null;
-  linkedinUrl: string | null;
   contactEmail: string | null;
-  homeLabel: string;
-  reteLabel: string;
-  chiSonoLabel: string;
-  blogLabel: string;
-  linkedinLabel: string;
-  contactLabel: string;
-  sections: { slug: string; title: string; icon: string | null }[];
-  layout: HomeLayout;
 }) {
-  return (
-    <header className="border-b border-black/[.08] dark:border-white/[.145]">
-      <div className="nav-canvas relative flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-8 sm:py-4">
-        <Positionable
-          slotKey="nav.brand"
-          target={{ table: "site_settings" }}
-          position={layout["nav.brand"] ?? null}
-          canvasClass="nav-canvas"
-        >
-          <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3">
-            <span className="relative flex shrink-0 items-center justify-center">
-              <span
-                aria-hidden
-                className="absolute inset-0 -z-10 scale-[2] rounded-full bg-white blur-2xl"
-                style={{ opacity: "var(--logo-glow, 0.25)" }}
-              />
-              <span
-                aria-hidden
-                className="absolute inset-0 -z-10 scale-125 rounded-full bg-primary/10 blur-lg"
-              />
-              <Image
-                src="/logo.png"
-                alt={siteTitle}
-                width={112}
-                height={112}
-                className="h-20 w-20 object-contain sm:h-24 sm:w-24"
-              />
-            </span>
-            <EditableText
-              as="span"
-              className="truncate text-base font-semibold tracking-tight text-primary sm:text-lg"
-              style={navTitleColor ? { color: navTitleColor } : undefined}
-              value={siteTitle}
-              target={{ table: "site_settings", field: "site_title" }}
-            />
-          </Link>
-        </Positionable>
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
-        <Positionable
-          slotKey="nav.buttons"
-          target={{ table: "site_settings" }}
-          position={layout["nav.buttons"] ?? null}
-          canvasClass="nav-canvas"
-          className="ml-auto"
-        >
-        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
-          <Link href="/rete" className={buttonClass}>
-            <EditableText
-              value={reteLabel}
-              target={{ table: "site_settings", field: "nav_rete_label" }}
-            />
-          </Link>
-          <Link href="/" className={buttonClass}>
-            <EditableText
-              value={homeLabel}
-              target={{ table: "site_settings", field: "nav_home_label" }}
-            />
-          </Link>
-          <Link href="/chi-sono" className={buttonClass}>
-            <EditableText
-              value={chiSonoLabel}
-              target={{ table: "site_settings", field: "nav_chi_sono_label" }}
-            />
-          </Link>
-          <Link href="/blog" className={buttonClass}>
-            <EditableText
-              value={blogLabel}
-              target={{ table: "site_settings", field: "nav_blog_label" }}
-            />
-          </Link>
-          {linkedinUrl && (
-            <a
-              href={linkedinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonClass}
-            >
-              <EditableText
-                value={linkedinLabel}
-                target={{ table: "site_settings", field: "linkedin_label" }}
-              />
-            </a>
-          )}
+  // Close the mobile menu whenever the route changes.
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setOpen(false);
+  }
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-line bg-background/80 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-5 sm:px-8">
+        <Link href="/" className="flex shrink-0 items-center gap-2.5">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={64}
+            height={64}
+            className="h-9 w-9 scale-150 object-contain invert"
+            priority
+          />
+          <span className="text-sm font-semibold tracking-tight">
+            {siteTitle}
+            <span className="text-primary">.</span>
+          </span>
+        </Link>
+
+        <nav aria-label="Principale" className="hidden md:block">
+          <ul className="flex items-center gap-7 text-sm">
+            {LINKS.map((link) => {
+              const active = isActive(pathname, link.href);
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`relative py-1 transition-colors ${
+                      active ? "text-foreground" : "text-muted hover:text-foreground"
+                    }`}
+                  >
+                    {link.label}
+                    {active && (
+                      <span className="absolute inset-x-0 -bottom-[21px] h-px bg-primary" />
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div className="flex items-center gap-2">
           {contactEmail && (
             <a
-              href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(contactEmail)}`}
+              href={gmailComposeUrl(contactEmail)}
               target="_blank"
               rel="noopener noreferrer"
-              className={buttonClass}
+              className="hidden rounded-md border border-line px-3.5 py-1.5 text-sm transition-colors hover:border-primary hover:text-primary sm:inline-block"
             >
-              <EditableText
-                value={contactLabel}
-                target={{ table: "site_settings", field: "contact_button_label" }}
-              />
+              Scrivimi
             </a>
           )}
-          <HamburgerMenu
-            sections={sections}
-            homeLabel={homeLabel}
-            reteLabel={reteLabel}
-            chiSonoLabel={chiSonoLabel}
-            blogLabel={blogLabel}
-            linkedinUrl={linkedinUrl}
-            linkedinLabel={linkedinLabel}
-            contactEmail={contactEmail}
-            contactLabel={contactLabel}
-          />
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            aria-label={open ? "Chiudi menu" : "Apri menu"}
+            className="flex h-9 w-9 items-center justify-center rounded-md border border-line md:hidden"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-4 w-4">
+              {open ? (
+                <path d="M6 6l12 12M18 6L6 18" />
+              ) : (
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              )}
+            </svg>
+          </button>
         </div>
-        </Positionable>
       </div>
+
+      {open && (
+        <nav id="mobile-menu" aria-label="Principale" className="border-t border-line md:hidden">
+          <ul className="mx-auto flex max-w-6xl flex-col px-5 py-3">
+            {LINKS.map((link) => {
+              const active = isActive(pathname, link.href);
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex items-center justify-between py-3 text-base ${
+                      active ? "text-primary" : "text-foreground"
+                    }`}
+                  >
+                    {link.label}
+                    <span aria-hidden className="text-muted">→</span>
+                  </Link>
+                </li>
+              );
+            })}
+            {contactEmail && (
+              <li>
+                <a
+                  href={gmailComposeUrl(contactEmail)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between py-3 text-base"
+                >
+                  Scrivimi
+                  <span aria-hidden className="text-muted">↗</span>
+                </a>
+              </li>
+            )}
+          </ul>
+        </nav>
+      )}
     </header>
   );
 }

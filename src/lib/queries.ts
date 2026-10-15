@@ -226,3 +226,18 @@ export async function getBrainAreaContent() {
   if (error) throw error;
   return data;
 }
+
+// One round trip for the entries of several sections (used by the home).
+export async function getPublishedEntriesForSections(sectionIds: string[]) {
+  if (sectionIds.length === 0) return [];
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("entries")
+    .select("*")
+    .in("section_id", sectionIds)
+    .eq("is_published", true)
+    .order("sort_order", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}

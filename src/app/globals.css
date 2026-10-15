@@ -1,11 +1,15 @@
 @import "tailwindcss";
 
+/* Black, white and one accent (pink, set from /admin). Muted text and hairlines
+   are derived from the foreground so they stay in tune with any colors chosen. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #f97316;
+  --background: #000000;
+  --foreground: #ffffff;
+  --primary: #f399d2;
   --accent: #3b82f6;
-  --muted: #52525b;
+  --muted: color-mix(in srgb, var(--foreground) 62%, var(--background));
+  --line: color-mix(in srgb, var(--foreground) 12%, var(--background));
+  --surface: color-mix(in srgb, var(--foreground) 4%, var(--background));
 }
 
 @theme inline {
@@ -14,22 +18,26 @@
   --color-primary: var(--primary);
   --color-accent: var(--accent);
   --color-muted: var(--muted);
-  --font-sans: var(--font-geist-sans);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --muted: #a1a1aa;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--background);
 }
 
 .rich-content p {
@@ -121,15 +129,6 @@ body {
 .travel-pin:focus-visible .travel-pin__label {
   opacity: 1;
   transform: translateY(0);
-}
-
-.positionable {
-  transform: translate(var(--pos-x, 0), var(--pos-y, 0));
-}
-@media (max-width: 639px) {
-  .positionable {
-    transform: none !important;
-  }
 }
 
 @keyframes reveal-in {
