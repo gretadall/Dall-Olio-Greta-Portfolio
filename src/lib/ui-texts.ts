@@ -46,10 +46,6 @@ export const UI_TEXT_GROUPS: Record<string, Group> = {
         value:
           "Non sono mai riuscita a fare una cosa sola. Scrivo, mi alleno, viaggio, costruisco progetti insieme ad altre persone.\n\nPer un po' ho pensato che fosse un difetto. Poi ho capito che è il mio modo di imparare: ogni cosa che provo ne accende un'altra.\n\nQuello che segue non è un elenco di titoli. Sono le cose che ho fatto davvero, nell'ordine in cui le ho vissute.",
       },
-      "home.story.hook": {
-        label: "Apertura: invito a scorrere",
-        value: "Scorri fino in fondo: c'è una cosa per te alla fine.",
-      },
       "home.doors.title": { label: "Porte: domanda", value: "Da dove vuoi *iniziare*?" },
       "home.doors.build": { label: "Porta 1: titolo", value: "Quello che costruisco" },
       "home.doors.buildText": { label: "Porta 1: testo", value: "Progetti, idee, esperimenti." },
@@ -57,17 +53,6 @@ export const UI_TEXT_GROUPS: Record<string, Group> = {
       "home.doors.travelText": { label: "Porta 2: testo", value: "I luoghi che mi hanno cambiata." },
       "home.doors.beyond": { label: "Porta 3: titolo", value: "Quello che mi forma" },
       "home.doors.beyondText": { label: "Porta 3: testo", value: "Sport, passioni, lingue." },
-      "home.doors.hint": {
-        label: "Porte: nota",
-        value: "tanto, alla fine, portano tutte nello stesso posto",
-      },
-      "home.note.projects": { label: "Nota a margine: progetti", value: "alcuni sono ancora in corso" },
-      "home.note.path": { label: "Nota a margine: percorso", value: "e non è ancora finita" },
-      "home.note.travel": {
-        label: "Nota a margine: viaggi",
-        value: "obiettivo: tutti i paesi del mondo",
-      },
-      "home.note.beyond": { label: "Nota a margine: fuori dal lavoro", value: "qui mi diverto di più" },
       "home.path.now": { label: "Percorso: ultima tappa", value: "oggi" },
       "home.path.nowText": {
         label: "Percorso: testo dell'ultima tappa",
