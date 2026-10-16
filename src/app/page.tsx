@@ -102,17 +102,23 @@ export default async function Home() {
   const viaggi = section("viaggi");
   const beyond = ["sport", "passioni", "lingue"].map(section).filter((s) => s !== null);
 
-  // The main steps only: the most recent dated entries from experience,
-  // projects and education (the same story told twice counts once), shown
-  // oldest first so the year ticks forward.
-  const TIMELINE_STEPS = 6;
-  const timeline: TimelineItem[] = [esperienze, progetti, formazione]
-    .flatMap((s) => (s ? entriesOf(s).map((entry) => ({ section: s, entry })) : []))
-    .filter(({ entry }) => entry.period_start)
-    .sort((a, b) => byNewest(a.entry, b.entry))
-    .filter(({ entry }, i, all) => all.findIndex((o) => o.entry.title === entry.title) === i)
-    .slice(0, TIMELINE_STEPS)
-    .reverse()
+  // The steps the owner ticked "Mostra nel percorso in home" on, from any
+  // section, oldest first so the year ticks forward. Until she picks any,
+  // fall back to the latest few from experience, projects and education.
+  const TIMELINE_FALLBACK_STEPS = 5;
+  const dated = sections
+    .flatMap((s) => entriesOf(s).map((entry) => ({ section: s, entry })))
+    .filter(({ entry }) => entry.period_start);
+  const picked = dated.filter(({ entry }) => entry.metadata?.in_timeline === true);
+  const steps = picked.length
+    ? picked
+    : dated
+        .filter(({ section: s }) => [esperienze, progetti, formazione].includes(s))
+        .sort((a, b) => byNewest(a.entry, b.entry))
+        .filter(({ entry }, i, all) => all.findIndex((o) => o.entry.title === entry.title) === i)
+        .slice(0, TIMELINE_FALLBACK_STEPS);
+  const timeline: TimelineItem[] = [...steps]
+    .sort((a, b) => (a.entry.period_start ?? "").localeCompare(b.entry.period_start ?? ""))
     .map(({ section: s, entry }) => ({
       id: entry.id,
       year: new Date(entry.period_start!).getFullYear(),
@@ -217,7 +223,7 @@ export default async function Home() {
 
       <WordMarquee words={wordsFromTagline(settings.tagline)} />
 
-      <div className="relative isolate">
+      <div className="flight-zone relative isolate">
       <FlightPath />
 
       {/* Il racconto */}
