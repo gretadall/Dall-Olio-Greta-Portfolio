@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 // of the menu while the graph is hidden from the public site.
 const LINKS = [
   { href: "/admin", label: "Panoramica", exact: true },
+  { href: "/admin/home", label: "Home" },
   { href: "/admin/sections", label: "Sezioni" },
   { href: "/admin/travel-pins", label: "Luoghi" },
   { href: "/admin/blog/posts", label: "Blog" },

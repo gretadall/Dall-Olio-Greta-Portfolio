@@ -19,10 +19,12 @@ export default async function AdminDashboard() {
       </div>
 
       <h2 className="mt-12 font-serif text-2xl">Cose che fai spesso</h2>
-      <div className="mt-4 grid gap-4 sm:grid-cols-3">
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Shortcut href="/admin/sections" title="Aggiungi un contenuto" text="Un progetto, un viaggio, uno sport…" />
         <Shortcut href="/admin/travel-pins/new" title="Nuovo luogo sul globo" text="Una puntina in più sulla mappa." />
         <Shortcut href="/admin/blog/posts/new" title="Scrivi un articolo" text="Per il blog." />
+        <Shortcut href="/admin/home" title="Scegli cosa mostrare in home" text="Progetti, foto e tappe in evidenza." />
+        <Shortcut href="/admin/texts" title="Cambia una scritta" text="Titoli, pulsanti, menu: tutti i testi del sito." />
       </div>
 
       <p className="mt-10 text-sm text-muted">

@@ -13,6 +13,7 @@ import {
 import { getMediaUrl } from "@/lib/supabase/media";
 import { formatItalianDate, formatPeriod } from "@/lib/format-date";
 import { gmailComposeUrl } from "@/lib/contact";
+import { applyPicks, parseHomePicks } from "@/lib/home-picks";
 import { sanitizeEntryBody } from "@/lib/sanitize";
 import type { Database } from "@/lib/supabase/types";
 import { EditableText } from "@/components/edit/EditableText";
@@ -81,13 +82,14 @@ function Polaroid({
 }
 
 export default async function Home() {
-  const [settings, sections, pins, blog, photos, texts] = await Promise.all([
+  const [settings, sections, pins, blog, photos, texts, allPhotos] = await Promise.all([
     getSiteSettings(),
     getPublishedSections(),
     getPublishedTravelPins(),
     getPublishedBlogPostsPage({ page: 1, pageSize: 3 }),
     getPersonalPhotos(),
     getUiTexts(),
+    getPersonalPhotos({ everyImage: true }),
   ]);
 
   const entries = await getPublishedEntriesForSections(sections.map((s) => s.id));
@@ -102,19 +104,33 @@ export default async function Home() {
   const viaggi = section("viaggi");
   const beyond = ["sport", "passioni", "lingue"].map(section).filter((s) => s !== null);
 
-  // The whole story, oldest first: every dated entry from the sections that
-  // tell what happened (the same story told twice only counts once).
-  const timeline: TimelineItem[] = [
-    esperienze,
-    formazione,
-    progetti,
-    viaggi,
-    ...["sport", "lingue"].map(section),
-  ]
-    .flatMap((s) => (s ? entriesOf(s).map((entry) => ({ section: s, entry })) : []))
-    .filter(({ entry }) => entry.period_start)
-    .sort((a, b) => (a.entry.period_start ?? "").localeCompare(b.entry.period_start ?? ""))
-    .filter(({ entry }, i, all) => all.findIndex((o) => o.entry.title === entry.title) === i)
+  // What the owner chose in Admin → Home; each list falls back to an
+  // automatic pick while it's empty.
+  const picks = parseHomePicks(settings.home_picks);
+  const sectionOfEntry = (entry: Entry) => sections.find((s) => s.id === entry.section_id)!;
+
+  const featuredProjects = applyPicks(entries, picks.projects, (e) => e.id, () =>
+    entriesOf(progetti).slice(0, 3)
+  );
+
+  const moments = applyPicks(allPhotos, picks.moments, (m) => m.id, () => photos);
+
+  // Timeline: the chosen steps (from any section), or else the latest few from
+  // experience, projects and education. Always shown oldest first, so the
+  // year ticks forward; the same story told twice only counts once.
+  const TIMELINE_FALLBACK_STEPS = 6;
+  const datedEntries = entries.filter((e) => e.period_start);
+  const timelineEntries = applyPicks(datedEntries, picks.timeline, (e) => e.id, () =>
+    [esperienze, progetti, formazione]
+      .flatMap((s) => (s ? entriesOf(s) : []))
+      .filter((e) => e.period_start)
+      .sort(byNewest)
+      .filter((e, i, all) => all.findIndex((o) => o.title === e.title) === i)
+      .slice(0, TIMELINE_FALLBACK_STEPS)
+  );
+  const timeline: TimelineItem[] = [...timelineEntries]
+    .sort((a, b) => (a.period_start ?? "").localeCompare(b.period_start ?? ""))
+    .map((entry) => ({ section: sectionOfEntry(entry), entry }))
     .map(({ section: s, entry }) => ({
       id: entry.id,
       year: new Date(entry.period_start!).getFullYear(),
@@ -133,12 +149,13 @@ export default async function Home() {
   const countries = new Set(pins.map((p) => p.country).filter(Boolean)).size;
   const recentTrips = [...entriesOf(viaggi)].sort(byNewest).slice(0, 3);
 
-  // Two snapshots around the portrait: one from sport if there is one, then
-  // one from a different story.
-  const firstPolaroid = photos.find((p) => p.href.startsWith("/sport/")) ?? photos[0];
-  const secondPolaroid = photos.find(
-    (p) => p !== firstPolaroid && p.href.split("/")[1] !== firstPolaroid?.href.split("/")[1]
-  );
+  // Two snapshots around the portrait: the first two chosen moments, or else
+  // one from sport if there is one and one from a different story.
+  const autoFirst = photos.find((p) => p.href.startsWith("/sport/")) ?? photos[0];
+  const firstPolaroid = picks.moments.length ? moments[0] : autoFirst;
+  const secondPolaroid = picks.moments.length
+    ? moments[1]
+    : photos.find((p) => p !== autoFirst && p.href.split("/")[1] !== autoFirst?.href.split("/")[1]);
 
   return (
     <>
@@ -334,22 +351,20 @@ export default async function Home() {
             more={<MoreLink href={`/${progetti.slug}`}><T k="home.projects.more" /></MoreLink>}
           />
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {entriesOf(progetti)
-              .slice(0, 3)
-              .map((entry) => (
-                <EntryCard
-                  key={entry.id}
-                  sectionSlug={progetti.slug}
-                  entry={entry}
-                  cover={coverOf(entry.id)}
-                />
-              ))}
+            {featuredProjects.map((entry) => (
+              <EntryCard
+                key={entry.id}
+                sectionSlug={sectionOfEntry(entry).slug}
+                entry={entry}
+                cover={coverOf(entry.id)}
+              />
+            ))}
           </div>
         </HomeSection>
       )}
 
       {/* Foto */}
-      {photos.length > 0 && (
+      {moments.length > 0 && (
         <section>
           <div className="mx-auto max-w-6xl px-5 pt-8 sm:px-8">
             <SectionHeader
@@ -362,7 +377,7 @@ export default async function Home() {
               subtitle={<T k="home.photos.hint" />}
             />
           </div>
-          <PhotoCarousel photos={photos} />
+          <PhotoCarousel photos={moments} />
         </section>
       )}
 
@@ -569,7 +584,7 @@ export default async function Home() {
                 vars={{
                   projects: entriesOf(progetti).length,
                   countries,
-                  moments: photos.length,
+                  moments: moments.length,
                 }}
               />
             </p>

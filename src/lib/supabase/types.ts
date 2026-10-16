@@ -298,6 +298,7 @@ export type Database = {
           nav_blog_label: string;
           home_layout: HomeLayout;
           ui_texts: Record<string, unknown>;
+          home_picks: Record<string, unknown>;
           logo_glow_intensity: number;
           rete_title: string | null;
           rete_intro: string | null;
