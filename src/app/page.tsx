@@ -16,7 +16,7 @@ import { gmailComposeUrl } from "@/lib/contact";
 import { sanitizeEntryBody } from "@/lib/sanitize";
 import type { Database } from "@/lib/supabase/types";
 import { EditableText } from "@/components/edit/EditableText";
-import { Eyebrow, HomeSection, MarginNote, MoreLink, SectionHeader } from "@/components/home/SectionHeader";
+import { Eyebrow, HomeSection, MoreLink, SectionHeader } from "@/components/home/SectionHeader";
 import { MiniGlobe } from "@/components/home/MiniGlobe";
 import { WordMarquee } from "@/components/home/Marquees";
 import { PhotoCarousel } from "@/components/home/PhotoCarousel";
@@ -102,19 +102,17 @@ export default async function Home() {
   const viaggi = section("viaggi");
   const beyond = ["sport", "passioni", "lingue"].map(section).filter((s) => s !== null);
 
-  // The whole story, oldest first: every dated entry from the sections that
-  // tell what happened (the same story told twice only counts once).
-  const timeline: TimelineItem[] = [
-    esperienze,
-    formazione,
-    progetti,
-    viaggi,
-    ...["sport", "lingue"].map(section),
-  ]
+  // The main steps only: the most recent dated entries from experience,
+  // projects and education (the same story told twice counts once), shown
+  // oldest first so the year ticks forward.
+  const TIMELINE_STEPS = 6;
+  const timeline: TimelineItem[] = [esperienze, progetti, formazione]
     .flatMap((s) => (s ? entriesOf(s).map((entry) => ({ section: s, entry })) : []))
     .filter(({ entry }) => entry.period_start)
-    .sort((a, b) => (a.entry.period_start ?? "").localeCompare(b.entry.period_start ?? ""))
+    .sort((a, b) => byNewest(a.entry, b.entry))
     .filter(({ entry }, i, all) => all.findIndex((o) => o.entry.title === entry.title) === i)
+    .slice(0, TIMELINE_STEPS)
+    .reverse()
     .map(({ section: s, entry }) => ({
       id: entry.id,
       year: new Date(entry.period_start!).getFullYear(),
@@ -231,10 +229,6 @@ export default async function Home() {
             className="reveal mt-10 text-xl leading-relaxed whitespace-pre-line text-foreground/90"
             k="home.story.body"
           />
-          <p className="reveal mt-10 flex items-center gap-3 font-serif text-lg text-primary italic">
-            <span aria-hidden className="animate-bounce not-italic">↓</span>
-            <T k="home.story.hook" />
-          </p>
         </div>
       </HomeSection>
 
@@ -276,9 +270,6 @@ export default async function Home() {
             </a>
           ))}
         </div>
-        <p className="reveal mt-8 text-center font-serif text-lg text-muted italic">
-          — <T k="home.doors.hint" />
-        </p>
       </HomeSection>
 
       {/* Vision & valori */}
@@ -338,7 +329,6 @@ export default async function Home() {
               </>
             }
             subtitle={<SectionDescription section={progetti} />}
-            note={<T k="home.note.projects" />}
             more={<MoreLink href={`/${progetti.slug}`}><T k="home.projects.more" /></MoreLink>}
           />
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -385,7 +375,6 @@ export default async function Home() {
               </>
             }
             subtitle={<T k="home.path.subtitle" />}
-            note={<T k="home.note.path" />}
             more={
               <div className="flex flex-wrap gap-2">
                 {esperienze && <MoreLink href={`/${esperienze.slug}`}><T k="home.path.experience" /></MoreLink>}
@@ -420,9 +409,6 @@ export default async function Home() {
                 <div className="mt-4 text-muted">
                   <SectionDescription section={viaggi} />
                 </div>
-                <MarginNote>
-                  <T k="home.note.travel" />
-                </MarginNote>
                 <dl className="mt-8 flex gap-10">
                   <div>
                     <dt className="text-xs font-medium tracking-[0.14em] text-muted uppercase"><T k="home.travel.countries" /></dt>
@@ -471,7 +457,6 @@ export default async function Home() {
         <HomeSection id="oltre">
           <SectionHeader
             label={<T k="home.beyond.label" />}
-            note={<T k="home.note.beyond" />}
             title={
               <>
                 <T k="home.beyond.title" />
@@ -582,7 +567,6 @@ export default async function Home() {
                 vars={{
                   projects: entriesOf(progetti).length,
                   countries,
-                  moments: photos.length,
                 }}
               />
             </p>

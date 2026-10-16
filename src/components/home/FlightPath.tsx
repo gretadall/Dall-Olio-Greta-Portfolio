@@ -2,22 +2,29 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-// A dotted flight route weaving behind the whole home page. The stretch
-// already "flown" fills in pink and a small plane leads it, so scrolling
-// feels like travelling somewhere: it lands on the contact block at the end.
-// Place it inside a `relative isolate` wrapper; it sits behind the content.
+// A dotted flight route running down the left margin of the home page. The
+// stretch already "flown" fills in pink and a small plane leads it, so
+// scrolling feels like travelling somewhere. It stays in the empty margin
+// beside the content (never over text) and only shows when that margin is
+// wide enough. Place it inside a `relative isolate` wrapper.
 
-const WAYPOINTS = 9;
+const CONTENT_WIDTH = 1152; // max-w-6xl, the width of every section
+const MIN_MARGIN = 48;
+const WAYPOINTS = 12;
+
+function marginOf(w: number) {
+  return (w - CONTENT_WIDTH) / 2;
+}
 
 function buildPath(w: number, h: number) {
-  const left = Math.max(18, w * 0.04);
-  const right = w - left;
-  const end = { x: w / 2, y: h - Math.min(420, h * 0.08) };
+  // Text starts 32px inside the content box; keep the plane (16px glow)
+  // well clear of it.
+  const left = 16;
+  const right = marginOf(w) + 8;
   const points = Array.from({ length: WAYPOINTS }, (_, i) => ({
     x: i % 2 === 0 ? right : left,
-    y: ((end.y - 40) * i) / (WAYPOINTS - 1) + 40,
+    y: ((h - 80) * i) / (WAYPOINTS - 1) + 40,
   }));
-  points[points.length - 1] = end;
 
   let d = `M ${points[0].x} ${points[0].y}`;
   for (let i = 1; i < points.length; i++) {
@@ -47,7 +54,11 @@ export function FlightPath() {
     return () => observer.disconnect();
   }, []);
 
-  const d = useMemo(() => (size.w && size.h ? buildPath(size.w, size.h) : ""), [size]);
+  const fits = marginOf(size.w) >= MIN_MARGIN;
+  const d = useMemo(
+    () => (size.w && size.h && marginOf(size.w) >= MIN_MARGIN ? buildPath(size.w, size.h) : ""),
+    [size]
+  );
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -89,7 +100,7 @@ export function FlightPath() {
 
   return (
     <div ref={wrapRef} aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-      {d && (
+      {fits && d && (
         <svg width={size.w} height={size.h} className="absolute inset-0 overflow-visible">
           <path
             ref={routeRef}
@@ -111,7 +122,7 @@ export function FlightPath() {
             strokeLinecap="round"
           />
           <g ref={planeRef}>
-            <circle r="16" fill="var(--primary)" opacity="0.18" />
+            <circle r="14" fill="var(--primary)" opacity="0.18" />
             {/* Plane pointing right (0°), rotated along the route. */}
             <path
               d="M 9 0 L -3 -2 L -7 -8 L -9 -8 L -6 -2 L -10 -2 L -12 -5 L -13 -5 L -12 0 L -13 5 L -12 5 L -10 2 L -6 2 L -9 8 L -7 8 L -3 2 Z"
