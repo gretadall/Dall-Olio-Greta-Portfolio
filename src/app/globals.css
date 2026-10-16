@@ -169,3 +169,21 @@ body {
   color: var(--foreground);
   border: 1px solid var(--line);
 }
+
+/* Text over the flight route gets a soft halo in the page color, so where
+   the line or the plane passes underneath, the words stay readable instead
+   of overlapping it. On the plain background the halo is invisible. Opaque
+   cards already hide the route, and pink buttons keep their own look. */
+.flight-zone {
+  text-shadow:
+    0 0 4px var(--background),
+    0 0 8px var(--background),
+    0 0 14px var(--background),
+    0 0 22px var(--background),
+    0 0 32px var(--background);
+}
+.flight-zone .bg-primary,
+.flight-zone .bg-surface,
+.flight-zone .no-halo {
+  text-shadow: none;
+}

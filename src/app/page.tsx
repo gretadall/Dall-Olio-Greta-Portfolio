@@ -219,7 +219,7 @@ export default async function Home() {
 
       <WordMarquee words={wordsFromTagline(settings.tagline)} />
 
-      <div className="relative isolate">
+      <div className="flight-zone relative isolate">
       <FlightPath />
 
       {/* Il racconto */}
