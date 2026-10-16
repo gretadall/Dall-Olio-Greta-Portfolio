@@ -169,19 +169,3 @@ body {
   color: var(--foreground);
   border: 1px solid var(--line);
 }
-
-/* Text over the flight route gets a soft halo in the page color, so where
-   the line or the plane passes underneath, the words stay readable. On the
-   plain background the halo is invisible. Pink buttons keep their own look. */
-.flight-zone {
-  text-shadow:
-    0 0 6px var(--background),
-    0 0 14px var(--background),
-    0 0 26px var(--background);
-}
-.flight-zone .bg-primary,
-.flight-zone .bg-primary *,
-.flight-zone .no-halo,
-.flight-zone .no-halo * {
-  text-shadow: none;
-}

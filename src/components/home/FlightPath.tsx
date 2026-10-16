@@ -1,76 +1,32 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-// A dotted flight route weaving across the whole home page. The stretch
+// A dotted flight route weaving behind the whole home page. The stretch
 // already "flown" fills in pink and a small plane leads it, so scrolling
-// feels like travelling somewhere; it lands on the contact block at the end.
-//
-// The route is laid out around the real page so it never runs over text:
-// it travels down the side strips (the padding outside the text) and only
-// swings across the page in the empty gaps between sections. Place it as the
-// first child of a `relative isolate` wrapper whose other children are the
-// sections; it sits behind them.
+// feels like travelling somewhere: it lands on the contact block at the end.
+// Place it inside a `relative isolate` wrapper; it sits behind the content.
 
-const MIN_STRIP = 28; // narrower side strips (phones) get no route
-const PLANE_SIZE = 30; // glow diameter at scale 1
+const WAYPOINTS = 9;
 
-type Layout = { w: number; h: number; d: string; scale: number };
+function buildPath(w: number, h: number) {
+  const left = Math.max(18, w * 0.04);
+  const right = w - left;
+  const end = { x: w / 2, y: h - Math.min(420, h * 0.08) };
+  const points = Array.from({ length: WAYPOINTS }, (_, i) => ({
+    x: i % 2 === 0 ? right : left,
+    y: ((end.y - 40) * i) / (WAYPOINTS - 1) + 40,
+  }));
+  points[points.length - 1] = end;
 
-function measure(wrap: HTMLElement): Layout | null {
-  const box = wrap.getBoundingClientRect();
-  const sections = [...(wrap.parentElement?.children ?? [])].filter(
-    (el): el is HTMLElement => el instanceof HTMLElement && el !== wrap && el.tagName === "SECTION"
-  );
-  if (sections.length < 2) return null;
-
-  // Where each section's actual content (inside its padding) starts and ends,
-  // relative to the wrapper.
-  const blocks = sections.map((section) => {
-    const first = section.firstElementChild as HTMLElement | null;
-    const last = section.lastElementChild as HTMLElement | null;
-    const top = first
-      ? first.getBoundingClientRect().top + parseFloat(getComputedStyle(first).paddingTop)
-      : section.getBoundingClientRect().top;
-    const bottom = last
-      ? last.getBoundingClientRect().bottom - parseFloat(getComputedStyle(last).paddingBottom)
-      : section.getBoundingClientRect().bottom;
-    return { top: top - box.top, bottom: bottom - box.top };
-  });
-
-  // Free strip on each side: from the window edge to where the text begins.
-  const sample = sections[0].firstElementChild as HTMLElement | null;
-  if (!sample) return null;
-  const sampleBox = sample.getBoundingClientRect();
-  const strip = sampleBox.left - box.left + parseFloat(getComputedStyle(sample).paddingLeft);
-  if (strip < MIN_STRIP) return null;
-
-  const scale = Math.min(1, (strip - 4) / PLANE_SIZE);
-  const sides = [strip / 2, box.width - strip / 2];
-
-  // Start on the left, at the top of the first section's content.
-  let side = 0;
-  let d = `M ${sides[side]} ${Math.max(0, blocks[0].top - 40)}`;
-
-  for (let i = 0; i < blocks.length - 1; i++) {
-    const gapTop = blocks[i].bottom;
-    const gapBottom = blocks[i + 1].top;
-    const gap = gapBottom - gapTop;
-    if (gap < 40) continue;
-    const mid = (gapTop + gapBottom) / 2;
-    const k = Math.min(70, gap / 2 - 14);
-    const from = sides[side];
-    const isLast = i === blocks.length - 2;
-    // The last swing lands in the middle, just above the contact block.
-    const to = isLast ? box.width / 2 : sides[1 - side];
-    const end = isLast ? gapBottom - 10 : mid + k;
-    // Down the side strip, then an S-curve that stays inside the empty gap.
-    d += ` L ${from} ${mid - k}`;
-    d += ` C ${from} ${mid}, ${to} ${isLast ? mid - k / 2 : mid}, ${to} ${end}`;
-    side = 1 - side;
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1];
+    const b = points[i];
+    const dy = (b.y - a.y) / 2;
+    d += ` C ${a.x} ${a.y + dy}, ${b.x} ${b.y - dy}, ${b.x} ${b.y}`;
   }
-
-  return { w: Math.round(box.width), h: Math.round(box.height), d, scale };
+  return d;
 }
 
 export function FlightPath() {
@@ -78,40 +34,27 @@ export function FlightPath() {
   const routeRef = useRef<SVGPathElement>(null);
   const flownRef = useRef<SVGPathElement>(null);
   const planeRef = useRef<SVGGElement>(null);
-  const [layout, setLayout] = useState<Layout | null>(null);
+  const [size, setSize] = useState({ w: 0, h: 0 });
 
-  // Re-plan the route whenever the page around it changes size (fonts and
-  // images loading, window resizing).
   useEffect(() => {
-    const wrap = wrapRef.current;
-    const page = wrap?.parentElement;
-    if (!wrap || !page) return;
-    let frame = 0;
-    const replan = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        setLayout(measure(wrap));
-      });
-    };
-    const observer = new ResizeObserver(replan);
-    observer.observe(page);
-    window.addEventListener("resize", replan);
-    document.fonts?.ready.then(replan);
-    replan();
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", replan);
-      if (frame) cancelAnimationFrame(frame);
-    };
+    const el = wrapRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setSize({ w: Math.round(width), h: Math.round(height) });
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
+
+  const d = useMemo(() => (size.w && size.h ? buildPath(size.w, size.h) : ""), [size]);
 
   useEffect(() => {
     const wrap = wrapRef.current;
     const route = routeRef.current;
     const flown = flownRef.current;
     const plane = planeRef.current;
-    if (!wrap || !route || !flown || !plane || !layout) return;
+    if (!wrap || !route || !flown || !plane || !d) return;
 
     const length = route.getTotalLength();
     flown.style.strokeDasharray = `${length}`;
@@ -120,6 +63,7 @@ export function FlightPath() {
     const update = () => {
       frame = 0;
       const rect = wrap.getBoundingClientRect();
+      // The plane sits a bit above the middle of the screen.
       const progress = Math.min(1, Math.max(0, (window.innerHeight * 0.55 - rect.top) / rect.height));
       const at = length * progress;
       flown.style.strokeDashoffset = `${length - at}`;
@@ -127,10 +71,7 @@ export function FlightPath() {
       const ahead = route.getPointAtLength(Math.min(length, at + 2));
       const behind = route.getPointAtLength(Math.max(0, at - 2));
       const angle = (Math.atan2(ahead.y - behind.y, ahead.x - behind.x) * 180) / Math.PI;
-      plane.setAttribute(
-        "transform",
-        `translate(${p.x} ${p.y}) rotate(${angle}) scale(${layout.scale})`
-      );
+      plane.setAttribute("transform", `translate(${p.x} ${p.y}) rotate(${angle})`);
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -138,19 +79,21 @@ export function FlightPath() {
 
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
     return () => {
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, [layout]);
+  }, [d]);
 
   return (
     <div ref={wrapRef} aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-      {layout && (
-        <svg width={layout.w} height={layout.h} className="absolute inset-0 overflow-visible">
+      {d && (
+        <svg width={size.w} height={size.h} className="absolute inset-0 overflow-visible">
           <path
             ref={routeRef}
-            d={layout.d}
+            d={d}
             fill="none"
             stroke="var(--primary)"
             strokeOpacity="0.28"
@@ -160,7 +103,7 @@ export function FlightPath() {
           />
           <path
             ref={flownRef}
-            d={layout.d}
+            d={d}
             fill="none"
             stroke="var(--primary)"
             strokeOpacity="0.75"
@@ -168,7 +111,7 @@ export function FlightPath() {
             strokeLinecap="round"
           />
           <g ref={planeRef}>
-            <circle r={PLANE_SIZE / 2} fill="var(--primary)" opacity="0.18" />
+            <circle r="16" fill="var(--primary)" opacity="0.18" />
             {/* Plane pointing right (0°), rotated along the route. */}
             <path
               d="M 9 0 L -3 -2 L -7 -8 L -9 -8 L -6 -2 L -10 -2 L -12 -5 L -13 -5 L -12 0 L -13 5 L -12 5 L -10 2 L -6 2 L -9 8 L -7 8 L -3 2 Z"

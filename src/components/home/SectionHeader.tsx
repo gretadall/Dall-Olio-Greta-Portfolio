@@ -10,6 +10,15 @@ export function Eyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
+export function MarginNote({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mt-4 inline-flex -rotate-2 items-center gap-2 font-serif text-lg text-primary/80 italic">
+      <span aria-hidden className="not-italic">↳</span>
+      {children}
+    </p>
+  );
+}
+
 export function MoreLink({
   href,
   children,
@@ -37,11 +46,14 @@ export function SectionHeader({
   label,
   title,
   subtitle,
+  note,
   more,
 }: {
   label: React.ReactNode;
   title: React.ReactNode;
   subtitle?: React.ReactNode;
+  /** A handwritten-style aside next to the title. */
+  note?: React.ReactNode;
   more?: React.ReactNode;
 }) {
   return (
@@ -50,6 +62,7 @@ export function SectionHeader({
         <Eyebrow>{label}</Eyebrow>
         <h2 className="mt-4 font-serif text-4xl leading-[1.1] sm:text-5xl">{title}</h2>
         {subtitle && <div className="mt-4 text-muted">{subtitle}</div>}
+        {note && <MarginNote>{note}</MarginNote>}
       </div>
       {more}
     </div>

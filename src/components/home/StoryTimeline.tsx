@@ -96,6 +96,7 @@ export function StoryTimeline({ items }: { items: TimelineItem[] }) {
           <span className="font-serif text-3xl italic">
             <T k="home.path.now" />
           </span>
+          <T as="p" className="mt-1 text-muted" k="home.path.nowText" />
         </li>
       </ol>
     </div>

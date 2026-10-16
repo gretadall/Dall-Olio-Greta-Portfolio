@@ -114,7 +114,7 @@ export function PhotoCarousel({ photos }: { photos: PersonalPhoto[] }) {
             href={photo.href}
             draggable={false}
             tabIndex={hidden ? -1 : undefined}
-            className="no-halo group block w-56 rounded-xl bg-[#f6f1ee] p-2.5 pb-3 text-black shadow-xl transition-transform duration-300 hover:scale-105 sm:w-64"
+            className="group block w-56 rounded-xl bg-[#f6f1ee] p-2.5 pb-3 text-black shadow-xl transition-transform duration-300 hover:scale-105 sm:w-64"
             style={{ transform: `rotate(${TILTS[i % TILTS.length]})` }}
           >
             <span className="relative block aspect-[4/5] overflow-hidden rounded-md">

@@ -18,7 +18,6 @@ function readEntryForm(formData: FormData) {
   const periodStart = String(formData.get("period_start") ?? "").trim();
   const periodEnd = String(formData.get("period_end") ?? "").trim();
   const isPublished = formData.get("is_published") === "on";
-  const inTimeline = formData.get("in_timeline") === "on";
   const brainAreaInput = String(formData.get("brain_area") ?? "").trim();
   const brainArea = isBrainAreaSlug(brainAreaInput) ? brainAreaInput : null;
   const slug = slugify(slugInput || title);
@@ -32,7 +31,6 @@ function readEntryForm(formData: FormData) {
     periodStart,
     periodEnd,
     isPublished,
-    inTimeline,
     brainArea,
   };
 }
@@ -42,7 +40,7 @@ export async function createEntry(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const { title, slug, description, body, location, periodStart, periodEnd, isPublished, inTimeline, brainArea } =
+  const { title, slug, description, body, location, periodStart, periodEnd, isPublished, brainArea } =
     readEntryForm(formData);
 
   if (!title) return { error: "Il titolo è obbligatorio." };
@@ -62,7 +60,6 @@ export async function createEntry(
       period_end: periodEnd || null,
       is_published: isPublished,
       brain_area: brainArea,
-      metadata: { in_timeline: inTimeline },
     })
     .select("id")
     .single();
@@ -89,17 +86,13 @@ export async function updateEntry(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const { title, slug, description, body, location, periodStart, periodEnd, isPublished, inTimeline, brainArea } =
+  const { title, slug, description, body, location, periodStart, periodEnd, isPublished, brainArea } =
     readEntryForm(formData);
 
   if (!title) return { error: "Il titolo è obbligatorio." };
   if (!slug) return { error: "Slug non valido." };
 
   const supabase = await createClient();
-  // metadata may hold other keys: only the timeline flag changes here.
-  const { data: current } = await supabase.from("entries").select("metadata").eq("id", entryId).single();
-  const metadata = { ...((current?.metadata ?? {}) as Record<string, unknown>), in_timeline: inTimeline };
-
   const { error } = await supabase
     .from("entries")
     .update({
@@ -112,7 +105,6 @@ export async function updateEntry(
       period_end: periodEnd || null,
       is_published: isPublished,
       brain_area: brainArea,
-      metadata,
       updated_at: new Date().toISOString(),
     })
     .eq("id", entryId);

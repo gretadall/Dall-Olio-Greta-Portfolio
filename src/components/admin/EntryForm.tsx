@@ -119,21 +119,6 @@ export function EntryForm({
         </select>
       </label>
 
-      <label className="flex items-start gap-2 text-sm">
-        <input
-          type="checkbox"
-          name="in_timeline"
-          defaultChecked={entry?.metadata?.in_timeline === true}
-          className="mt-1 accent-[var(--primary)]"
-        />
-        <span>
-          Mostra nel percorso in home
-          <span className="block text-xs text-muted">
-            Serve la data di inizio. Scegli solo le tappe che contano: il percorso resta corto.
-          </span>
-        </span>
-      </label>
-
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
